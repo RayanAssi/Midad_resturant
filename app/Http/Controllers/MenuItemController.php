@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Menu_orders;
+use App\Models\MenuItem;
 use Illuminate\Http\Request;
 
-class MenuOrdersController extends Controller
+class MenuItemController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class MenuOrdersController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Menu_orders $menu_orders)
+    public function show(MenuItem $menuItem)
     {
         //
     }
@@ -42,7 +42,7 @@ class MenuOrdersController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Menu_orders $menu_orders)
+    public function edit(MenuItem $menuItem)
     {
         //
     }
@@ -50,7 +50,7 @@ class MenuOrdersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Menu_orders $menu_orders)
+    public function update(Request $request, MenuItem $menuItem)
     {
         //
     }
@@ -58,7 +58,7 @@ class MenuOrdersController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Menu_orders $menu_orders)
+    public function destroy(MenuItem $menuItem)
     {
         //
     }
