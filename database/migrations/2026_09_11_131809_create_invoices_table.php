@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('total', 10, 2);
             $table->string('tax_number')->nullable();
+            $table->decimal('discount_amount', 10, 2)->default(0.00);
+            $table->decimal('total_amount', 10, 2);    
+            $table->decimal('tax_amount', 10, 2)->default(0.00);
             $table->timestamps();
         });
     }

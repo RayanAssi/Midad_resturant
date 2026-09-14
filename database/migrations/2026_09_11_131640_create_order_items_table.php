@@ -13,6 +13,8 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('menu_item_id')->constrained()->onDelete('cascade');
             $table->integer('quantity')->default(1);
+            $table->decimal('price', 10, 2);
+            $table->decimal('subtotal', 10, 2);
             $table->timestamps();
         });
     }
