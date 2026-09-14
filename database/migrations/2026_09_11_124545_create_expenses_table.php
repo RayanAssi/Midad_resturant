@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->decimal('amount', 10, 2);
             $table->date('date');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

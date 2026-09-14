@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('type', ['dine_in', 'take_out', 'delivery']);
-            $table->enum('status', ['preparing', 'ready', 'in progress', ' Delivered'])->default('preparing');
+            $table->enum('status', ['preparing', 'ready', 'in_progress', 'delivered'])->default('preparing');
             $table->string('table_no')->nullable();
             $table->string('address')->nullable();
-            
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

@@ -17,6 +17,6 @@ class OrderItem extends Model
 
     public function menuOrder(): BelongsTo
     {
-        return $this->belongsTo(Menu_orders::class);
+        return $this->belongsTo(MenuItem::class);
     }
 }
