@@ -26,4 +26,11 @@ class Orders extends Model
     {
         return $this->hasOne(Invoices::class);
     }
+    
+    public function menuItems()
+    {
+        return $this->belongsToMany(MenuItem::class, 'order_items')
+            ->withPivot(['quantity', 'price', 'subtotal'])
+            ->withTimestamps();
+    }
 }
