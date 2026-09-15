@@ -6,14 +6,14 @@ use Illuminate\Support\Facades\Route;
 
 //orders routes
 Route::prefix('orders')->group(function () {
-    
+
     Route::get('/', [OrdersController::class, 'index']);
     Route::post('/', [OrdersController::class, 'store']);
     Route::get('/{id}', [OrdersController::class, 'show']);
     Route::put('/{id}', [OrdersController::class, 'update']);
     Route::delete('/{id}', [OrdersController::class, 'destroy']);
-    
-    
+
+
     Route::get('/{id}/calculate', [OrdersController::class, 'calculateInvoice']);
     Route::post('/{id}/invoice', [OrdersController::class, 'createInvoice']);
     Route::get('/filter/type/{type}', [OrdersController::class, 'filterByType']);
@@ -24,6 +24,10 @@ Route::prefix('orders')->group(function () {
     Route::post('/{id}/duplicate', [OrdersController::class, 'duplicateOrder']);
 
     Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('menu-items', MenuItemController::class);
-});
+        Route::resource('menu-items', MenuItemController::class);
+        //////////////////////////
+        Route::get('orders', fn() => view('admin.orders.index'))->name('orders.index');
+        Route::get('invoices', fn() => view('admin.invoices.index'))->name('invoices.index');
+        Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
+    });
 });

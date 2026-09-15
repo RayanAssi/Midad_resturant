@@ -102,7 +102,7 @@
                           bg-amber-500/20 hover:bg-amber-500/30
                           border border-amber-500/40 text-amber-300
                           transition-all hover:scale-110">
-                    ✏️
+                    <x-lucide-edit class="w-4 h-4" />
                 </a>
             @endif
 
@@ -117,7 +117,8 @@
                                    bg-red-500/20 hover:bg-red-500/30
                                    border border-red-500/40 text-red-300
                                    transition-all hover:scale-110">
-                        🗑️
+                        <x-lucide-trash class="w-4 h-4" />
+ 
                     </button>
                 </form>
             @endif
