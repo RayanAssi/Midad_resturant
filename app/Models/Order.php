@@ -10,17 +10,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['user_id', 'type', 'status', 'table_no', 'address'])]
 
-class Orders extends Model
+class Order extends Model
 {
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function items(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+    
+public function orderItems(): HasMany
+{
+    return $this->hasMany(OrderItem::class);
+}
 
     public function invoice(): HasOne
     {
