@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\MenuItemController;
 use App\Http\Controllers\OrdersController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,4 +23,7 @@ Route::prefix('orders')->group(function () {
     Route::get('/table/{tableNo}', [OrdersController::class, 'ordersByTable']);
     Route::post('/{id}/duplicate', [OrdersController::class, 'duplicateOrder']);
 
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('menu-items', MenuItemController::class);
+});
 });
