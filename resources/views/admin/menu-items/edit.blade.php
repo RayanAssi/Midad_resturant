@@ -1,4 +1,4 @@
-<x-layouts.app title="Edit Menu Item">
+<x-layouts.admin title="Edit Menu Item">
 
     <div class="max-w-2xl mx-auto">
         <a href="{{ route('admin.menu-items.index') }}"
@@ -46,4 +46,4 @@
         </div>
     </div>
 
-</x-layouts.app>
+</x-layouts.>

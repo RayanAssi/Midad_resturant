@@ -17,10 +17,5 @@ Route::prefix('cashier')->name('cashier.')->group(function () {
     Route::get('menu-items', [CashierMenuItemController::class, 'index'])
         ->name('menu-items.index');
 
-    Route::get('orders', [CashierOrderController::class, 'index'])
-        ->name('orders.index');
-
-    Route::post('orders', [CashierOrderController::class, 'store'])
-        ->name('orders.store');
 });
 require __DIR__.'/dashboard.php';

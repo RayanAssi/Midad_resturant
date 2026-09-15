@@ -1,4 +1,4 @@
-<x-layouts.app :title="$item->name">
+<x-layouts.admin :title="$item->name">
 
     <a href="{{ route('admin.menu-items.index') }}"
        class="inline-flex items-center gap-2 text-amber-300/70 
@@ -82,4 +82,4 @@
         </div>
     </div>
 
-</x-layouts.app>
+</x-layouts.a>

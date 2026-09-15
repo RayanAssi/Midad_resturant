@@ -38,7 +38,7 @@ class MenuItemController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'price'    => ['required', 'numeric', 'min:0'],
             'category' => ['required', 'in:' . implode(',', MenuItem::categories())],
-            'image'    => ['nullable', 'image', 'max:2048'],
+            'image'    => ['nullable', 'image', 'max:5120'],
         ]);
 
         if ($request->hasFile('image')) {
@@ -79,7 +79,7 @@ class MenuItemController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'price'    => ['required', 'numeric', 'min:0'],
             'category' => ['required', 'in:' . implode(',', MenuItem::categories())],
-            'image'    => ['nullable', 'image', 'max:2048'],
+            'image'    => ['nullable', 'image', 'max:5120'],
         ]);
 
         if ($request->hasFile('image')) {

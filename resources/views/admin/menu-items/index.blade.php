@@ -1,4 +1,4 @@
-<x-layouts.app title="Menu Items">
+<x-layouts.admin title="Menu Items">
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -46,21 +46,11 @@
                       hover:from-amber-400 hover:to-orange-500
                       text-black font-bold
                       shadow-lg shadow-orange-900/50 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
+                <x-lucide-plus class="w-5 h-5" />
                 New Item
             </a>
         </div>
     </div>
-
-    @if(session('success'))
-        <div class="mb-6 px-5 py-4 rounded-xl
-                    bg-green-950/50 border-2 border-green-700/50
-                    text-green-200 font-medium">
-            {{ session('success') }}
-        </div>
-    @endif
 
     @if($items->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -78,4 +68,103 @@
         </div>
     @endif
 
-</x-layouts.app>
+    {{-- ============ Delete Modal ============ --}}
+    <div id="delete-modal"
+         class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4
+                bg-black/70 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-2xl overflow-hidden
+                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                    border-2 border-red-800/50 shadow-2xl shadow-red-900/50">
+
+            {{-- Header --}}
+            <div class="px-6 py-4 bg-gradient-to-r from-red-900/60 to-transparent
+                        border-b-2 border-red-800/40">
+                <h3 class="text-xl font-black text-amber-100">
+                    Confirm Delete
+                </h3>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl
+                                bg-red-500/20 border-2 border-red-500/40
+                                flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-amber-100 font-medium mb-2">
+                            Are you sure you want to delete this item?
+                        </p>
+                        <p id="delete-item-name"
+                           class="text-red-300 font-black text-lg">
+                            Item Name
+                        </p>
+                        <p class="text-amber-200/60 text-sm mt-3">
+                            This action cannot be undone.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Footer --}}
+            <div class="px-6 py-4 bg-gradient-to-r from-transparent to-red-900/30
+                        border-t-2 border-red-800/40
+                        flex items-center justify-end gap-3">
+
+                <button type="button"
+                        onclick="closeDeleteModal()"
+                        class="px-5 py-2 rounded-lg bg-black/40 border-2 border-red-800/40
+                               text-amber-100 font-bold
+                               hover:border-red-600/60 transition-all">
+                    Cancel
+                </button>
+
+                <form id="delete-form" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="px-5 py-2 rounded-lg
+                                   bg-gradient-to-r from-red-600 to-red-800
+                                   hover:from-red-500 hover:to-red-700
+                                   text-amber-50 font-black
+                                   shadow-lg shadow-red-900/50 transition-all">
+                        Yes, Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal(id, name) {
+            const modal = document.getElementById('delete-modal');
+            const nameEl = document.getElementById('delete-item-name');
+            const form = document.getElementById('delete-form');
+
+            nameEl.textContent = name;
+            form.action = '{{ url("admin/menu-items") }}/' + id;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Escape يغلق
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
+
+        // الضغط برا المودال يغلق
+        document.getElementById('delete-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+    </script>
+
+</x-layouts.admin>
