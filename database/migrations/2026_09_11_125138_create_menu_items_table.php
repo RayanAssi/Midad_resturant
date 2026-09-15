@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('price', 10, 2);
             $table->enum('category', ['appetizer', 'main_course', 'dessert', 'beverage'])->default('appetizer');
+            $table->string('image');
             $table->timestamps();
         });
     }
