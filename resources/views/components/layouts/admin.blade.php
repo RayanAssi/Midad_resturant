@@ -7,7 +7,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="en" dir="ltr" class="dark">
+<html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +24,7 @@
     <x-sidebar :items="$navItems" />
 
     {{-- Main Content --}}
-    <div class="ml-64 flex flex-col min-h-screen">
+    <div class="mr-64 flex flex-col min-h-screen">
 
         {{-- Topbar --}}
         <x-topbar :title="$title" />

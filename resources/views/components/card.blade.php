@@ -33,7 +33,7 @@
 
         {{-- Order Form --}}
         <form id="order-form"
-              action="{{ route('cashier.orders.store') }}"
+              action="{{ route('orders.store') }}"
               method="POST"
               class="space-y-3">
             @csrf

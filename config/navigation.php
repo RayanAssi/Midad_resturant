@@ -14,8 +14,8 @@ return [
         [
             'label'      => 'Orders',
             'icon'       => 'receipt',
-            'route'      => 'admin.orders.index',
-            'active'     => 'admin.orders.*',
+            'route'      => 'orders.index',
+            'active'     => 'orders.*',
         ],
         [
             'label'      => 'Invoices',

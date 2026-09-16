@@ -1,4 +1,4 @@
-<x-layouts.app title="طلب جديد">
+<x-layouts.admin title="طلب جديد">
     <div class="max-w-3xl mx-auto">
         <x-card title="إضافة طلب جديد" subtitle="املأ البيانات التالية">
             <form action="{{ route('orders.store') }}" method="POST" class="space-y-5">
@@ -27,4 +27,4 @@
             </form>
         </x-card>
     </div>
-</x-layouts.app>
+</x-layouts.admin>
