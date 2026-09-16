@@ -1,12 +1,8 @@
 <?php
 
-
-
 use App\Http\Controllers\Dashboard\MenuItemController;
-
-
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\OrdersController;
+use Illuminate\Support\Facades\Route;
 
 //orders routes
 Route::prefix('orders')->group(function () {
