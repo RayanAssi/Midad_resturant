@@ -18,26 +18,26 @@
         $headers = ['#', 'Type', 'Table / Address', 'Notes', 'Total', 'Date', 'Actions'];
 
         $typeLabels = [
-            'dine_in'  => '🍽️ Dine In',
-            'take_out' => '🥡 Take Out',
-            'delivery' => '🛵 Delivery',
+            'dine_in'  => 'Dine In',
+            'take_out' => 'Take Out',
+            'delivery' => 'Delivery',
         ];
 
         // قالب الأزرار
         $actionsTemplate = '
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-center">
                 <a href="{{ route(\'cashier.orders.show\', $order) }}"
                    title="View"
                    class="p-1.5 rounded-md text-amber-300/70 hover:text-amber-200
                           hover:bg-amber-500/10 transition-colors">
-                    <x-lucide-eye class="w-5 h-5" />
+                    <x-lucide-eye class="w-4 h-4" />
                 </a>
 
                 <a href="{{ route(\'cashier.orders.edit\', $order) }}"
                    title="Edit"
                    class="p-1.5 rounded-md text-blue-300/70 hover:text-blue-200
                           hover:bg-blue-500/10 transition-colors">
-                    <x-lucide-pencil class="w-5 h-5" />
+                    <x-lucide-edit class="w-4 h-4" />
                 </a>
 
                 <form action="{{ route(\'cashier.orders.destroy\', $order) }}"
@@ -50,7 +50,7 @@
                             title="Delete"
                             class="p-1.5 rounded-md text-red-400/70 hover:text-red-300
                                    hover:bg-red-500/10 transition-colors">
-                        <x-lucide-trash-2 class="w-5 h-5" />
+                        <x-lucide-trash class="w-4 h-4" />
                     </button>
                 </form>
             </div>
