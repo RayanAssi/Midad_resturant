@@ -33,7 +33,7 @@ class OrdersController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('table_no', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+                    ->orWhere('address', 'like', "%{$search}%");
             });
         }
 
@@ -84,24 +84,35 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $order = Order::create([
-                'user_id' => $request->user_id,
-                'type' => $request->type,
-                'table_no' => $request->table_no,
-                'address' => $request->address,
-                'notes' => $request->notes,
+                'user_id'      => $request->user_id,
+                'type'         => $request->type,
+                'table_no'     => $request->table_no,
+                'address'      => $request->address,
+                'notes'        => $request->notes,
                 'total_amount' => 0,
             ]);
 
             foreach ($request->items as $item) {
-                $menuItem = MenuItem::find($item['menu_item_id']);
-                $quantity = $item['quantity'];
-                
+                $menuItemId = $item['menu_item_id'] ?? null;
+
+                if (!$menuItemId) {
+                    throw new \Exception('لم يتم تحديد الصنف في أحد الصفوف');
+                }
+
+                $menuItem = MenuItem::find($menuItemId);
+
+                if (!$menuItem) {
+                    throw new \Exception('الصنف غير موجود: ' . $menuItemId);
+                }
+
+                $quantity = (int) $item['quantity'];
+
                 OrderItem::create([
-                    'order_id' => $order->id,
-                    'menu_item_id' => $item['menu_item_id'],
-                    'quantity' => $quantity,
-                    'price' => $menuItem->price,
-                    'subtotal' => $quantity * $menuItem->price,
+                    'order_id'     => $order->id,
+                    'menu_item_id' => $menuItemId,
+                    'quantity'     => $quantity,
+                    'price'        => $menuItem->price,
+                    'subtotal'     => $quantity * $menuItem->price,
                 ]);
             }
 
@@ -111,7 +122,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.orders.index')
+                ->route('orders.index')
                 ->with('flashMessage', 'تم إنشاء الطلب بنجاح');
 
         } catch (\Exception $e) {
@@ -128,7 +139,7 @@ class OrdersController extends Controller
         $order = Order::with(['user', 'orderItems.menuItem', 'invoice'])->find($id);
 
         if (!$order) {
-            return redirect()->route('admin.orders.index')
+            return redirect()->route('orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -143,7 +154,7 @@ class OrdersController extends Controller
         $order = Order::with('orderItems')->find($id);
 
         if (!$order) {
-            return redirect()->route('admin.orders.index')
+            return redirect()->route('orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -160,7 +171,7 @@ class OrdersController extends Controller
         $order = Order::find($id);
 
         if (!$order) {
-            return redirect()->route('admin.orders.index')
+            return redirect()->route('orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -188,14 +199,14 @@ class OrdersController extends Controller
 
                 foreach ($request->items as $item) {
                     $menuItem = MenuItem::find($item['menu_item_id']);
-                    $quantity = $item['quantity'];
-                    
+                    $quantity = (int) $item['quantity'];
+
                     OrderItem::create([
-                        'order_id' => $order->id,
+                        'order_id'     => $order->id,
                         'menu_item_id' => $item['menu_item_id'],
-                        'quantity' => $quantity,
-                        'price' => $menuItem->price,
-                        'subtotal' => $quantity * $menuItem->price,
+                        'quantity'     => $quantity,
+                        'price'        => $menuItem->price,
+                        'subtotal'     => $quantity * $menuItem->price,
                     ]);
                 }
 
@@ -206,12 +217,12 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.orders.index')
+                ->route('orders.index')
                 ->with('flashMessage', 'تم تحديث الطلب بنجاح');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -223,7 +234,7 @@ class OrdersController extends Controller
         $order = Order::find($id);
 
         if (!$order) {
-            return redirect()->route('admin.orders.index')
+            return redirect()->route('orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -240,7 +251,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.orders.index')
+                ->route('orders.index')
                 ->with('flashMessage', 'تم حذف الطلب بنجاح');
 
         } catch (\Exception $e) {
@@ -250,14 +261,14 @@ class OrdersController extends Controller
     }
 
     /**
-     * حساب مجموع الطلب
+     * حساب مجموع الطلب (من order_items المخزّنة، مش من menu_items الحالية)
      */
     private function calculateOrderTotal(Order $order)
     {
-        $order->load('orderItems.menuItem');
+        $order->load('orderItems');
 
         return $order->orderItems->sum(function ($item) {
-            return $item->quantity * $item->menuItem->price;
+            return $item->quantity * $item->price;
         });
     }
 
@@ -266,7 +277,7 @@ class OrdersController extends Controller
      */
     public function calculateInvoice($id)
     {
-        $order = Order::with('orderItems.menuItem')->find($id);
+        $order = Order::with('orderItems')->find($id);
 
         if (!$order) {
             return response()->json([
@@ -276,9 +287,9 @@ class OrdersController extends Controller
         }
 
         $subtotal = $this->calculateOrderTotal($order);
-        $taxRate = 0.15;
-        $tax = $subtotal * $taxRate;
-        $total = $subtotal + $tax;
+        $taxRate  = 0.15;
+        $tax      = $subtotal * $taxRate;
+        $total    = $subtotal + $tax;
 
         return response()->json([
             'success' => true,
@@ -286,15 +297,15 @@ class OrdersController extends Controller
                 'order_id' => $order->id,
                 'items' => $order->orderItems->map(function ($item) {
                     return [
-                        'name' => $item->menuItem->name,
-                        'price' => $item->menuItem->price,
+                        'name'     => $item->menuItem->name,
+                        'price'    => $item->price,
                         'quantity' => $item->quantity,
-                        'subtotal' => $item->quantity * $item->menuItem->price,
+                        'subtotal' => $item->quantity * $item->price,
                     ];
                 }),
                 'subtotal' => $subtotal,
-                'tax' => $tax,
-                'total' => $total,
+                'tax'      => $tax,
+                'total'    => $total,
             ]
         ]);
     }
@@ -304,7 +315,7 @@ class OrdersController extends Controller
      */
     public function createInvoice($id)
     {
-        $order = Order::with('orderItems.menuItem')->find($id);
+        $order = Order::with('orderItems')->find($id);
 
         if (!$order) {
             return response()->json([
@@ -325,24 +336,24 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $subtotal = $this->calculateOrderTotal($order);
-            $taxRate = 0.15;
-            $tax = $subtotal * $taxRate;
-            $total = $subtotal + $tax;
+            $taxRate  = 0.15;
+            $tax      = $subtotal * $taxRate;
+            $total    = $subtotal + $tax;
 
             $invoice = Invoices::create([
-                'order_id' => $order->id,
-                'total' => $total,
+                'order_id'   => $order->id,
+                'total'      => $total,
                 'tax_number' => 'TAX-' . now()->format('Ymd') . '-' . $order->id,
             ]);
 
-            $order->update(['total_amount' => $total]);
+            $order->update(['total_amount' => $subtotal]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم إنشاء الفاتورة بنجاح',
-                'data' => $invoice
+                'data'    => $invoice
             ], 201);
 
         } catch (\Exception $e) {
@@ -350,7 +361,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء إنشاء الفاتورة',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ], 500);
         }
     }
@@ -370,9 +381,9 @@ class OrdersController extends Controller
         }
 
         $orders = Order::with(['user', 'orderItems.menuItem'])
-                       ->where('type', $type)
-                       ->latest()
-                       ->paginate(15);
+            ->where('type', $type)
+            ->latest()
+            ->paginate(15);
 
         return response()->json([
             'success' => true,
@@ -386,9 +397,9 @@ class OrdersController extends Controller
     public function todayOrders()
     {
         $orders = Order::with(['user', 'orderItems.menuItem', 'invoice'])
-                       ->whereDate('created_at', today())
-                       ->latest()
-                       ->get();
+            ->whereDate('created_at', today())
+            ->latest()
+            ->get();
 
         $totalSales = $orders->sum('total_amount');
 
@@ -408,12 +419,12 @@ class OrdersController extends Controller
     public function statistics()
     {
         $stats = [
-            'total_orders' => Order::count(),
-            'today_orders' => Order::whereDate('created_at', today())->count(),
-            'total_revenue' => Order::sum('total_amount'),
-            'today_revenue' => Order::whereDate('created_at', today())->sum('total_amount'),
+            'total_orders'   => Order::count(),
+            'today_orders'   => Order::whereDate('created_at', today())->count(),
+            'total_revenue'  => Order::sum('total_amount'),
+            'today_revenue'  => Order::whereDate('created_at', today())->sum('total_amount'),
             'orders_by_type' => [
-                'dine_in' => Order::where('type', 'dine_in')->count(),
+                'dine_in'  => Order::where('type', 'dine_in')->count(),
                 'take_out' => Order::where('type', 'take_out')->count(),
                 'delivery' => Order::where('type', 'delivery')->count(),
             ],
@@ -440,9 +451,9 @@ class OrdersController extends Controller
         }
 
         $orders = Order::with(['orderItems.menuItem', 'invoice'])
-                       ->where('user_id', $userId)
-                       ->latest()
-                       ->paginate(15);
+            ->where('user_id', $userId)
+            ->latest()
+            ->paginate(15);
 
         return response()->json([
             'success' => true,
@@ -457,9 +468,9 @@ class OrdersController extends Controller
     public function ordersByTable($tableNo)
     {
         $orders = Order::with(['user', 'orderItems.menuItem'])
-                       ->where('table_no', $tableNo)
-                       ->latest()
-                       ->get();
+            ->where('table_no', $tableNo)
+            ->latest()
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -485,30 +496,36 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $newOrder = Order::create([
-                'user_id' => $originalOrder->user_id,
-                'type' => $originalOrder->type,
-                'table_no' => $originalOrder->table_no,
-                'address' => $originalOrder->address,
-                'notes' => $originalOrder->notes,
-                'total_amount' => $originalOrder->total_amount,
+                'user_id'      => $originalOrder->user_id,
+                'type'         => $originalOrder->type,
+                'table_no'     => $originalOrder->table_no,
+                'address'      => $originalOrder->address,
+                'notes'        => $originalOrder->notes,
+                'total_amount' => 0,
             ]);
 
             foreach ($originalOrder->orderItems as $item) {
                 OrderItem::create([
-                    'order_id' => $newOrder->id,
+                    'order_id'     => $newOrder->id,
                     'menu_item_id' => $item->menu_item_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                    'subtotal' => $item->subtotal,
+                    'quantity'     => $item->quantity,
+                    'price'        => $item->price,
+                    'subtotal'     => $item->subtotal,
                 ]);
             }
+
+            $newOrder->load('orderItems');
+            $total = $newOrder->orderItems->sum(function ($item) {
+                return $item->quantity * $item->price;
+            });
+            $newOrder->update(['total_amount' => $total]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم نسخ الطلب بنجاح',
-                'data' => $newOrder->load('orderItems.menuItem')
+                'data'    => $newOrder->load('orderItems.menuItem')
             ], 201);
 
         } catch (\Exception $e) {
@@ -516,7 +533,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء نسخ الطلب',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ], 500);
         }
     }
