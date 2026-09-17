@@ -26,18 +26,20 @@
 
         // قالب الأزرار
         $actionsTemplate = <<<'BLADE'
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center gap-2">
                 <a href="{{ route('cashier.orders.show', $order) }}"
                    title="View"
-                   class="p-1.5 rounded-md text-amber-300/70 hover:text-amber-200
-                  hover:bg-amber-500/10 transition-colors">
+                   class="p-2 rounded-lg border border-amber-400/40 bg-amber-500/10
+                          text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/70
+                          transition-all">
                     <x-lucide-eye class="w-4 h-4" />
                 </a>
 
                 <a href="{{ route('cashier.orders.edit', $order) }}"
                    title="Edit"
-                   class="p-1.5 rounded-md text-blue-300/70 hover:text-blue-200
-                  hover:bg-blue-500/10 transition-colors">
+                   class="p-2 rounded-lg border border-blue-400/40 bg-blue-500/10
+                          text-blue-300 hover:bg-blue-500/20 hover:border-blue-400/70
+                          transition-all">
                     <x-lucide-edit class="w-4 h-4" />
                 </a>
 
@@ -49,8 +51,9 @@
                     @method('DELETE')
                     <button type="submit"
                             title="Delete"
-                            class="p-1.5 rounded-md text-red-400/70 hover:text-red-300
-                           hover:bg-red-500/10 transition-colors">
+                            class="p-2 rounded-lg border border-red-400/40 bg-red-500/10
+                                   text-red-300 hover:bg-red-500/20 hover:border-red-400/70
+                                   transition-all">
                         <x-lucide-trash class="w-4 h-4" />
                     </button>
                 </form>
