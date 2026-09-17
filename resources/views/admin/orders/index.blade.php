@@ -1,17 +1,16 @@
-<x-layouts.admin title="إدارة الطلبات">
+<x-layouts.admin title="Orders Management">
 
     <div class="space-y-6">
 
-        {{-- رأس الصفحة --}}
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
                 <h1
                     class="text-3xl font-black text-transparent bg-clip-text
                            bg-gradient-to-r from-amber-300 via-orange-400 to-red-500">
-                    إدارة الطلبات
+                    Orders Management
                 </h1>
                 <p class="text-amber-200/60 text-sm mt-1">
-                    عرض وإدارة جميع طلبات المطعم
+                    View and manage all restaurant orders
                 </p>
             </div>
 
@@ -22,10 +21,11 @@
                       text-amber-50 font-bold shadow-lg shadow-red-900/50
                       transition-all hover:scale-105 active:scale-95">
                 <span class="text-lg">+</span>
-                طلب جديد
+                New Order
             </a>
         </div>
 
+<<<<<<< HEAD
         {{-- الفلاتر --}}
         {{-- <x-card>
             <form method="GET" action="{{ route('admin.orders.index') }}"
@@ -42,44 +42,29 @@
         </x-card> --}}
 
         {{-- إحصائيات --}}
+=======
+>>>>>>> 0bddab25a17f5b3ed536133084271d262b2d512c
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {{-- <x-card variant="danger" padding="p-5">
-                <p class="text-xs text-amber-200/60 font-bold">إجمالي الطلبات</p>
-                <p class="text-3xl font-black text-amber-400 mt-2">{{ $stats['total'] ?? 0 }}</p>
-            </x-card>
-            <x-card variant="gold" padding="p-5">
-                <p class="text-xs text-amber-200/60 font-bold">طلبات اليوم</p>
-                <p class="text-3xl font-black text-amber-400 mt-2">{{ $stats['today'] ?? 0 }}</p>
-            </x-card>
-            <x-card variant="success" padding="p-5">
-                <p class="text-xs text-amber-200/60 font-bold">الإيرادات</p>
-                <p class="text-3xl font-black text-green-400 mt-2">{{ number_format($stats['revenue'] ?? 0, 2) }}</p>
-            </x-card>
-            <x-card variant="default" padding="p-5">
-                <p class="text-xs text-amber-200/60 font-bold">متوسط الطلب</p>
-                <p class="text-3xl font-black text-amber-400 mt-2">{{ number_format($stats['average'] ?? 0, 2) }}</p>
-            </x-card> --}}
         </div>
 
-        {{-- الجدول (باستخدام @foreach مباشرة) --}}
         <div
             class="overflow-hidden rounded-2xl 
                     bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20">
 
             <div class="overflow-x-auto">
-                <table class="w-full text-right">
+                <table class="w-full text-left">
                     <thead>
                         <tr
                             class="bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
                                    border-b-2 border-red-700/50">
                             <th class="px-6 py-4 text-sm font-bold text-amber-100">#</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">النوع</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">الطاولة/العنوان</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">المستخدم</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">المجموع</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">التاريخ</th>
-                            <th class="px-6 py-4 text-sm font-bold text-amber-100">إجراءات</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">Type</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">Table / Address</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">User</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">Total</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">Date</th>
+                            <th class="px-6 py-4 text-sm font-bold text-amber-100">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-red-900/30">
@@ -94,17 +79,17 @@
                                         @elseif($order->type === 'delivery') bg-red-500/20 text-red-300 border-red-500/40
                                         @else bg-orange-500/20 text-orange-300 border-orange-500/40 @endif">
                                         @if ($order->type === 'dine_in')
-                                            داخل المطعم
+                                            Dine In
                                         @elseif($order->type === 'delivery')
-                                            توصيل
+                                            Delivery
                                         @else
-                                            خارجي
+                                            Take Out
                                         @endif
                                     </span>
                                 </td>
 
                                 <td class="px-6 py-4 text-amber-100">
-                                    {{ $order->table_no ? 'طاولة ' . $order->table_no : $order->address ?? '-' }}
+                                    {{ $order->table_no ? 'Table ' . $order->table_no : $order->address ?? '-' }}
                                 </td>
 
                                 <td class="px-6 py-4 text-amber-200/80">{{ $order->user->name ?? '-' }}</td>
@@ -127,8 +112,13 @@
                                             class="w-8 h-8 rounded-lg bg-orange-500/20 hover:bg-orange-500/30
                                                   border border-orange-500/40 text-orange-300
                                                   flex items-center justify-center transition-all">✏️</a>
+<<<<<<< HEAD
                                         <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST"
                                             class="inline" onsubmit="return confirm('هل أنت متأكد؟')">
+=======
+                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST"
+                                            class="inline" onsubmit="return confirm('Are you sure?')">
+>>>>>>> 0bddab25a17f5b3ed536133084271d262b2d512c
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -142,7 +132,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-12 text-center text-amber-200/60">
-                                    لا توجد طلبات لعرضها حالياً
+                                    No orders to display
                                 </td>
                             </tr>
                         @endforelse
@@ -151,7 +141,6 @@
             </div>
         </div>
 
-        {{-- الترقيم --}}
         <x-pagination :paginator="$orders" />
 
     </div>

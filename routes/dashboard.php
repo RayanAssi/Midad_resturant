@@ -5,6 +5,13 @@ use App\Http\Controllers\Auth\AdminLogoutController;
 use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
 
+
+
+// ============ Admin ============
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('menu-items', MenuItemController::class);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Admin Logout

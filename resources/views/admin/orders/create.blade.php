@@ -1,92 +1,81 @@
 @php
-    // تجهيز بيانات المنيو للـ JavaScript
     $menuItemsJson = [];
     foreach ($menuItems as $m) {
         $menuItemsJson[] = [
             'id'    => $m->id,
-            'name'  => $m->name ?? 'بدون اسم',
+            'name'  => $m->name ?? 'Unnamed',
             'price' => (float) ($m->price ?? 0),
         ];
     }
 @endphp
 
-<x-layouts.admin title="طلب جديد">
+<x-layouts.admin title="New Order">
     <div class="max-w-4xl mx-auto space-y-6">
 
-        {{-- 🔍 DEBUG — احذفه بعد ما تتأكد --}}
-        <div style="background:#fbbf24; color:#000; padding:12px; border-radius:8px; font-family:monospace;">
-            <strong>DEBUG:</strong>
-            عدد الأصناف: {{ count($menuItemsJson) }}
-            @if(count($menuItemsJson) > 0)
-                | أول صنف: {{ $menuItemsJson[0]['name'] }} — {{ $menuItemsJson[0]['price'] }} SYP
-            @endif
-        </div>
+        
 
-        {{-- ============ الكارد الرئيسي ============ --}}
         <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
             <div class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
                         border-b-2 border-red-800/50">
-                <h2 class="text-2xl font-black text-amber-100">إضافة طلب جديد</h2>
-                <p class="text-amber-200/60 text-sm mt-1">املأ البيانات التالية</p>
+                <h2 class="text-2xl font-black text-amber-100">New Order</h2>
+                <p class="text-amber-200/60 text-sm mt-1">Fill in the details below</p>
             </div>
 
             <div class="p-6">
                 <form action="{{ route('admin.orders.store') }}" method="POST" id="order-form" class="space-y-6">
                     @csrf
 
-                    {{-- ============ بيانات أساسية ============ --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                         <x-form.select
                             name="user_id"
-                            label="المستخدم"
+                            label="User"
                             :selected="old('user_id')"
                             :option="$users->pluck('name', 'id')->toArray()"
-                            placeholder="اختر المستخدم..."
+                            placeholder="Select user..."
                         />
 
                         <x-form.select
                             name="type"
-                            label="نوع الطلب"
+                            label="Order Type"
                             :selected="old('type')"
                             :option="[
-                                'dine_in'  => 'داخل المطعم',
-                                'take_out' => 'طلبات خارجية',
-                                'delivery' => 'توصيل',
+                                'dine_in'  => 'Dine In',
+                                'take_out' => 'Take Out',
+                                'delivery' => 'Delivery',
                             ]"
-                            placeholder="اختر النوع..."
+                            placeholder="Select type..."
                         />
 
                         <x-form.input
                             name="table_no"
-                            label="رقم الطاولة"
-                            placeholder="مثال: 5"
+                            label="Table No."
+                            placeholder="e.g. 5"
                             :value="old('table_no')"
                         />
 
                         <x-form.input
                             name="address"
-                            label="العنوان"
-                            placeholder="للتوصيل فقط"
+                            label="Address"
+                            placeholder="For delivery only"
                             :value="old('address')"
                         />
                     </div>
 
                     <x-form.input
                         name="notes"
-                        label="ملاحظات"
-                        placeholder="أي ملاحظات إضافية..."
+                        label="Notes"
+                        placeholder="Any additional notes..."
                         :value="old('notes')"
                     />
 
-                    {{-- ============ الأصناف ============ --}}
                     <div class="border-t-2 border-red-800/30 pt-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-black text-amber-100 flex items-center gap-2">
                                 <span>🍽️</span>
-                                الأصناف
+                                Items
                             </h3>
                             <button type="button"
                                     onclick="addItemRow()"
@@ -94,7 +83,7 @@
                                            hover:from-amber-500 hover:to-amber-600
                                            text-white font-bold shadow-lg shadow-amber-900/30
                                            transition-all hover:scale-105 active:scale-95 text-sm">
-                                + إضافة صنف
+                                + Add Item
                             </button>
                         </div>
 
@@ -109,48 +98,46 @@
                         <div id="items-container" class="space-y-3"></div>
 
                         <p id="empty-message" class="text-center text-amber-200/50 py-6 text-sm">
-                            لم تقم بإضافة أصناف بعد. اضغط "إضافة صنف" للبدء.
+                            No items added yet. Click "Add Item" to start.
                         </p>
                     </div>
 
-                    {{-- ============ الملخص ============ --}}
                     <div class="p-5 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                                 border-2 border-amber-500/40 shadow-lg shadow-amber-900/20">
                         <h3 class="text-lg font-black text-amber-100 mb-4 flex items-center gap-2">
                             <span>💰</span>
-                            ملخص الطلب
+                            Order Summary
                         </h3>
 
                         <div class="space-y-3">
                             <div class="flex justify-between text-amber-100">
-                                <span class="font-bold">المجموع الفرعي:</span>
+                                <span class="font-bold">Subtotal:</span>
                                 <span class="font-black text-amber-400" id="subtotal-display">0.00 SYP</span>
                             </div>
                             <div class="flex justify-between text-amber-100">
-                                <span class="font-bold">الضريبة (15%):</span>
+                                <span class="font-bold">Tax (15%):</span>
                                 <span class="font-black text-orange-300" id="tax-display">0.00 SYP</span>
                             </div>
                             <div class="flex justify-between border-t-2 border-amber-500/30 pt-3">
-                                <span class="font-black text-amber-100 text-lg">الإجمالي:</span>
+                                <span class="font-black text-amber-100 text-lg">Total:</span>
                                 <span class="font-black text-green-400 text-2xl" id="total-display">0.00 SYP</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- ============ الأزرار ============ --}}
                     <div class="flex gap-3 pt-2">
                         <button type="submit"
                                 class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-800
                                        hover:from-red-500 hover:to-red-700
                                        text-amber-50 font-bold shadow-lg shadow-red-900/50
                                        transition-all hover:scale-105 active:scale-95">
-                            💾 حفظ الطلب
+                            💾 Save Order
                         </button>
                         <a href="{{ route('admin.orders.index') }}"
                            class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
                                   text-amber-100 font-bold transition-all
                                   border border-gray-600/50">
-                            إلغاء
+                            Cancel
                         </a>
                     </div>
                 </form>
@@ -159,13 +146,12 @@
     </div>
 </x-layouts.admin>
 
-{{-- ============ JavaScript ============ --}}
 <script>
     const menuItems = @json($menuItemsJson);
     const oldItems  = @json(old('items', []));
 
-    console.log('🎯 MenuItems loaded:', menuItems);
-    console.log('🎯 Old Items:', oldItems);
+    console.log('MenuItems loaded:', menuItems);
+    console.log('Old Items:', oldItems);
 
     let rowIndex = 0;
 
@@ -181,7 +167,7 @@
 
         let optionsHtml = '';
         if (menuItems.length === 0) {
-            optionsHtml = '<option value="" disabled>⚠️ لا توجد أصناف</option>';
+            optionsHtml = '<option value="" disabled>⚠️ No items available</option>';
         } else {
             menuItems.forEach(function (item) {
                 const selected = (item.id == selectedId) ? ' selected' : '';
@@ -202,7 +188,7 @@
                         class="w-full px-3 py-2.5 bg-gradient-to-br from-gray-900 to-gray-800
                                border-2 border-red-800/50 rounded-xl text-amber-50
                                focus:outline-none focus:border-amber-400 transition">
-                    <option value="" disabled ${!selectedId ? 'selected' : ''}>اختر الصنف...</option>
+                    <option value="" disabled ${!selectedId ? 'selected' : ''}>Select item...</option>
                     ${optionsHtml}
                 </select>
             </div>
@@ -214,7 +200,7 @@
                        min="1"
                        required
                        oninput="updateTotals()"
-                       placeholder="الكمية"
+                       placeholder="Qty"
                        class="w-full px-3 py-2.5 bg-gradient-to-br from-gray-900 to-gray-800
                               border-2 border-red-800/50 rounded-xl text-amber-50 text-center
                               focus:outline-none focus:border-amber-400 transition">
@@ -227,7 +213,7 @@
                                border border-red-500/40 text-red-300 font-bold
                                flex items-center justify-center transition-all
                                hover:scale-110 active:scale-95"
-                        title="حذف">
+                        title="Remove">
                     ✕
                 </button>
             </div>
