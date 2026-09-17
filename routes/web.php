@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController;
 use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
 
-<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
 | Home redirect
@@ -48,28 +47,8 @@ Route::middleware('auth')
             ->name('orders.edit');
         Route::put('/orders/{order}', [CashierOrdersController::class, 'update'])
             ->name('orders.update');
-=======
-Route::get('/', fn () => redirect()->route('admin.menu-items.index'));
-
-// ============ Cashier ============
-Route::prefix('cashier')->name('cashier.')->group(function () {
-    Route::get('menu-items', [CashierMenuItemController::class, 'index'])
-        ->name('menu-items.index');
-
-    Route::get('/', [CashierOrdersController::class, 'index'])->name('orders.index');
-        Route::get('orders/create', [CashierOrdersController::class, 'create'])
-        ->name('orders.create');
-
-    Route::post('orders', [CashierOrdersController::class, 'store'])
-        ->name('orders.store');
-        Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])->name('orders.show');
-        Route::get('orders/{order}/edit', [CashierOrdersController::class, 'edit'])
-        ->name('orders.edit');
-
-    Route::put('orders/{order}', [CashierOrdersController::class, 'update'])
-        ->name('orders.update');
-        Route::delete('/orders/{order}', [OrdersController::class, 'destroy'])->name('orders.destroy');
->>>>>>> 0bddab25a17f5b3ed536133084271d262b2d512c
+        Route::delete('/orders/{order}', [CashierOrdersController::class, 'destroy'])
+            ->name('orders.destroy');
     });
 
 /*
