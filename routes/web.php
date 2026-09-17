@@ -21,8 +21,11 @@ Route::prefix('cashier')->name('cashier.')->group(function () {
     Route::post('orders', [CashierOrdersController::class, 'store'])
         ->name('orders.store');
         Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])->name('orders.show');
-        Route::get('/orders/{order}/edit', [OrdersController::class, 'edit'])->name('orders.edit');
-        Route::put('/orders/{order}', [OrdersController::class, 'update'])->name('orders.update');
+        Route::get('orders/{order}/edit', [CashierOrdersController::class, 'edit'])
+        ->name('orders.edit');
+
+    Route::put('orders/{order}', [CashierOrdersController::class, 'update'])
+        ->name('orders.update');
         Route::delete('/orders/{order}', [OrdersController::class, 'destroy'])->name('orders.destroy');
     });
 
