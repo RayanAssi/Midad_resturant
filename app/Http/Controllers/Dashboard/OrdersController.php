@@ -122,7 +122,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('orders.index')
+                ->route('admin.orders.index')
                 ->with('flashMessage', 'تم إنشاء الطلب بنجاح');
 
         } catch (\Exception $e) {
@@ -139,7 +139,7 @@ class OrdersController extends Controller
         $order = Order::with(['user', 'orderItems.menuItem', 'invoice'])->find($id);
 
         if (!$order) {
-            return redirect()->route('orders.index')
+            return redirect()->route('admin.orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -154,7 +154,7 @@ class OrdersController extends Controller
         $order = Order::with('orderItems')->find($id);
 
         if (!$order) {
-            return redirect()->route('orders.index')
+            return redirect()->route('admin.orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -171,7 +171,7 @@ class OrdersController extends Controller
         $order = Order::find($id);
 
         if (!$order) {
-            return redirect()->route('orders.index')
+            return redirect()->route('admin.orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -217,7 +217,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('orders.index')
+                ->route('admin.orders.index')
                 ->with('flashMessage', 'تم تحديث الطلب بنجاح');
 
         } catch (\Exception $e) {
@@ -234,7 +234,7 @@ class OrdersController extends Controller
         $order = Order::find($id);
 
         if (!$order) {
-            return redirect()->route('orders.index')
+            return redirect()->route('admin.orders.index')
                 ->with('error', 'الطلب غير موجود');
         }
 
@@ -251,7 +251,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('orders.index')
+                ->route('admin.orders.index')
                 ->with('flashMessage', 'تم حذف الطلب بنجاح');
 
         } catch (\Exception $e) {

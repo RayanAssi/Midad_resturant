@@ -33,7 +33,7 @@
             </div>
 
             <div class="p-6">
-                <form action="{{ route('orders.store') }}" method="POST" id="order-form" class="space-y-6">
+                <form action="{{ route('admin.orders.store') }}" method="POST" id="order-form" class="space-y-6">
                     @csrf
 
                     {{-- ============ بيانات أساسية ============ --}}
@@ -146,7 +146,7 @@
                                        transition-all hover:scale-105 active:scale-95">
                             💾 حفظ الطلب
                         </button>
-                        <a href="{{ route('orders.index') }}"
+                        <a href="{{ route('admin.orders.index') }}"
                            class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
                                   text-amber-100 font-bold transition-all
                                   border border-gray-600/50">

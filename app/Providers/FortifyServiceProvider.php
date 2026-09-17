@@ -27,13 +27,13 @@ class FortifyServiceProvider extends ServiceProvider
             // إعدادات المشرفين
             Config::set('fortify.guard', 'admin');
             Config::set('fortify.passwords', 'admin'); 
-            Config::set('fortify.home', '/admin/dashboard/index');
+            Config::set('fortify.home', '/admin/menu-items');
             Config::set('fortify.prefix', 'admin');
         } else {
             // إعدادات المستخدمين العاديين
             Config::set('fortify.guard', 'web');
             Config::set('fortify.passwords', 'users');
-            Config::set('fortify.home', '/cashier/dashboard');
+            Config::set('fortify.home', '/cashier/');
             Config::set('fortify.prefix', 'cashier');
         }
     }
@@ -68,7 +68,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         if (Config::get('fortify.guard') == 'admin') {
-            Fortify::viewPrefix('auth.');
+            Fortify::viewPrefix('admin.auth.');
         } else {
             Fortify::viewPrefix('cashier.auth.');
         }

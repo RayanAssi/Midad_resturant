@@ -195,12 +195,12 @@
 
         {{-- ============ الأزرار ============ --}}
         <div class="flex gap-3">
-            <a href="{{ route('orders.index') }}"
+            <a href="{{ route('admin.orders.index') }}"
                class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
                       text-amber-100 font-bold transition-all border border-gray-600/50">
                 رجوع
             </a>
-            <a href="{{ route('orders.edit', $order->id) }}"
+            <a href="{{ route('admin.orders.edit', $order->id) }}"
                class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700
                       hover:from-amber-500 hover:to-amber-600
                       text-white font-bold shadow-lg shadow-amber-900/30

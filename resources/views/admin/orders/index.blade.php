@@ -15,7 +15,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('orders.create') }}"
+            <a href="{{ route('admin.orders.create') }}"
                 class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
                       bg-gradient-to-r from-red-600 to-red-800
                       hover:from-red-500 hover:to-red-700
@@ -28,7 +28,7 @@
 
         {{-- الفلاتر --}}
         {{-- <x-card>
-            <form method="GET" action="{{ route('orders.index') }}"
+            <form method="GET" action="{{ route('admin.orders.index') }}"
                   class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <x-form.input name="search" label="بحث" placeholder="رقم الطاولة أو العنوان..." :value="request('search')" />
                 <x-form.select name="type" label="نوع الطلب" :selected="request('type')"
@@ -36,7 +36,7 @@
                 <x-form.input name="date" type="date" label="التاريخ" :value="request('date')" />
                 <div class="flex items-end gap-2">
                     <x-button type="submit" variant="primary" class="flex-1">تطبيق</x-button>
-                    <x-button href="{{ route('orders.index') }}" variant="secondary">مسح</x-button>
+                    <x-button href="{{ route('admin.orders.index') }}" variant="secondary">مسح</x-button>
                 </div>
             </form>
         </x-card> --}}
@@ -119,15 +119,15 @@
 
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('orders.show', $order->id) }}"
+                                        <a href="{{ route('admin.orders.show', $order->id) }}"
                                             class="w-8 h-8 rounded-lg bg-amber-500/20 hover:bg-amber-500/30
                                                   border border-amber-500/40 text-amber-300
                                                   flex items-center justify-center transition-all">👁</a>
-                                        <a href="{{ route('orders.edit', $order->id) }}"
+                                        <a href="{{ route('admin.orders.edit', $order->id) }}"
                                             class="w-8 h-8 rounded-lg bg-orange-500/20 hover:bg-orange-500/30
                                                   border border-orange-500/40 text-orange-300
                                                   flex items-center justify-center transition-all">✏️</a>
-                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST"
+                                        <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST"
                                             class="inline" onsubmit="return confirm('هل أنت متأكد؟')">
                                             @csrf
                                             @method('DELETE')

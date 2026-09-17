@@ -36,7 +36,6 @@
         <main class="flex-1 px-8 py-8">
             {{ $slot }}
         </main>
-
         {{-- Footer --}}
         <footer class="border-t-2 border-red-900/40 bg-black/50">
             <div class="px-8 py-4 text-center">
@@ -46,6 +45,7 @@
             </div>
         </footer>
     </div>
+    <x-logout-modal />
 
 </body>
 </html>

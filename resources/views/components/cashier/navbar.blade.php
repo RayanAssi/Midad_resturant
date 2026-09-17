@@ -3,10 +3,10 @@
     <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
 
         {{-- Logo (نفس السايدبار) --}}
-        <a href="{{ route('cashier.orders.index') }}"
-           class="flex items-center gap-3">
+        <a href="{{ route('cashier.orders.index') }}" class="flex items-center gap-3">
 
-            <div class="w-10 h-10 rounded-lg
+            <div
+                class="w-10 h-10 rounded-lg
                         bg-red-600
                         flex items-center justify-center
                         shadow-lg shadow-red-900/40">
@@ -24,8 +24,7 @@
         </a>
 
 
-
-            <form method="POST" action="{{ route('logout') }}">
+        {{-- <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="flex items-center gap-2 px-3 py-2 rounded-lg
                                text-sm font-medium
@@ -39,7 +38,22 @@
                     <x-lucide-log-out class="w-4 h-4" />
                     Logout
                 </button>
-            </form>
-        </div>
+            </form> --}}
+        @auth
+            <button type="button" onclick="openLogoutModal()"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg
+               text-sm font-medium
+               text-gray-400
+               bg-red-900/10
+               border border-red-900/40
+               hover:text-red-400
+               hover:bg-red-600/10
+               hover:border-red-600/60
+               transition-all duration-200">
+                <x-lucide-log-out class="w-4 h-4" />
+                <span>Logout</span>
+            </button>
+        @endauth
+    </div>
     </div>
 </nav>

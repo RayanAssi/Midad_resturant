@@ -2,35 +2,56 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController;
-use App\Http\Controllers\Cashier\OrderController as CashierOrderController;
 use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
-use App\Http\Controllers\Dashboard\MenuItemController;
-use App\Http\Controllers\Dashboard\OrdersController;
 
-Route::get('/', fn () => redirect()->route('admin.menu-items.index'));
-
-// ============ Admin ============
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('menu-items', MenuItemController::class);
+/*
+|--------------------------------------------------------------------------
+| Home redirect
+|--------------------------------------------------------------------------
+*/
+Route::get('/', function () {
+    if (auth('admin')->check()) {
+        return redirect()->route('admin.menu-items.index');
+    }
+    if (auth('web')->check()) {
+        return redirect()->route('cashier.orders.index');
+    }
+    return redirect('/cashier/login');
 });
 
-// ============ Cashier ============
-Route::prefix('cashier')->name('cashier.')->group(function () {
-    Route::get('menu-items', [CashierMenuItemController::class, 'index'])
-        ->name('menu-items.index');
+/*
+|--------------------------------------------------------------------------
+| Cashier Routes (محمية بـ auth)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')
+    ->prefix('cashier')
+    ->name('cashier.')
+    ->group(function () {
 
-    Route::get('/', [CashierOrdersController::class, 'index'])->name('orders.index');
+        // Menu Items
+        Route::get('menu-items', [CashierMenuItemController::class, 'index'])
+            ->name('menu-items.index');
 
-        // إنشاء طلب جديد
-        Route::get('/orders/create', [OrdersController::class, 'create'])->name('orders.create');
-        Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
+        // Orders
+        Route::get('/', [CashierOrdersController::class, 'index'])
+            ->name('orders.index');
 
-        // تفاصيل طلب
-        Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])->name('orders.show');
-
-        // تعديل طلب (إذا بدك)
-        Route::get('/orders/{order}/edit', [OrdersController::class, 'edit'])->name('orders.edit');
-        Route::put('/orders/{order}', [OrdersController::class, 'update'])->name('orders.update');
+        Route::get('/orders/create', [CashierOrdersController::class, 'create'])
+            ->name('orders.create');
+        Route::post('/orders', [CashierOrdersController::class, 'store'])
+            ->name('orders.store');
+        Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])
+            ->name('orders.show');
+        Route::get('/orders/{order}/edit', [CashierOrdersController::class, 'edit'])
+            ->name('orders.edit');
+        Route::put('/orders/{order}', [CashierOrdersController::class, 'update'])
+            ->name('orders.update');
     });
 
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (كلها في dashboard.php)
+|--------------------------------------------------------------------------
+*/
 require __DIR__.'/dashboard.php';
