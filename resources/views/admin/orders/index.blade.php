@@ -25,9 +25,7 @@
             </a>
         </div>
 
-<<<<<<< HEAD
-        {{-- الفلاتر --}}
-        {{-- <x-card>
+        {{-- الفلاتر --}} {{-- <x-card>
             <form method="GET" action="{{ route('admin.orders.index') }}"
                   class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <x-form.input name="search" label="بحث" placeholder="رقم الطاولة أو العنوان..." :value="request('search')" />
@@ -39,11 +37,8 @@
                     <x-button href="{{ route('admin.orders.index') }}" variant="secondary">مسح</x-button>
                 </div>
             </form>
-        </x-card> --}}
+        </x-card> --}} {{-- إحصائيات --}}
 
-        {{-- إحصائيات --}}
-=======
->>>>>>> 0bddab25a17f5b3ed536133084271d262b2d512c
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         </div>
 
@@ -112,13 +107,8 @@
                                             class="w-8 h-8 rounded-lg bg-orange-500/20 hover:bg-orange-500/30
                                                   border border-orange-500/40 text-orange-300
                                                   flex items-center justify-center transition-all">✏️</a>
-<<<<<<< HEAD
                                         <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST"
-                                            class="inline" onsubmit="return confirm('هل أنت متأكد؟')">
-=======
-                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST"
                                             class="inline" onsubmit="return confirm('Are you sure?')">
->>>>>>> 0bddab25a17f5b3ed536133084271d262b2d512c
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

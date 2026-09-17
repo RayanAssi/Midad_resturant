@@ -88,9 +88,11 @@
 
     {{-- Logout --}}
     {{-- Logout Button --}}
-    {{-- <div class="border-t border-red-900/30 p-3">
-        <button type="button" onclick="openLogoutModal()"
-            class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg
+
+    <div class="border-t border-red-900/30 p-3">
+        @auth
+            <button type="button" onclick="openLogoutModal()"
+                class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg
                    text-sm font-medium
                    text-gray-400
                    bg-red-900/10
@@ -99,22 +101,12 @@
                    hover:bg-red-600/10
                    hover:border-red-600/60
                    transition-all duration-200">
-            <x-lucide-log-out class="w-5 h-5" />
-            <span>Logout</span>
-        </button>
-    </div> --}}
+                <x-lucide-log-out class="w-5 h-5" />
+                <span>Logout</span>
+            </button>
+        @endauth
+    </div>
 
-    @auth
-    <button type="button"
-            onclick="openLogoutModal()"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg
-                   bg-red-900/30 hover:bg-red-900/50
-                   border border-red-800/50 hover:border-red-600/60
-                   text-amber-100 text-sm font-bold
-                   transition-all">
-        <x-lucide-log-out class="w-4 h-4" />
-        <span class="hidden sm:inline">Logout</span>
-    </button>
-@endauth
+
 </aside>
 {{-- <x-logout-modal /> --}}
