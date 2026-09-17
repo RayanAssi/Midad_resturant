@@ -71,7 +71,7 @@
     </div>
 
     {{-- تذييل الجدول (اختياري) --}}
-    @if(isset($footer))
+    @if(isset($footer) && $footer->isNotEmpty())
         <div class="px-6 py-4 
                     bg-gradient-to-r from-transparent to-red-900/20
                     border-t-2 border-red-800/40">

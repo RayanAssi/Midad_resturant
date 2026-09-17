@@ -64,14 +64,22 @@
     </label>
 
     @if($isEdit && $item->image)
-        <div class="mb-3 flex items-center gap-3">
+        <div class="mb-3 flex items-center gap-3" id="imageBox">
             <img src="{{ $item->image_url }}" alt=""
+                 id="imagePreview"
                  class="w-20 h-20 rounded-lg object-cover border-2 border-red-800/40" />
-            <p class="text-xs text-amber-200/50">Current image</p>
+            <p class="text-xs text-amber-200/50" id="imageLabel">Current image</p>
+        </div>
+    @else
+        <div class="mb-3 flex items-center gap-3 hidden" id="imageBox">
+            <img id="imagePreview"
+                 class="w-20 h-20 rounded-lg object-cover border-2 border-amber-500/60" />
+            <p class="text-xs text-amber-200/50" id="imageLabel">New image preview</p>
         </div>
     @endif
 
     <input type="file" name="image" accept="image/*"
+           id="imageInput"
            class="w-full px-4 py-2.5 rounded-lg bg-black/40 
                   border-2 border-red-800/40
                   text-amber-100 text-sm
@@ -83,3 +91,39 @@
         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
     @enderror
 </div>
+
+{{-- ✅ سكربت استبدال الصورة --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input   = document.getElementById('imageInput');
+        const preview = document.getElementById('imagePreview');
+        const box     = document.getElementById('imageBox');
+        const label   = document.getElementById('imageLabel');
+
+        if (!input || !preview || !box) return;
+
+        input.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+
+            if (!file || !file.type.startsWith('image/')) {
+                // إذا لغى الاختيار، نرجع الصورة القديمة
+                @if($isEdit && $item->image)
+                    preview.src = "{{ $item->image_url }}";
+                    label.textContent = "Current image";
+                @else
+                    box.classList.add('hidden');
+                @endif
+                return;
+            }
+
+            const url = URL.createObjectURL(file);
+            preview.src = url;
+            label.textContent = "New image preview";
+            box.classList.remove('hidden');
+            preview.classList.remove('border-red-800/40');
+            preview.classList.add('border-amber-500/60');
+
+            preview.onload = () => URL.revokeObjectURL(url);
+        });
+    });
+</script>
