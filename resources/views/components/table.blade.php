@@ -12,7 +12,7 @@
             shadow-2xl shadow-red-900/20">
 
     <div class="overflow-x-auto">
-        <table class="w-full text-right">
+        <table class="w-full text-center">
 
             {{-- رأس الجدول --}}
             <thead>

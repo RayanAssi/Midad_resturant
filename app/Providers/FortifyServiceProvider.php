@@ -8,6 +8,7 @@ use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -21,7 +22,20 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $request = request();
+        if ($request->is('admin/*')) {
+            // إعدادات المشرفين
+            Config::set('fortify.guard', 'admin');
+            Config::set('fortify.passwords', 'admin'); 
+            Config::set('fortify.home', '/admin/dashboard/index');
+            Config::set('fortify.prefix', 'admin');
+        } else {
+            // إعدادات المستخدمين العاديين
+            Config::set('fortify.guard', 'web');
+            Config::set('fortify.passwords', 'users');
+            Config::set('fortify.home', '/cashier/dashboard');
+            Config::set('fortify.prefix', 'cashier');
+        }
     }
 
     /**
@@ -36,7 +50,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
@@ -49,8 +63,14 @@ class FortifyServiceProvider extends ServiceProvider
             $credentialId = $request->input('credential.id');
 
             return Limit::perMinute(10)->by(
-                ($credentialId ?: $request->session()->getId()).'|'.$request->ip()
+                ($credentialId ?: $request->session()->getId()) . '|' . $request->ip()
             );
         });
+
+        if (Config::get('fortify.guard') == 'admin') {
+            Fortify::viewPrefix('auth.');
+        } else {
+            Fortify::viewPrefix('cashier.auth.');
+        }
     }
 }
