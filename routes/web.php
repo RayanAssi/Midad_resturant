@@ -15,8 +15,11 @@ Route::prefix('cashier')->name('cashier.')->group(function () {
         ->name('menu-items.index');
 
     Route::get('/', [CashierOrdersController::class, 'index'])->name('orders.index');
-        Route::get('/orders/create', [OrdersController::class, 'create'])->name('orders.create');
-        Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
+        Route::get('orders/create', [CashierOrdersController::class, 'create'])
+        ->name('orders.create');
+
+    Route::post('orders', [CashierOrdersController::class, 'store'])
+        ->name('orders.store');
         Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/edit', [OrdersController::class, 'edit'])->name('orders.edit');
         Route::put('/orders/{order}', [OrdersController::class, 'update'])->name('orders.update');
