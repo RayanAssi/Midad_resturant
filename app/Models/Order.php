@@ -34,4 +34,8 @@ public function orderItems(): HasMany
             ->withPivot(['quantity', 'price', 'subtotal'])
             ->withTimestamps();
     }
+    public function items(): HasMany
+{
+    return $this->hasMany(OrderItem::class);
+}
 }
