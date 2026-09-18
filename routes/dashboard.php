@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 | Admin Logout
 |--------------------------------------------------------------------------
 */
+
 Route::post('/admin/logout', AdminLogoutController::class)
     ->middleware('auth:admin')
     ->name('admin.logout');
@@ -47,6 +48,7 @@ Route::middleware('auth:admin')
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
         // Menu Items
         Route::resource('menu-items', MenuItemController::class);

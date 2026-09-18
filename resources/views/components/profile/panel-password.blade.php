@@ -1,3 +1,5 @@
+@props(['action'])
+
 <div class="profile-panel hidden" data-panel="password">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
@@ -57,7 +59,21 @@
                 <h2 class="text-xl font-bold text-amber-50 mb-1">Change Password</h2>
                 <p class="text-sm text-amber-200/50 mb-6">Update your account password below.</p>
 
-                <form class="space-y-5">
+
+                {{-- ✅ General error --}}
+                {{-- @if($errors->any())
+                    <div class="mb-5 flex items-start gap-3 px-4 py-3 rounded-xl
+                                bg-red-500/10 border border-red-500/30 text-red-300">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <div class="text-sm font-medium">
+                            Please fix the errors below.
+                        </div>
+                    </div>
+                @endif --}}
+
+                <form method="POST" action="{{ $action }}" class="space-y-5">
                     @csrf
                     @method('PUT')
 
@@ -66,12 +82,16 @@
                             Current Password
                         </label>
                         <input type="password" name="current_password"
+                            autocomplete="current-password"
                             class="w-full px-4 py-2.5 rounded-xl text-sm
-                                   bg-black/40 border border-white/[0.08]
+                                   bg-black/40 border @error('current_password') border-red-500/50 @else border-white/[0.08] @enderror
                                    text-amber-50 placeholder-amber-200/20
                                    focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
                                    transition-all duration-200"
                             placeholder="Enter your current password">
+                        @error('current_password')
+                            <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -79,12 +99,16 @@
                             New Password
                         </label>
                         <input type="password" name="password"
+                            autocomplete="new-password"
                             class="w-full px-4 py-2.5 rounded-xl text-sm
-                                   bg-black/40 border border-white/[0.08]
+                                   bg-black/40 border @error('password') border-red-500/50 @else border-white/[0.08] @enderror
                                    text-amber-50 placeholder-amber-200/20
                                    focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
                                    transition-all duration-200"
                             placeholder="Enter a new password">
+                        @error('password')
+                            <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -92,6 +116,7 @@
                             Confirm New Password
                         </label>
                         <input type="password" name="password_confirmation"
+                            autocomplete="new-password"
                             class="w-full px-4 py-2.5 rounded-xl text-sm
                                    bg-black/40 border border-white/[0.08]
                                    text-amber-50 placeholder-amber-200/20
