@@ -25,7 +25,7 @@ public function orderItems(): HasMany
 
     public function invoice(): HasOne
     {
-        return $this->hasOne(Invoices::class);
+        return $this->hasOne(Invoice::class);
     }
     
     public function menuItems()
