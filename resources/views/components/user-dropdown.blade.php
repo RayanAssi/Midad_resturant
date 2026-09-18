@@ -1,6 +1,7 @@
 @props([
     'name' => auth()->user()->name ?? 'Guest',
     'email' => auth()->user()->email ?? 'guest@midad.test',
+    'profileRoute' => '#',
 ])
 
 <div class="relative" id="userDropdownContainer">
@@ -44,32 +45,23 @@
                     shadow-[0_25px_50px_-12px_rgba(0,0,0,0.9)]
                     p-1.5">
 
-            {{-- Profile --}}
-            {{-- <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-                      text-amber-100/80 hover:text-amber-50 hover:bg-amber-500/[0.08]
-                      transition-all duration-150">
-                <svg class="w-4 h-4 text-amber-200/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Profile
-            </a> --}}
-            <a href="{{ route('admin.profile.show') }}"
+            {{--  Profile (ديناميكي) --}}
+            <a href="{{ $profileRoute }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-          text-amber-100/80 hover:text-amber-50 hover:bg-amber-500/[0.08]
-          transition-all duration-150">
+                text-amber-100/80 hover:text-amber-50 hover:bg-amber-500/[0.08]
+                transition-all duration-150">
                 <svg class="w-4 h-4 text-amber-200/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Profile
             </a>
+
             {{-- Help & Support --}}
             <button type="button" onclick="openHelpModal()"
                 class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
-                       text-amber-100/80 hover:text-amber-50 hover:bg-amber-500/[0.08]
-                       transition-all duration-150">
+                    text-amber-100/80 hover:text-amber-50 hover:bg-amber-500/[0.08]
+                    transition-all duration-150">
                 <svg class="w-4 h-4 text-amber-200/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
