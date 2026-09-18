@@ -15,9 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'tax_amount',
     'total_amount',
     'tax_number',
-    'payment_method',
-    'status',
-    'paid_at',
     'created_by',
     'notes',
 ])]
