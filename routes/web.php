@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController;
 use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,7 +50,9 @@ Route::middleware('auth')
             ->name('orders.update');
         Route::delete('/orders/{order}', [CashierOrdersController::class, 'destroy'])
             ->name('orders.destroy');
-    });
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    
+            });
 
 /*
 |--------------------------------------------------------------------------

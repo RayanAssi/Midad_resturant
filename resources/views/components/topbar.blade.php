@@ -12,10 +12,10 @@
         <x-breadcrumb />
 
         {{-- Right Side --}}
-        <div class="flex items-center gap-4 flex-shrink-0">
+        {{-- <div class="flex items-center gap-4 flex-shrink-0"> --}}
 
             {{-- User --}}
-            <div class="flex items-center gap-3">
+            {{-- <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
                     <p class="text-sm font-bold text-amber-100">
                         {{ auth()->user()->name ?? 'Guest' }}
@@ -33,34 +33,10 @@
                     {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 1)) }}
                 </div>
             </div>
-            
-            {{-- Logout --}}
-            {{-- @auth
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg
-                                   bg-red-900/30 hover:bg-red-900/50
-                                   border border-red-800/50 hover:border-red-600/60
-                                   text-amber-100 text-sm font-bold
-                                   transition-all">
-                        <x-lucide-log-out class="w-4 h-4" />
-                        <span class="hidden sm:inline">Logout</span>
-                    </button>
-                </form>
-            @endauth --}}
-
-            {{-- @auth
-                <button type="button" onclick="openLogoutModal()"
-                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg
-                   bg-red-900/30 hover:bg-red-900/50
-                   border border-red-800/50 hover:border-red-600/60
-                   text-amber-100 text-sm font-bold
-                   transition-all">
-                    <x-lucide-log-out class="w-4 h-4" />
-                    <span class="hidden sm:inline">Logout</span>
-                </button>
-            @endauth --}}
+        </div> --}}
+        {{-- Right Side --}}
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <x-user-dropdown />
         </div>
     </div>
 </header>

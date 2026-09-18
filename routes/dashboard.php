@@ -4,8 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminLogoutController;
 use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
-
-
+use App\Http\Controllers\ProfileController;
 
 // ============ Admin ============
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -49,7 +48,8 @@ Route::middleware('auth:admin')
             Route::get('/user/{userId}', [OrdersController::class, 'ordersByUser'])->name('by.user');
             Route::get('/table/{tableNo}', [OrdersController::class, 'ordersByTable'])->name('by.table');
             Route::post('/{id}/duplicate', [OrdersController::class, 'duplicateOrder'])->name('duplicate');
-        });
+            });
+            Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 
         // Menu Items
         Route::resource('menu-items', MenuItemController::class);
