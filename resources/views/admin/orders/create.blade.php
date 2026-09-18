@@ -12,8 +12,6 @@
 <x-layouts.admin title="New Order">
     <div class="max-w-4xl mx-auto space-y-6">
 
-        
-
         <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
@@ -114,15 +112,15 @@
                                 <span class="font-bold">Subtotal:</span>
                                 <span class="font-black text-amber-400" id="subtotal-display">0.00 SYP</span>
                             </div>
-                            <div class="flex justify-between text-amber-100">
-                                <span class="font-bold">Tax (15%):</span>
-                                <span class="font-black text-orange-300" id="tax-display">0.00 SYP</span>
-                            </div>
                             <div class="flex justify-between border-t-2 border-amber-500/30 pt-3">
                                 <span class="font-black text-amber-100 text-lg">Total:</span>
                                 <span class="font-black text-green-400 text-2xl" id="total-display">0.00 SYP</span>
                             </div>
                         </div>
+
+                        <p class="text-xs text-amber-200/50 mt-3">
+                            💡 Tax will be calculated on the invoice page
+                        </p>
                     </div>
 
                     <div class="flex gap-3 pt-2">
@@ -250,12 +248,8 @@
             }
         });
 
-        const tax   = subtotal * 0.15;
-        const total = subtotal + tax;
-
         document.getElementById('subtotal-display').textContent = subtotal.toFixed(2) + ' SYP';
-        document.getElementById('tax-display').textContent      = tax.toFixed(2) + ' SYP';
-        document.getElementById('total-display').textContent    = total.toFixed(2) + ' SYP';
+        document.getElementById('total-display').textContent    = subtotal.toFixed(2) + ' SYP';
     }
 
     document.addEventListener('DOMContentLoaded', function () {

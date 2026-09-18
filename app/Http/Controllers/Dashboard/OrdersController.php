@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\MenuItem;
 use App\Models\Invoices;
@@ -40,8 +41,8 @@ class OrdersController extends Controller
         $orders = $query->latest()->paginate(15);
 
         $stats = [
-            'total'   => Order::count(),
-            'today'   => Order::whereDate('created_at', today())->count(),
+            'total' => Order::count(),
+            'today' => Order::whereDate('created_at', today())->count(),
             'revenue' => Order::sum('total_amount'),
             'average' => Order::avg('total_amount') ?? 0,
         ];
@@ -84,35 +85,24 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $order = Order::create([
-                'user_id'      => $request->user_id,
-                'type'         => $request->type,
-                'table_no'     => $request->table_no,
-                'address'      => $request->address,
-                'notes'        => $request->notes,
+                'user_id' => $request->user_id,
+                'type' => $request->type,
+                'table_no' => $request->table_no,
+                'address' => $request->address,
+                'notes' => $request->notes,
                 'total_amount' => 0,
             ]);
 
             foreach ($request->items as $item) {
-                $menuItemId = $item['menu_item_id'] ?? null;
-
-                if (!$menuItemId) {
-                    throw new \Exception('لم يتم تحديد الصنف في أحد الصفوف');
-                }
-
-                $menuItem = MenuItem::find($menuItemId);
-
-                if (!$menuItem) {
-                    throw new \Exception('الصنف غير موجود: ' . $menuItemId);
-                }
-
+                $menuItem = MenuItem::find($item['menu_item_id']);
                 $quantity = (int) $item['quantity'];
 
                 OrderItem::create([
-                    'order_id'     => $order->id,
-                    'menu_item_id' => $menuItemId,
-                    'quantity'     => $quantity,
-                    'price'        => $menuItem->price,
-                    'subtotal'     => $quantity * $menuItem->price,
+                    'order_id' => $order->id,
+                    'menu_item_id' => $menuItem->id,
+                    'quantity' => $quantity,
+                    'price' => $menuItem->price,
+                    'subtotal' => $quantity * $menuItem->price,
                 ]);
             }
 
@@ -121,13 +111,14 @@ class OrdersController extends Controller
 
             DB::commit();
 
+            // ✅ بدل orders.index → invoices.create مع order_id
             return redirect()
-                ->route('admin.orders.index')
-                ->with('flashMessage', 'تم إنشاء الطلب بنجاح');
+                ->route('admin.invoices.create', ['order_id' => $order->id])
+                ->with('flashMessage', 'Order created. Now create the invoice.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -202,11 +193,11 @@ class OrdersController extends Controller
                     $quantity = (int) $item['quantity'];
 
                     OrderItem::create([
-                        'order_id'     => $order->id,
+                        'order_id' => $order->id,
                         'menu_item_id' => $item['menu_item_id'],
-                        'quantity'     => $quantity,
-                        'price'        => $menuItem->price,
-                        'subtotal'     => $quantity * $menuItem->price,
+                        'quantity' => $quantity,
+                        'price' => $menuItem->price,
+                        'subtotal' => $quantity * $menuItem->price,
                     ]);
                 }
 
@@ -287,9 +278,9 @@ class OrdersController extends Controller
         }
 
         $subtotal = $this->calculateOrderTotal($order);
-        $taxRate  = 0.15;
-        $tax      = $subtotal * $taxRate;
-        $total    = $subtotal + $tax;
+        $taxRate = 0.15;
+        $tax = $subtotal * $taxRate;
+        $total = $subtotal + $tax;
 
         return response()->json([
             'success' => true,
@@ -297,15 +288,15 @@ class OrdersController extends Controller
                 'order_id' => $order->id,
                 'items' => $order->orderItems->map(function ($item) {
                     return [
-                        'name'     => $item->menuItem->name,
-                        'price'    => $item->price,
+                        'name' => $item->menuItem->name,
+                        'price' => $item->price,
                         'quantity' => $item->quantity,
                         'subtotal' => $item->quantity * $item->price,
                     ];
                 }),
                 'subtotal' => $subtotal,
-                'tax'      => $tax,
-                'total'    => $total,
+                'tax' => $tax,
+                'total' => $total,
             ]
         ]);
     }
@@ -336,13 +327,13 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $subtotal = $this->calculateOrderTotal($order);
-            $taxRate  = 0.15;
-            $tax      = $subtotal * $taxRate;
-            $total    = $subtotal + $tax;
+            $taxRate = 0.15;
+            $tax = $subtotal * $taxRate;
+            $total = $subtotal + $tax;
 
-            $invoice = Invoices::create([
-                'order_id'   => $order->id,
-                'total'      => $total,
+            $invoice = Invoice::create([
+                'order_id' => $order->id,
+                'total' => $total,
                 'tax_number' => 'TAX-' . now()->format('Ymd') . '-' . $order->id,
             ]);
 
@@ -353,7 +344,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم إنشاء الفاتورة بنجاح',
-                'data'    => $invoice
+                'data' => $invoice
             ], 201);
 
         } catch (\Exception $e) {
@@ -361,7 +352,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء إنشاء الفاتورة',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -419,12 +410,12 @@ class OrdersController extends Controller
     public function statistics()
     {
         $stats = [
-            'total_orders'   => Order::count(),
-            'today_orders'   => Order::whereDate('created_at', today())->count(),
-            'total_revenue'  => Order::sum('total_amount'),
-            'today_revenue'  => Order::whereDate('created_at', today())->sum('total_amount'),
+            'total_orders' => Order::count(),
+            'today_orders' => Order::whereDate('created_at', today())->count(),
+            'total_revenue' => Order::sum('total_amount'),
+            'today_revenue' => Order::whereDate('created_at', today())->sum('total_amount'),
             'orders_by_type' => [
-                'dine_in'  => Order::where('type', 'dine_in')->count(),
+                'dine_in' => Order::where('type', 'dine_in')->count(),
                 'take_out' => Order::where('type', 'take_out')->count(),
                 'delivery' => Order::where('type', 'delivery')->count(),
             ],
@@ -496,21 +487,21 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $newOrder = Order::create([
-                'user_id'      => $originalOrder->user_id,
-                'type'         => $originalOrder->type,
-                'table_no'     => $originalOrder->table_no,
-                'address'      => $originalOrder->address,
-                'notes'        => $originalOrder->notes,
+                'user_id' => $originalOrder->user_id,
+                'type' => $originalOrder->type,
+                'table_no' => $originalOrder->table_no,
+                'address' => $originalOrder->address,
+                'notes' => $originalOrder->notes,
                 'total_amount' => 0,
             ]);
 
             foreach ($originalOrder->orderItems as $item) {
                 OrderItem::create([
-                    'order_id'     => $newOrder->id,
+                    'order_id' => $newOrder->id,
                     'menu_item_id' => $item->menu_item_id,
-                    'quantity'     => $item->quantity,
-                    'price'        => $item->price,
-                    'subtotal'     => $item->subtotal,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->subtotal,
                 ]);
             }
 
@@ -525,7 +516,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم نسخ الطلب بنجاح',
-                'data'    => $newOrder->load('orderItems.menuItem')
+                'data' => $newOrder->load('orderItems.menuItem')
             ], 201);
 
         } catch (\Exception $e) {
@@ -533,7 +524,7 @@ class OrdersController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء نسخ الطلب',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
