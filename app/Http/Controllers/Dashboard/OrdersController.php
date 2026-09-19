@@ -10,6 +10,7 @@ use App\Models\Invoices;
 use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -56,9 +57,9 @@ class OrdersController extends Controller
     public function create()
     {
         $menuItems = MenuItem::all();
-        $users = User::all();
+        
 
-        return view('admin.orders.create', compact('menuItems', 'users'));
+        return view('admin.orders.create', compact('menuItems'));
     }
 
     /**
@@ -67,7 +68,7 @@ class OrdersController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
+            
             'type' => 'required|in:dine_in,take_out,delivery',
             'table_no' => 'required_if:type,dine_in|nullable|string',
             'address' => 'required_if:type,delivery|nullable|string',
@@ -85,7 +86,7 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $order = Order::create([
-                'user_id' => $request->user_id,
+                'user_id' =>Auth::id(),
                 'type' => $request->type,
                 'table_no' => $request->table_no,
                 'address' => $request->address,
@@ -111,7 +112,7 @@ class OrdersController extends Controller
 
             DB::commit();
 
-            // ✅ بدل orders.index → invoices.create مع order_id
+            
             return redirect()
                 ->route('admin.invoices.create', ['order_id' => $order->id])
                 ->with('flashMessage', 'Order created. Now create the invoice.');

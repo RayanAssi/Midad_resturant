@@ -27,15 +27,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                        {{-- User --}}
-                        <x-form.select
-                            name="user_id"
-                            label="User"
-                            :selected="old('user_id')"
-                            :option="$users->pluck('name', 'id')->toArray()"
-                            placeholder="Select user..."
-                        />
-
+                        
                         {{-- Order Type --}}
                         <x-form.select
                             name="type"
