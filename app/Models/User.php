@@ -35,11 +35,11 @@ class User extends Authenticatable
 
     public function orders(): HasMany
     {
-        return $this->hasMany(Orders::class);
+        return $this->hasMany(Order::class);
     }
 
     public function expenses()
     {
-        return $this->hasMany(Expenses::class);
+        return $this->hasMany(Expense::class);
     }
 }

@@ -85,13 +85,7 @@
                           class="space-y-3">
                         @csrf
 
-                        <x-form.select
-                            name="user_id"
-                            label="User"
-                            :selected="old('user_id')"
-                            :option="$users->pluck('name', 'id')->toArray()"
-                            placeholder="Select user..."
-                        />
+                        
 
                         <x-form.select
                             name="type"
@@ -105,19 +99,25 @@
                             placeholder="Select type..."
                         />
 
-                        <x-form.input
-                            name="table_no"
-                            label="Table No."
-                            placeholder="e.g. 5"
-                            :value="old('table_no')"
-                        />
+                        {{-- Table No. (dine_in only) --}}
+                        <div id="table-no-wrapper" class="hidden">
+                            <x-form.input
+                                name="table_no"
+                                label="Table No."
+                                placeholder="e.g. 5"
+                                :value="old('table_no')"
+                            />
+                        </div>
 
-                        <x-form.input
-                            name="address"
-                            label="Address"
-                            placeholder="For delivery only"
-                            :value="old('address')"
-                        />
+                        {{-- Address (delivery only) --}}
+                        <div id="address-wrapper" class="hidden">
+                            <x-form.input
+                                name="address"
+                                label="Address"
+                                placeholder="For delivery only"
+                                :value="old('address')"
+                            />
+                        </div>
 
                         <x-form.input
                             name="notes"
@@ -147,6 +147,46 @@
     </div>
 
     <script>
+        /* ============================================================
+           Order Type → Toggle Table No. / Address
+        ============================================================ */
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect     = document.querySelector('select[name="type"]');
+            const tableWrapper   = document.getElementById('table-no-wrapper');
+            const addressWrapper = document.getElementById('address-wrapper');
+
+            if (!typeSelect || !tableWrapper || !addressWrapper) return;
+
+            const tableInput   = tableWrapper.querySelector('input[name="table_no"]');
+            const addressInput = addressWrapper.querySelector('input[name="address"]');
+
+            function toggleFields() {
+                const type = typeSelect.value;
+
+                // إخفاء الكل + إزالة required
+                tableWrapper.classList.add('hidden');
+                addressWrapper.classList.add('hidden');
+                if (tableInput)   tableInput.required   = false;
+                if (addressInput) addressInput.required = false;
+
+                // إظهار حسب النوع
+                if (type === 'dine_in') {
+                    tableWrapper.classList.remove('hidden');
+                    if (tableInput) tableInput.required = true;
+                } else if (type === 'delivery') {
+                    addressWrapper.classList.remove('hidden');
+                    if (addressInput) addressInput.required = true;
+                }
+                // take_out → both hidden
+            }
+
+            typeSelect.addEventListener('change', toggleFields);
+            toggleFields(); // أول تحميل
+        });
+
+        /* ============================================================
+           Cart
+        ============================================================ */
         const cart = {};
         const menuItems = @json($menuItemsJson);
 
