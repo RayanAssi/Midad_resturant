@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\MenuItem;
-use App\Models\Invoices;
 use App\Models\OrderItem;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -40,6 +38,7 @@ class OrdersController extends Controller
 
         $orders = $query->latest()->paginate(15);
 
+        // Stats
         $stats = [
             'total' => Order::count(),
             'today' => Order::whereDate('created_at', today())->count(),
@@ -47,7 +46,14 @@ class OrdersController extends Controller
             'average' => Order::avg('total_amount') ?? 0,
         ];
 
-        return view('admin.orders.index', compact('orders', 'stats'));
+        // ✅ Counts لكل نوع (للفلتر tabs)
+        $typeCounts = [
+            'dine_in' => Order::where('type', 'dine_in')->count(),
+            'take_out' => Order::where('type', 'take_out')->count(),
+            'delivery' => Order::where('type', 'delivery')->count(),
+        ];
+
+        return view('admin.orders.index', compact('orders', 'stats', 'typeCounts'));
     }
 
     /**
@@ -56,9 +62,8 @@ class OrdersController extends Controller
     public function create()
     {
         $menuItems = MenuItem::all();
-        $users = User::all();
 
-        return view('admin.orders.create', compact('menuItems', 'users'));
+        return view('admin.orders.create', compact('menuItems'));
     }
 
     /**
@@ -67,7 +72,6 @@ class OrdersController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
             'type' => 'required|in:dine_in,take_out,delivery',
             'table_no' => 'required_if:type,dine_in|nullable|string',
             'address' => 'required_if:type,delivery|nullable|string',
@@ -85,7 +89,7 @@ class OrdersController extends Controller
             DB::beginTransaction();
 
             $order = Order::create([
-                'user_id' => $request->user_id,
+                'user_id' => Auth::id(),
                 'type' => $request->type,
                 'table_no' => $request->table_no,
                 'address' => $request->address,
@@ -111,7 +115,6 @@ class OrdersController extends Controller
 
             DB::commit();
 
-            // ✅ بدل orders.index → invoices.create مع order_id
             return redirect()
                 ->route('admin.invoices.create', ['order_id' => $order->id])
                 ->with('flashMessage', 'Order created. Now create the invoice.');
@@ -131,7 +134,7 @@ class OrdersController extends Controller
 
         if (!$order) {
             return redirect()->route('admin.orders.index')
-                ->with('error', 'الطلب غير موجود');
+                ->with('error', 'Order not found');
         }
 
         return view('admin.orders.show', compact('order'));
@@ -146,7 +149,7 @@ class OrdersController extends Controller
 
         if (!$order) {
             return redirect()->route('admin.orders.index')
-                ->with('error', 'الطلب غير موجود');
+                ->with('error', 'Order not found');
         }
 
         $menuItems = MenuItem::all();
@@ -163,7 +166,7 @@ class OrdersController extends Controller
 
         if (!$order) {
             return redirect()->route('admin.orders.index')
-                ->with('error', 'الطلب غير موجود');
+                ->with('error', 'Order not found');
         }
 
         $validator = Validator::make($request->all(), [
@@ -209,11 +212,11 @@ class OrdersController extends Controller
 
             return redirect()
                 ->route('admin.orders.index')
-                ->with('flashMessage', 'تم تحديث الطلب بنجاح');
+                ->with('flashMessage', 'Order updated successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -226,7 +229,7 @@ class OrdersController extends Controller
 
         if (!$order) {
             return redirect()->route('admin.orders.index')
-                ->with('error', 'الطلب غير موجود');
+                ->with('error', 'Order not found');
         }
 
         try {
@@ -243,16 +246,16 @@ class OrdersController extends Controller
 
             return redirect()
                 ->route('admin.orders.index')
-                ->with('flashMessage', 'تم حذف الطلب بنجاح');
+                ->with('flashMessage', 'Order deleted successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
     /**
-     * حساب مجموع الطلب (من order_items المخزّنة، مش من menu_items الحالية)
+     * حساب مجموع الطلب (helper داخلي)
      */
     private function calculateOrderTotal(Order $order)
     {
@@ -261,271 +264,5 @@ class OrdersController extends Controller
         return $order->orderItems->sum(function ($item) {
             return $item->quantity * $item->price;
         });
-    }
-
-    /**
-     * عرض حساب الفاتورة (بدون إنشاء)
-     */
-    public function calculateInvoice($id)
-    {
-        $order = Order::with('orderItems')->find($id);
-
-        if (!$order) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الطلب غير موجود'
-            ], 404);
-        }
-
-        $subtotal = $this->calculateOrderTotal($order);
-        $taxRate = 0.15;
-        $tax = $subtotal * $taxRate;
-        $total = $subtotal + $tax;
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'order_id' => $order->id,
-                'items' => $order->orderItems->map(function ($item) {
-                    return [
-                        'name' => $item->menuItem->name,
-                        'price' => $item->price,
-                        'quantity' => $item->quantity,
-                        'subtotal' => $item->quantity * $item->price,
-                    ];
-                }),
-                'subtotal' => $subtotal,
-                'tax' => $tax,
-                'total' => $total,
-            ]
-        ]);
-    }
-
-    /**
-     * إنشاء فاتورة للطلب
-     */
-    public function createInvoice($id)
-    {
-        $order = Order::with('orderItems')->find($id);
-
-        if (!$order) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الطلب غير موجود'
-            ], 404);
-        }
-
-        if ($order->invoice) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الفاتورة موجودة مسبقاً لهذا الطلب',
-                'data' => $order->invoice
-            ], 400);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $subtotal = $this->calculateOrderTotal($order);
-            $taxRate = 0.15;
-            $tax = $subtotal * $taxRate;
-            $total = $subtotal + $tax;
-
-            $invoice = Invoice::create([
-                'order_id' => $order->id,
-                'total' => $total,
-                'tax_number' => 'TAX-' . now()->format('Ymd') . '-' . $order->id,
-            ]);
-
-            $order->update(['total_amount' => $subtotal]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم إنشاء الفاتورة بنجاح',
-                'data' => $invoice
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الفاتورة',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * عرض الطلبات حسب النوع
-     */
-    public function filterByType($type)
-    {
-        $validTypes = ['dine_in', 'take_out', 'delivery'];
-
-        if (!in_array($type, $validTypes)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'نوع طلب غير صحيح'
-            ], 400);
-        }
-
-        $orders = Order::with(['user', 'orderItems.menuItem'])
-            ->where('type', $type)
-            ->latest()
-            ->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $orders
-        ]);
-    }
-
-    /**
-     * عرض طلبات اليوم
-     */
-    public function todayOrders()
-    {
-        $orders = Order::with(['user', 'orderItems.menuItem', 'invoice'])
-            ->whereDate('created_at', today())
-            ->latest()
-            ->get();
-
-        $totalSales = $orders->sum('total_amount');
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'orders' => $orders,
-                'count' => $orders->count(),
-                'total_sales' => $totalSales,
-            ]
-        ]);
-    }
-
-    /**
-     * إحصائيات الطلبات
-     */
-    public function statistics()
-    {
-        $stats = [
-            'total_orders' => Order::count(),
-            'today_orders' => Order::whereDate('created_at', today())->count(),
-            'total_revenue' => Order::sum('total_amount'),
-            'today_revenue' => Order::whereDate('created_at', today())->sum('total_amount'),
-            'orders_by_type' => [
-                'dine_in' => Order::where('type', 'dine_in')->count(),
-                'take_out' => Order::where('type', 'take_out')->count(),
-                'delivery' => Order::where('type', 'delivery')->count(),
-            ],
-        ];
-
-        return response()->json([
-            'success' => true,
-            'data' => $stats
-        ]);
-    }
-
-    /**
-     * عرض الطلبات حسب المستخدم
-     */
-    public function ordersByUser($userId)
-    {
-        $user = User::find($userId);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'المستخدم غير موجود'
-            ], 404);
-        }
-
-        $orders = Order::with(['orderItems.menuItem', 'invoice'])
-            ->where('user_id', $userId)
-            ->latest()
-            ->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'user' => $user->name,
-            'data' => $orders
-        ]);
-    }
-
-    /**
-     * عرض الطلبات حسب رقم الطاولة
-     */
-    public function ordersByTable($tableNo)
-    {
-        $orders = Order::with(['user', 'orderItems.menuItem'])
-            ->where('table_no', $tableNo)
-            ->latest()
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $orders
-        ]);
-    }
-
-    /**
-     * نسخ طلب موجود
-     */
-    public function duplicateOrder($id)
-    {
-        $originalOrder = Order::with('orderItems')->find($id);
-
-        if (!$originalOrder) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الطلب غير موجود'
-            ], 404);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $newOrder = Order::create([
-                'user_id' => $originalOrder->user_id,
-                'type' => $originalOrder->type,
-                'table_no' => $originalOrder->table_no,
-                'address' => $originalOrder->address,
-                'notes' => $originalOrder->notes,
-                'total_amount' => 0,
-            ]);
-
-            foreach ($originalOrder->orderItems as $item) {
-                OrderItem::create([
-                    'order_id' => $newOrder->id,
-                    'menu_item_id' => $item->menu_item_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                    'subtotal' => $item->subtotal,
-                ]);
-            }
-
-            $newOrder->load('orderItems');
-            $total = $newOrder->orderItems->sum(function ($item) {
-                return $item->quantity * $item->price;
-            });
-            $newOrder->update(['total_amount' => $total]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم نسخ الطلب بنجاح',
-                'data' => $newOrder->load('orderItems.menuItem')
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء نسخ الطلب',
-                'error' => $e->getMessage()
-            ], 500);
-        }
     }
 }
