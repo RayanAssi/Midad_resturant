@@ -12,13 +12,34 @@
 <x-layouts.admin title="New Order">
     <div class="max-w-4xl mx-auto space-y-6">
 
+        {{-- ============ Progress Steps ============ --}}
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-amber-500 text-white font-black
+                            flex items-center justify-center shadow-lg shadow-amber-900/50">
+                    1
+                </div>
+                <span class="text-amber-100 font-bold">Order Details</span>
+            </div>
+
+            <div class="w-16 h-0.5 bg-amber-500/30"></div>
+
+            <div class="flex items-center gap-2 opacity-50">
+                <div class="w-8 h-8 rounded-full bg-gray-700 text-amber-200 font-black
+                            flex items-center justify-center">
+                    2
+                </div>
+                <span class="text-amber-200/60 font-bold">Create Invoice</span>
+            </div>
+        </div>
+
         <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
             <div class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
                         border-b-2 border-red-800/50">
                 <h2 class="text-2xl font-black text-amber-100">New Order</h2>
-                <p class="text-amber-200/60 text-sm mt-1">Fill in the details below</p>
+                <p class="text-amber-200/60 text-sm mt-1">Fill in the order details, then proceed to invoice</p>
             </div>
 
             <div class="p-6">
@@ -27,7 +48,6 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                        
                         {{-- Order Type --}}
                         <x-form.select
                             name="type"
@@ -118,19 +138,26 @@
                             </div>
                         </div>
 
-                        <p class="text-xs text-amber-200/50 mt-3">
-                            💡 Tax will be calculated on the invoice page
-                        </p>
+                        <div class="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30
+                                    flex items-center gap-2">
+                            <span class="text-lg">💡</span>
+                            <p class="text-xs text-amber-200/80">
+                                Tax & discount will be set on the invoice page
+                            </p>
+                        </div>
                     </div>
 
                     <div class="flex gap-3 pt-2">
                         <button type="submit"
-                                class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-800
-                                       hover:from-red-500 hover:to-red-700
-                                       text-amber-50 font-bold shadow-lg shadow-red-900/50
-                                       transition-all hover:scale-105 active:scale-95">
-                            💾 Save Order
+                                class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-800
+                                       hover:from-amber-500 hover:to-amber-700
+                                       text-white font-black shadow-lg shadow-amber-900/50
+                                       transition-all hover:scale-105 active:scale-95
+                                       flex items-center justify-center gap-2">
+                            <span>Next: Create Invoice</span>
+                            <span class="text-xl">→</span>
                         </button>
+
                         <a href="{{ route('admin.orders.index') }}"
                            class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
                                   text-amber-100 font-bold transition-all
