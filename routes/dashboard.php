@@ -49,6 +49,10 @@ Route::middleware('auth:admin')
         // Profile
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+        Route::post('user/two-factor-authentication', [ProfileController::class, 'enableTwoFactor'])
+            ->name('two-factor.enable');
+        Route::delete('user/two-factor-authentication', [ProfileController::class, 'disableTwoFactor'])
+            ->name('two-factor.disable');
 
         // Menu Items
         Route::resource('menu-items', MenuItemController::class);

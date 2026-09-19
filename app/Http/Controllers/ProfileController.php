@@ -51,4 +51,27 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password updated successfully.');
     }
+    public function enableTwoFactor(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password:admin'],
+        ]);
+
+        $user = auth('admin')->user();
+        app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)($user);
+
+        return back()->with('success', 'Two-Factor authentication enabled.');
+    }
+
+    public function disableTwoFactor(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password:admin'],
+        ]);
+
+        $user = auth('admin')->user();
+        app(\Laravel\Fortify\Actions\DisableTwoFactorAuthentication::class)($user);
+
+        return back()->with('success', 'Two-Factor authentication disabled.');
+    }
 }

@@ -126,7 +126,7 @@
         {{-- PANELS (components) --}}
         {{-- ============================================================ --}}
         <x-profile.panel-account :user="$user" />
-        <x-profile.panel-2fa />
+        <x-profile.panel-2fa :user="$user" />
 
     </div>
 
