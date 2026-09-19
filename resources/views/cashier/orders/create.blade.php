@@ -85,13 +85,7 @@
                           class="space-y-3">
                         @csrf
 
-                        <x-form.select
-                            name="user_id"
-                            label="User"
-                            :selected="old('user_id')"
-                            :option="$users->pluck('name', 'id')->toArray()"
-                            placeholder="Select user..."
-                        />
+                        
 
                         <x-form.select
                             name="type"

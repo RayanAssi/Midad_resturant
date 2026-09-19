@@ -108,13 +108,7 @@
                         @csrf
                         @method('PUT')
 
-                        <x-form.select
-                            name="user_id"
-                            label="User"
-                            :selected="old('user_id', $order->user_id)"
-                            :option="$users->pluck('name', 'id')->toArray()"
-                            placeholder="Select user..."
-                        />
+                        
 
                         <x-form.select
                             name="type"
