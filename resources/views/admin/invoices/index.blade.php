@@ -50,7 +50,7 @@
                 : '<span class="text-amber-200/30">—</span>';
 
             $discount = $invoice->discount_amount > 0
-                ? '<span class="text-red-300/80">- ' . number_format($invoice->discount_amount, 2) . '</span>'
+                ? '<span class="text-red-300/80"> ' . number_format($invoice->discount_amount, 2) . '</span>'
                 : '<span class="text-amber-200/30">—</span>';
 
             $tax = $invoice->tax_amount > 0

@@ -51,7 +51,7 @@ class InvoicesController extends Controller
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with('success', 'تم تحديث الفاتورة');
+            ->with('success', 'updated invoice successfully');
     }
 
     public function destroy(Invoice $invoice)
@@ -60,6 +60,6 @@ class InvoicesController extends Controller
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with('success', 'تم حذف الفاتورة');
+            ->with('success', 'deleted invoice successfully');
     }
 }
