@@ -14,7 +14,7 @@ use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     if (auth('admin')->check()) {
-        return redirect()->route('admin.menu-items.index');
+        return redirect()->route('admin.dashboard');
     }
     if (auth('web')->check()) {
         return redirect()->route('cashier.orders.index');
