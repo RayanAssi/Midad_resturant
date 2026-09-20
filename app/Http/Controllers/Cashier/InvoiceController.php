@@ -76,9 +76,10 @@ class InvoiceController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('cashier.invoices.create', ['order_id' => $order->id])
-                ->with('invoice_created', $invoiceNumber);
+          return redirect()
+    ->route('cashier.invoices.create', ['order_id' => $order->id])
+    ->with('invoice_created', $invoiceNumber)
+    ->with('invoice_id', $invoice->id);   // ✅ ضيف هذا
         } catch (\Exception $e) {
             DB::rollBack();
 

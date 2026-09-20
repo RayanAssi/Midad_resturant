@@ -90,7 +90,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-2xl font-black text-amber-100">INVOICE</h2>
-                        <p class="text-amber-200/60 text-sm mt-1">Restaurant Receipt</p>
+                        <p class="text-amber-200/60 text-sm mt-1">Midad restaurant</p>
                     </div>
                     <div class="text-right">
                         <p class="text-amber-200/60 text-xs uppercase tracking-wider">Invoice Number</p>
