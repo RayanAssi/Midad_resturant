@@ -8,11 +8,30 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with(['order', 'creator'])
-            ->latest()
-            ->paginate(15);
+        $query = Invoice::with(['order', 'creator']);
+
+        // ═══ Search ═══
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhere('order_id', 'like', "%{$search}%")
+                    ->orWhere('tax_number', 'like', "%{$search}%");
+            });
+        }
+
+        // ═══ Date From ═══
+        if ($dateFrom = $request->date_from) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        // ═══ Date To ═══
+        if ($dateTo = $request->date_to) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        $invoices = $query->latest()->paginate(15)->withQueryString();
 
         return view('admin.invoices.index', compact('invoices'));
     }
