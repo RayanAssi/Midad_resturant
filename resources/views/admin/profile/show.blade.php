@@ -95,51 +95,61 @@
                         </div>
                     </div>
 
-                    
-                    </div>
+
                 </div>
             </div>
         </div>
+    </div>
 
-        {{-- ============================================================ --}}
-        {{-- TAB NAVIGATION --}}
-        {{-- ============================================================ --}}
-        <div class="mb-6 flex items-center gap-2 overflow-x-auto pb-1" id="profileTabs">
+    {{-- ============================================================ --}}
+    {{-- TAB NAVIGATION --}}
+    {{-- ============================================================ --}}
+    <div class="mb-6 flex items-center gap-2 overflow-x-auto pb-1" id="profileTabs">
 
-            <button type="button" data-tab="account"
-                class="profile-tab active flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Account
-            </button>
+        <button type="button" data-tab="account"
+            class="profile-tab active flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Account
+        </button>
 
-            <button type="button" data-tab="2fa"
-                class="profile-tab flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                Two-Factor
-            </button>
+        <button type="button" data-tab="2fa"
+            class="profile-tab flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Two-Factor
+        </button>
 
-            <button type="button" data-tab="password"
-                class="profile-tab flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                Password
-            </button>
-        </div>
+        <button type="button" data-tab="password"
+            class="profile-tab flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            Password
+        </button>
 
-        {{-- ============================================================ --}}
-        {{-- PANELS (components) --}}
-        {{-- ============================================================ --}}
-        <x-profile.panel-account :user="$user" />
-        <x-profile.panel-2fa :user="$user" />
-        <x-profile.panel-password :action="route('admin.profile.password')" />
+        <button type="button" data-tab="roles"
+            class="profile-tab flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Roles & Permissions
+        </button>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- PANELS (components) --}}
+    {{-- ============================================================ --}}
+    <x-profile.panel-account :user="$user" />
+    <x-profile.panel-2fa :user="$user" />
+    <x-profile.panel-password :action="route('admin.profile.password')" />
+    <x-profile.panel-roles :user="$user" />
     </div>
 
     {{-- ==================== Styles ==================== --}}
