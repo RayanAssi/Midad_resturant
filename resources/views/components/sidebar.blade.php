@@ -12,7 +12,8 @@
 
     {{-- Logo --}}
     <div class="flex items-center gap-3 px-5 py-3.5
-                border-b border-red-900/30">
+                  border-b-2 border-red-800/35
+            shadow-sm shadow-red-900/30 backdrop-blur-sm">
 
         <div
             class="w-10 h-10 rounded-lg
@@ -89,7 +90,7 @@
     {{-- Logout --}}
     {{-- Logout Button --}}
 
-    <div class="border-t border-red-900/30 p-3">
+    <div class="border-t border-[#34090a] p-3">
         @auth
             <button type="button" onclick="openLogoutModal()"
                 class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg
