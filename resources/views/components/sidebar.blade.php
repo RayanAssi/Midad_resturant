@@ -33,14 +33,14 @@
     </div>
 
     {{-- Nav --}}
-    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 gap-2">
         @foreach ($items as $item)
             @php
                 $isActive = request()->routeIs($item['active'] ?? '');
             @endphp
 
             <a href="{{ route($item['route']) }}"
-                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg
+                class="group flex items-center gap-3 px-3 py-4 rounded-lg
                       text-sm font-medium
                       transition-colors duration-150
                       {{ $isActive ? 'bg-red-600/15 text-orange-400' : 'text-gray-400 hover:text-orange-400 hover:bg-red-600/10' }}">
