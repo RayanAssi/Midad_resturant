@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between mb-8">
         <div>
             <h1 class="text-3xl font-black text-transparent bg-clip-text
-                       bg-gradient-to-r from-amber-300 to-orange-400">
+                       bg-gradient-to-r from-amber-300 via-orange-400 to-red-500">
                 Dashboard
             </h1>
             <p class="text-amber-200/60 text-sm mt-1">
