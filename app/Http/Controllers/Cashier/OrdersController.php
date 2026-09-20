@@ -26,62 +26,63 @@ class OrdersController extends Controller
         return view('cashier.orders.create', compact('menuItems'));
     }
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+   public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
 
-            'type' => 'required|in:dine_in,take_out,delivery',
-            'table_no' => 'required_if:type,dine_in|nullable|string',
-            'address' => 'required_if:type,delivery|nullable|string',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.menu_item_id' => 'required|exists:menu_items,id',
-            'items.*.quantity' => 'required|integer|min:1',
+        'type' => 'required|in:dine_in,take_out,delivery',
+        'table_no' => 'required_if:type,dine_in|nullable|string',
+        'address' => 'required_if:type,delivery|nullable|string',
+        'notes' => 'nullable|string',
+        'items' => 'required|array|min:1',
+        'items.*.menu_item_id' => 'required|exists:menu_items,id',
+        'items.*.quantity' => 'required|integer|min:1',
+    ]);
+
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
+    }
+
+    try {
+        DB::beginTransaction();
+
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'type' => $request->type,
+            'table_no' => $request->table_no,
+            'address' => $request->address,
+            'notes' => $request->notes,
+            'total_amount' => 0,
         ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
+        foreach ($request->items as $item) {
+            $menuItem = MenuItem::find($item['menu_item_id']);
+            $quantity = (int) $item['quantity'];
 
-        try {
-            DB::beginTransaction();
-
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'type' => $request->type,
-                'table_no' => $request->table_no,
-                'address' => $request->address,
-                'notes' => $request->notes,
-                'total_amount' => 0,
+            OrderItem::create([
+                'order_id' => $order->id,
+                'menu_item_id' => $menuItem->id,
+                'quantity' => $quantity,
+                'price' => $menuItem->price,
+                'subtotal' => $quantity * $menuItem->price,
             ]);
-
-            foreach ($request->items as $item) {
-                $menuItem = MenuItem::find($item['menu_item_id']);
-                $quantity = (int) $item['quantity'];
-
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'menu_item_id' => $menuItem->id,
-                    'quantity' => $quantity,
-                    'price' => $menuItem->price,
-                    'subtotal' => $quantity * $menuItem->price,
-                ]);
-            }
-
-            $total = $order->orderItems()->sum('subtotal');
-            $order->update(['total_amount' => $total]);
-
-            DB::commit();
-
-            return redirect()
-                ->route('cashier.orders.index')
-                ->with('flashMessage', 'Order created successfully');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
         }
+
+        $total = $order->orderItems()->sum('subtotal');
+        $order->update(['total_amount' => $total]);
+
+        DB::commit();
+
+        // ✅ التعديل الوحيد هنا
+        return redirect()
+            ->route('cashier.invoices.create', ['order_id' => $order->id])
+            ->with('flashMessage', 'Order created — please issue the invoice');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
     }
+}
 
     public function show(Order $order)
     {

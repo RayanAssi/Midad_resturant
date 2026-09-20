@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminLogoutController;
+use App\Http\Controllers\Dashboard\InvoicesController;
 use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
 use App\Http\Controllers\ProfileController;
@@ -45,6 +46,9 @@ Route::middleware('auth:admin')
         Route::resource('menu-items', MenuItemController::class);
 
         // Invoices & Expenses (views مؤقتة)
-        Route::get('invoices', fn() => view('admin.invoices.index'))->name('invoices.index');
-        Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
+/*         Route::get('invoices', fn() => view('admin.invoices.index'))->name('invoices.index');
+ */        Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
+
+        Route::resource('invoices', InvoicesController::class)
+            ->except(['create', 'store']);
     });

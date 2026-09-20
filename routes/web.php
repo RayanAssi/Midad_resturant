@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Cashier\InvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController;
 use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 | Home redirect
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
     if (auth('admin')->check()) {
         return redirect()->route('admin.menu-items.index');
@@ -51,12 +53,9 @@ Route::middleware('auth')
         Route::delete('/orders/{order}', [CashierOrdersController::class, 'destroy'])
             ->name('orders.destroy');
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    
-            });
+        Route::get('invoices/create',     [InvoiceController::class, 'create'])->name('invoices.create');
+        Route::post('invoices',            [InvoiceController::class, 'store'])->name('invoices.store');
+        Route::get('invoices/{invoice}',  [InvoiceController::class, 'show'])->name('invoices.show');
+    });
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes (كلها في dashboard.php)
-|--------------------------------------------------------------------------
-*/
-require __DIR__.'/dashboard.php';
+require __DIR__ . '/dashboard.php';
