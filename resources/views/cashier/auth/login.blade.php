@@ -99,7 +99,8 @@
                         Email Address
                     </label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                        {{-- Email icon (left) --}}
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -108,13 +109,13 @@
                         </div>
                         <input type="email" id="email" name="email" value="{{ old('email') }}"
                             placeholder="admin@midad.com" required autofocus autocomplete="username"
-                            class="w-full pr-10 pl-4 py-2.5 rounded-lg
+                            class="w-full pl-10 pr-4 py-2.5 rounded-lg
                                    bg-black/40 border border-white/[0.08]
                                    text-sm text-white placeholder-gray-600
                                    transition-all duration-200
                                    focus:outline-none focus:border-red-600/60 focus:bg-black/60
                                    focus:ring-1 focus:ring-red-600/30
-                                   @error('email') border-red-600/60 @enderror">
+                                   @error('email') border-red-600/60 @enderror"">
                     </div>
                     @error('email')
                         <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
@@ -135,8 +136,8 @@
                         @endif
                     </div>
                     <div class="relative">
-                        {{-- Lock icon (right) --}}
-                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                        {{-- Lock icon (left) --}}
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -157,9 +158,10 @@
 
                         {{-- Show/hide password button --}}
                         <button type="button" @click="showPassword = !showPassword"
-                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center
+                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center
                        text-gray-600 hover:text-red-400 transition-colors
                        focus:outline-none">
+
 
                             {{-- Eye icon (open) --}}
                             <svg x-show="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor"

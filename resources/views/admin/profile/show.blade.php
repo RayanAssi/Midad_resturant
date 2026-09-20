@@ -147,8 +147,15 @@
     {{-- PANELS (components) --}}
     {{-- ============================================================ --}}
     <x-profile.panel-account :user="$user" />
-    <x-profile.panel-2fa :user="$user" />
-    <x-profile.panel-password :action="route('admin.profile.password')" />
+    <x-profile.panel-2fa 
+        :user="$user"
+        mode="link"
+        :enable-route="route('admin.two-factor.enable')"
+        :disable-route="route('admin.two-factor.disable')"
+        :confirm-route-enable="route('admin.profile.2fa.confirm', ['action' => 'enable'])"
+        :confirm-route-disable="route('admin.profile.2fa.confirm', ['action' => 'disable'])"
+    />
+<x-profile.panel-password :action="route('admin.profile.password')" />
     <x-profile.panel-roles :user="$user" />
     </div>
 
