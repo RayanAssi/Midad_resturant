@@ -6,12 +6,6 @@ use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController
 use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
 use App\Http\Controllers\ProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| Home redirect
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
     if (auth('admin')->check()) {
         return redirect()->route('admin.dashboard');
@@ -22,11 +16,6 @@ Route::get('/', function () {
     return redirect('/cashier/login');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Cashier Routes (محمية بـ auth)
-|--------------------------------------------------------------------------
-*/
 Route::middleware('auth')
     ->prefix('cashier')
     ->name('cashier.')
@@ -53,6 +42,8 @@ Route::middleware('auth')
         Route::delete('/orders/{order}', [CashierOrdersController::class, 'destroy'])
             ->name('orders.destroy');
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+        
+        // Invoices
         Route::get('invoices/create',     [InvoiceController::class, 'create'])->name('invoices.create');
         Route::post('invoices',            [InvoiceController::class, 'store'])->name('invoices.store');
         Route::get('invoices/{invoice}',  [InvoiceController::class, 'show'])->name('invoices.show');

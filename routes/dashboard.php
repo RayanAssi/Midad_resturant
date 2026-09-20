@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminLogoutController;
 use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Dashboard\InvoicesController;
+use App\Http\Controllers\Dashboard\InvoiceController;
 use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
 use App\Http\Controllers\ProfileController;
@@ -56,6 +56,6 @@ Route::middleware('auth:admin')
         // Expenses
         Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
 
-        Route::resource('invoices', InvoicesController::class)
+        Route::resource('invoices', InvoiceController::class)
             ->except(['create', 'store']);
     });

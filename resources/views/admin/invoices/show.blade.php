@@ -72,7 +72,8 @@
                                hover:from-amber-400 hover:to-amber-600
                                text-white font-bold shadow-lg shadow-amber-900/50
                                transition-all flex items-center gap-2">
-                    🖨️ Print
+                    <x-lucide-printer class="w-4 h-4" />
+                    Print
                 </button>
             </div>
         </div>

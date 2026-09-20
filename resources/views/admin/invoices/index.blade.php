@@ -8,7 +8,7 @@
     </div>
 
     @php
-        $headers = ['Invoice #', 'Order', 'Subtotal', 'Discount', 'Tax', 'Total', 'Date', 'Actions'];
+        $headers = ['Invoice', 'Order', 'Subtotal', 'Discount', 'Tax', 'Total', 'Date', 'Actions'];
 
         $actionsTemplate = <<<'BLADE'
             <div class="flex items-center justify-center gap-2">
@@ -46,7 +46,7 @@
         $rows = $invoices->map(function ($invoice) use ($actionsTemplate) {
 
             $order = $invoice->order_id
-                ? '<span class="text-amber-200/70">#' . $invoice->order_id . '</span>'
+                ? '<span class="text-amber-200/70">' . $invoice->order_id . '</span>'
                 : '<span class="text-amber-200/30">—</span>';
 
             $discount = $invoice->discount_amount > 0

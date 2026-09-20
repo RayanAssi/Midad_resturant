@@ -44,7 +44,8 @@
                           hover:from-amber-500 hover:to-amber-700
                           text-white font-black text-lg
                           shadow-lg shadow-amber-900/50 transition-all">
-                    🏁 انتهاء
+                    <x-lucide-check class="w-4 h-4" />
+                    انتهاء
                 </a>
             </div>
         @else

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 
-class InvoicesController extends Controller
+class InvoiceController extends Controller
 {
     public function index()
     {

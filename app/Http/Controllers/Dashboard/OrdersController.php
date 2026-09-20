@@ -116,7 +116,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.invoices.create', ['order_id' => $order->id])
+                ->route('cashier.invoices.create', ['order_id' => $order->id])
                 ->with('flashMessage', 'Order created. Now create the invoice.');
 
         } catch (\Exception $e) {

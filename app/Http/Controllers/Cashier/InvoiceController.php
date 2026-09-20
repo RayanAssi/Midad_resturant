@@ -66,7 +66,7 @@ class InvoiceController extends Controller
             // 2. ولّد الرقم النهائي
             $invoiceNumber = config('restaurant.invoice_prefix')
                 . '-' . now()->format('Y')
-                . '-' . str_pad($invoice->id, 5, '0', STR_PAD_LEFT);
+                . '-' . str_pad($invoice->id, 4, '0', STR_PAD_LEFT);
 
             // 3. حدّث الفاتورة
             $invoice->update([
