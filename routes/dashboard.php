@@ -61,8 +61,7 @@ Route::middleware('auth:admin')
         // Expenses
         Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
 
-        Route::resource('invoices', InvoiceController::class)
-            ->except(['create', 'store']);
+        Route::resource('invoices', InvoiceController::class);
 
         //Roles
         Route::prefix('roles')->name('roles.')->group(function () {
