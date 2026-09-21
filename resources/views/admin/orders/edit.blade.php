@@ -42,7 +42,6 @@
                             <p class="text-amber-200/60 text-sm mt-1">Click an item to add it to the cart</p>
                         </div>
 
-                        {{-- Search --}}
                         <div class="relative">
                             <input type="text" id="menu-search"
                                    placeholder="Search menu..."
@@ -106,15 +105,9 @@
 
                     <div class="px-5 py-4 border-t-2 border-amber-800/40
                                 bg-gradient-to-r from-transparent to-amber-900/30">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-amber-200/70 text-sm font-bold">Subtotal</span>
-                            <span id="cart-subtotal" class="text-lg font-black text-amber-300">0.00</span>
-                        </div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-amber-200/70 text-sm font-bold">Tax (15%)</span>
-                            <span id="cart-tax" class="text-lg font-black text-orange-300">0.00</span>
-                        </div>
-                        <div class="flex items-center justify-between mb-4 border-t border-amber-500/30 pt-3">
+
+                        {{-- ✅ TOTAL فقط --}}
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/30">
                             <span class="text-amber-100 text-sm font-black">TOTAL</span>
                             <span id="cart-total" class="text-2xl font-black text-green-400">0.00</span>
                         </div>
@@ -138,7 +131,6 @@
                                 placeholder="Select type..."
                             />
 
-                            {{-- Table No. --}}
                             <div id="table-no-wrapper" class="hidden">
                                 <x-form.input
                                     name="table_no"
@@ -148,7 +140,6 @@
                                 />
                             </div>
 
-                            {{-- Address --}}
                             <div id="address-wrapper" class="hidden">
                                 <x-form.input
                                     name="address"
@@ -195,9 +186,7 @@
         </div>
 
         <script>
-            /* ============================================================
-               Order Type → Toggle Table No. / Address
-            ============================================================ */
+            /* Order Type → Toggle Table No. / Address */
             document.addEventListener('DOMContentLoaded', function () {
                 const typeSelect     = document.querySelector('select[name="type"]');
                 const tableWrapper   = document.getElementById('table-no-wrapper');
@@ -229,9 +218,7 @@
                 toggleFields();
             });
 
-            /* ============================================================
-               Menu Search
-            ============================================================ */
+            /* Menu Search */
             document.addEventListener('DOMContentLoaded', function () {
                 const searchInput = document.getElementById('menu-search');
                 const menuButtons = document.querySelectorAll('.menu-item-btn');
@@ -248,9 +235,7 @@
                 });
             });
 
-            /* ============================================================
-               Cart
-            ============================================================ */
+            /* Cart */
             const cart = {};
             const menuItems = @json($menuItemsJson);
             const existingItems = @json($existingItemsJson);
@@ -277,21 +262,17 @@
             }
 
             function renderCart() {
-                const itemsEl    = document.getElementById('cart-items');
-                const countEl    = document.getElementById('cart-count');
-                const subtotalEl = document.getElementById('cart-subtotal');
-                const taxEl      = document.getElementById('cart-tax');
-                const totalEl    = document.getElementById('cart-total');
-                const hiddenEl   = document.getElementById('hidden-items');
-                const btn        = document.getElementById('confirm-btn');
+                const itemsEl  = document.getElementById('cart-items');
+                const countEl  = document.getElementById('cart-count');
+                const totalEl  = document.getElementById('cart-total');
+                const hiddenEl = document.getElementById('hidden-items');
+                const btn      = document.getElementById('confirm-btn');
 
                 const ids = Object.keys(cart);
 
                 if (ids.length === 0) {
                     itemsEl.innerHTML = '<p class="text-center text-amber-200/40 text-sm py-8">Cart is empty</p>';
                     countEl.textContent = '0';
-                    subtotalEl.textContent = '0.00';
-                    taxEl.textContent = '0.00';
                     totalEl.textContent = '0.00';
                     hiddenEl.innerHTML = '';
                     btn.disabled = true;
@@ -331,14 +312,9 @@
                     hidden += `<input type="hidden" name="items[${i}][quantity]" value="${item.qty}">`;
                 });
 
-                const tax = subtotal * 0.15;
-                const total = subtotal + tax;
-
                 itemsEl.innerHTML = html;
                 countEl.textContent = count;
-                subtotalEl.textContent = subtotal.toFixed(2);
-                taxEl.textContent = tax.toFixed(2);
-                totalEl.textContent = total.toFixed(2);
+                totalEl.textContent = subtotal.toFixed(2);
                 hiddenEl.innerHTML = hidden;
                 btn.disabled = false;
             }

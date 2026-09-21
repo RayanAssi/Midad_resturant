@@ -11,7 +11,7 @@ class UsersSeeder extends Seeder
     public function run(): void
     {
         
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@midad.com'],
             [
                 'name'     => 'مدير المطعم',
@@ -22,7 +22,7 @@ class UsersSeeder extends Seeder
             ]
         );
 
-        
+        $admin->assignRole('super-admin');
 
         
         User::updateOrCreate(

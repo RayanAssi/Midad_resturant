@@ -1,6 +1,7 @@
 <x-layouts.admin title="Order Details #{{ $order->id }}">
     <div class="max-w-4xl mx-auto space-y-6">
 
+        {{-- ============ Order Info Card ============ --}}
         <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
@@ -74,6 +75,7 @@
             </div>
         </div>
 
+        {{-- ============ Order Items Card ============ --}}
         <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                     border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
@@ -121,6 +123,8 @@
 
                     @if($order->orderItems->count() > 0)
                         <tfoot class="border-t-2 border-red-700/50 bg-black/30">
+
+                            {{-- Subtotal --}}
                             <tr>
                                 <td colspan="3" class="px-6 py-4 text-amber-100 font-black text-right">
                                     Subtotal:
@@ -129,23 +133,41 @@
                                     {{ number_format($order->total_amount, 2) }} SYP
                                 </td>
                             </tr>
-                            <tr>
-                                <td colspan="3" class="px-6 py-4 text-amber-100 font-black text-right">
-                                    Tax (15%):
-                                </td>
-                                <td class="px-6 py-4 text-orange-300 font-black">
-                                    {{ number_format($order->total_amount * 0.15, 2) }} SYP
-                                </td>
-                            </tr>
+
+                            {{-- Discount — إذا في فاتورة و خصم --}}
+                            @if($order->invoice && $order->invoice->discount_amount > 0)
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-amber-100 font-black text-right">
+                                        Discount:
+                                    </td>
+                                    <td class="px-6 py-4 text-red-400 font-black">
+                                        - {{ number_format($order->invoice->discount_amount, 2) }} SYP
+                                    </td>
+                                </tr>
+                            @endif
+
+                            {{-- Tax — إذا في فاتورة --}}
+                            @if($order->invoice)
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-amber-100 font-black text-right">
+                                        Tax ({{ number_format($order->invoice->tax_rate, 2) }}%):
+                                    </td>
+                                    <td class="px-6 py-4 text-orange-300 font-black">
+                                        {{ number_format($order->invoice->tax_amount, 2) }} SYP
+                                    </td>
+                                </tr>
+                            @endif
+
+                            {{-- Total --}}
                             <tr class="border-t-2 border-amber-500/30">
                                 <td colspan="3" class="px-6 py-4 text-amber-100 font-black text-right text-lg">
                                     Total:
                                 </td>
                                 <td class="px-6 py-4 text-green-400 font-black text-2xl">
                                     @if($order->invoice)
-                                        {{ number_format($order->invoice->total, 2) }} SYP
+                                        {{ number_format($order->invoice->total_amount, 2) }} SYP
                                     @else
-                                        {{ number_format($order->total_amount * 1.15, 2) }} SYP
+                                        {{ number_format($order->total_amount, 2) }} SYP
                                     @endif
                                 </td>
                             </tr>
@@ -155,6 +177,7 @@
             </div>
         </div>
 
+        {{-- ============ Tax Invoice Card ============ --}}
         @if($order->invoice)
             <div class="rounded-2xl bg-gradient-to-br from-green-900/20 via-gray-800 to-black
                         border-2 border-green-500/30 shadow-2xl shadow-green-900/20 overflow-hidden">
@@ -179,6 +202,7 @@
             </div>
         @endif
 
+        {{-- ============ Buttons ============ --}}
         <div class="flex gap-3">
             <a href="{{ route('admin.orders.index') }}"
                class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
@@ -186,7 +210,7 @@
                 Back
             </a>
 
-            @if(auth()->user()?->hasRole('super-admin'))
+            @if(auth()->user()?->can('orders.edit', 'web'))
                 <a href="{{ route('admin.orders.edit', $order->id) }}"
                    class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700
                           hover:from-amber-500 hover:to-amber-600
