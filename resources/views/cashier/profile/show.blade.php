@@ -126,8 +126,12 @@
         {{-- PANELS (components) --}}
         {{-- ============================================================ --}}
         <x-profile.panel-account :user="$user" />
-        <x-profile.panel-2fa :user="$user" />
-
+        <x-profile.panel-2fa 
+        :user="$user"
+        mode="form"
+        :enable-route="route('two-factor.enable')"
+        :disable-route="route('two-factor.disable')"
+        />
     </div>
 
     {{-- ==================== Styles ==================== --}}

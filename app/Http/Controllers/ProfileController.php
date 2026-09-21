@@ -51,27 +51,56 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password updated successfully.');
     }
-    public function enableTwoFactor(Request $request)
-    {
-        $request->validate([
-            'password' => ['required', 'current_password:admin'],
-        ]);
+    // public function enableTwoFactor(Request $request)
+    // {
+    //     $request->validate([
+    //         'password' => ['required', 'current_password:admin'],
+    //     ]);
 
-        $user = auth('admin')->user();
-        app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)($user);
+    //     $user = auth('admin')->user();
+    //     app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)($user);
 
-        return back()->with('success', 'Two-Factor authentication enabled.');
-    }
+    //     return back()->with('success', 'Two-Factor authentication enabled.');
+    // }
 
-    public function disableTwoFactor(Request $request)
-    {
-        $request->validate([
-            'password' => ['required', 'current_password:admin'],
-        ]);
+    // public function disableTwoFactor(Request $request)
+    // {
+    //     $request->validate([
+    //         'password' => ['required', 'current_password:admin'],
+    //     ]);
 
-        $user = auth('admin')->user();
-        app(\Laravel\Fortify\Actions\DisableTwoFactorAuthentication::class)($user);
+    //     $user = auth('admin')->user();
+    //     app(\Laravel\Fortify\Actions\DisableTwoFactorAuthentication::class)($user);
 
-        return back()->with('success', 'Two-Factor authentication disabled.');
-    }
+    //     return back()->with('success', 'Two-Factor authentication disabled.');
+    // }
+public function enableTwoFactor(Request $request)
+{
+    $request->validate([
+        'password' => ['required', 'current_password:admin'],
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = auth('admin')->user();
+    app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)($user);
+
+    return redirect()
+        ->route('admin.profile.show')
+        ->with('success', 'Two-Factor authentication enabled.');
 }
+
+public function disableTwoFactor(Request $request)
+{
+    $request->validate([
+        'password' => ['required', 'current_password:admin'],
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = auth('admin')->user();
+    app(\Laravel\Fortify\Actions\DisableTwoFactorAuthentication::class)($user);
+
+    return redirect()
+        ->route('admin.profile.show')
+        ->with('success', 'Two-Factor authentication disabled.');
+}
+    }
