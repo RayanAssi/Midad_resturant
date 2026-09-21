@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cashier;
+namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -16,14 +16,14 @@ class OrdersController extends Controller
     public function index()
     {
         $orders = Order::with('user')->latest()->paginate(10);
-        return view('cashier.orders.index', compact('orders'));
+        return view('employee.orders.index', compact('orders'));
     }
 
     public function create()
     {
         $menuItems = MenuItem::all();
 
-        return view('cashier.orders.create', compact('menuItems'));
+        return view('employee.orders.create', compact('menuItems'));
     }
 
    public function store(Request $request)
@@ -75,7 +75,7 @@ class OrdersController extends Controller
 
         // ✅ التعديل الوحيد هنا
         return redirect()
-            ->route('cashier.invoices.create', ['order_id' => $order->id])
+            ->route('employee.invoices.create', ['order_id' => $order->id])
             ->with('flashMessage', 'Order created — please issue the invoice');
 
     } catch (\Exception $e) {
@@ -87,7 +87,7 @@ class OrdersController extends Controller
     public function show(Order $order)
     {
         $order->load('items.menuItem', 'user');
-        return view('cashier.orders.show', compact('order'));
+        return view('employee.orders.show', compact('order'));
     }
 
     public function edit(Order $order)
@@ -96,7 +96,7 @@ class OrdersController extends Controller
         $menuItems = MenuItem::all();
         
 
-        return view('cashier.orders.edit', compact('order', 'menuItems'));
+        return view('employee.orders.edit', compact('order', 'menuItems'));
     }
 
     public function update(Request $request, Order $order)
@@ -148,7 +148,7 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('cashier.orders.show', $order)
+                ->route('employee.orders.show', $order)
                 ->with('flashMessage', 'Order updated successfully');
 
         } catch (\Exception $e) {
@@ -159,7 +159,7 @@ class OrdersController extends Controller
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->route('cashier.orders.index')
+        return redirect()->route('employee.orders.index')
             ->with('success', 'Order deleted successfully.');
     }
 }

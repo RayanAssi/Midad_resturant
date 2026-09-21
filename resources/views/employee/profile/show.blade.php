@@ -1,4 +1,4 @@
-<x-layouts.cashier title="Profile">
+<x-layouts.employee title="Profile">
 
     <div class="max-w-7xl mx-auto px-2">
         <x-flash-message />
@@ -92,7 +92,7 @@
                         </div>
                     </div>
 
-                    {{-- (No Edit Button for cashier) --}}
+                    {{-- (No Edit Button for employee) --}}
                 </div>
             </div>
         </div>
@@ -216,4 +216,4 @@
         });
     </script>
 
-</x-layouts.cashier>
+</x-layouts.employee>

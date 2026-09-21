@@ -2,7 +2,7 @@
     if (auth('admin')->check()) {
         $logoutUrl = '/admin/logout';
     } else {
-        $logoutUrl = '/cashier/logout';
+        $logoutUrl = '/employee/logout';
     }
 
     $accentClass = 'bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 shadow-red-900/50';

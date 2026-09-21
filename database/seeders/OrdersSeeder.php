@@ -13,7 +13,7 @@ class OrdersSeeder extends Seeder
     public function run(): void
     {
         // جلب الكاشير
-        $cashier = User::where('role', 'cashier')->first();
+        $cashier = User::where('role', 'employee')->first();
 
         // جلب أصناف القائمة
         $menuItems = MenuItem::all();

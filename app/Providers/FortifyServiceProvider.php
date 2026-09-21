@@ -34,8 +34,8 @@ class FortifyServiceProvider extends ServiceProvider
             // إعدادات المستخدمين العاديين
             Config::set('fortify.guard', 'web');
             Config::set('fortify.passwords', 'users');
-            Config::set('fortify.home', '/cashier/');
-            Config::set('fortify.prefix', 'cashier');
+            Config::set('fortify.home', '/employee/');
+            Config::set('fortify.prefix', 'employee');
         }
     }
 
@@ -71,7 +71,7 @@ class FortifyServiceProvider extends ServiceProvider
         if (Config::get('fortify.guard') == 'admin') {
             Fortify::viewPrefix('admin.auth.');
         } else {
-            Fortify::viewPrefix('cashier.auth.');
+            Fortify::viewPrefix('employee.auth.');
         }
     }
 }

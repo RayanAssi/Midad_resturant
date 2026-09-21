@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cashier;
+namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\MenuItem;
@@ -22,6 +22,6 @@ class MenuItemController extends Controller
 
         $items = $query->orderBy('category')->orderBy('name')->get();
 
-        return view('cashier.menu-items.index', compact('items'));
+        return view('employee.menu-items.index', compact('items'));
     }
 }

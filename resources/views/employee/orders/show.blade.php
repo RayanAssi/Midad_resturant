@@ -1,4 +1,4 @@
-<x-layouts.cashier title="Order #{{ $order->id }}">
+<x-layouts.employee title="Order #{{ $order->id }}">
 
     {{-- Header --}}
     <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <a href="{{ route('cashier.orders.index') }}"
+        <a href="{{ route('employee.orders.index') }}"
            class="px-5 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40
                   text-amber-100 hover:border-red-600/60 transition-all">
             ← Back to Orders
@@ -83,9 +83,9 @@
                 </div>
             @endif
 
-            {{-- Cashier --}}
+            {{-- employee --}}
             <div>
-                <p class="text-xs text-amber-300/60 uppercase tracking-wider mb-1">Cashier</p>
+                <p class="text-xs text-amber-300/60 uppercase tracking-wider mb-1">Employee</p>
                 <p class="text-amber-100 font-bold">{{ $order->user->name ?? '—' }}</p>
             </div>
 
@@ -199,4 +199,4 @@
         @endif
     </div>
 
-</x-layouts.cashier>
+</x-layouts.employee>

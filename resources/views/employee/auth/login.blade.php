@@ -77,7 +77,7 @@
                             bg-red-950/40 border border-red-900/50">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                     <span class="text-[10px] font-semibold text-red-300 tracking-wider uppercase">
-                        Cashier Access
+                        Employee Access
                     </span>
                 </div>
             </div>

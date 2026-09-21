@@ -67,7 +67,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'cashier',
+            'driver' => 'employee',
             'model' => env('AUTH_MODEL', User::class),
         ],
         'admin' => [

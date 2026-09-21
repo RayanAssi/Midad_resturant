@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
             return new ManagerUserProvider($app['hash'], $config['model']);
         });
 
-        Auth::provider('cashier', function ($app, array $config) {
-            return new CashierUserProvider($app['hash'], $config['model']);
+        Auth::provider('employee', function ($app, array $config) {
+            return new EmployeeUserProvider($app['hash'], $config['model']);
         });
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cashier;
+namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
@@ -22,7 +22,7 @@ class InvoiceController extends Controller
             ? Order::find($request->order_id)
             : null;
 
-        return view('cashier.invoices.create', compact('orders', 'selectedOrder'));
+        return view('employee.invoices.create', compact('orders', 'selectedOrder'));
     }
 
     public function store(Request $request)
@@ -77,7 +77,7 @@ class InvoiceController extends Controller
             DB::commit();
 
           return redirect()
-    ->route('cashier.invoices.create', ['order_id' => $order->id])
+    ->route('employee.invoices.create', ['order_id' => $order->id])
     ->with('invoice_created', $invoiceNumber)
     ->with('invoice_id', $invoice->id);   // ✅ ضيف هذا
         } catch (\Exception $e) {
@@ -92,6 +92,6 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice)
     {
         $invoice->load(['order', 'creator']);
-        return view('cashier.invoices.show', compact('invoice'));
+        return view('employee.invoices.show', compact('invoice'));
     }
 }

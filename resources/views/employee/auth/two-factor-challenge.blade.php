@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two-Factor Verification (Cashier) — Midad Restaurant</title>
+    <title>Two-Factor Verification (employee) — Midad Restaurant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
@@ -91,7 +91,7 @@
                             bg-red-950/40 border border-red-900/50">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                     <span class="text-[10px] font-semibold text-red-300 tracking-wider uppercase">
-                        Cashier 2FA
+                        employee 2FA
                     </span>
                 </div>
             </div>
@@ -198,7 +198,7 @@
         </div>
 
         {{-- Logout --}}
-        <form method="POST" action="{{ url('/cashier/logout') }}" class="mt-4 text-center">
+        <form method="POST" action="{{ url('/employee/logout') }}" class="mt-4 text-center">
             @csrf
             <button type="submit" class="text-[11px] text-gray-600 hover:text-red-400 transition-colors">
                 ← Sign out and return to login

@@ -38,26 +38,26 @@ return [
     ],
 
     /*
-    Cashier Navigation
+    employee Navigation
     */
-    'cashier' => [
+    'employee' => [
         [
             'label'      => 'Menu',
             'icon'       => 'utensils',
-            'route'      => 'cashier.menu-items.index',
-            'active'     => 'cashier.menu-items.*',
+            'route'      => 'employee.menu-items.index',
+            'active'     => 'employee.menu-items.*',
         ],
         [
             'label'      => 'New Order',
             'icon'       => 'plus-circle',
-            'route'      => 'cashier.orders.create',
-            'active'     => 'cashier.orders.create',
+            'route'      => 'employee.orders.create',
+            'active'     => 'employee.orders.create',
         ],
         [
             'label'      => 'Orders',
             'icon'       => 'receipt',
-            'route'      => 'cashier.orders.index',
-            'active'     => 'cashier.orders.index',
+            'route'      => 'employee.orders.index',
+            'active'     => 'employee.orders.index',
         ],
     ],
 ];

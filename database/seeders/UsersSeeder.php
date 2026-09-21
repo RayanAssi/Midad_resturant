@@ -17,36 +17,57 @@ class UsersSeeder extends Seeder
                 'name'     => 'مدير المطعم',
                 'password' => Hash::make('password'),
                 'role'     => 'manager',
+                'position' => 'main manager',
                 'phone'    => '0911111111',
             ]
         );
 
         // الكاشير
+         // المدير
+        User::updateOrCreate(
+            ['email' => 'manager@midad.com'],
+            [
+                'name'     => 'مدير المطعم',
+                'password' => Hash::make('password'),
+                'role'     => 'manager',
+                'position' => 'manager',
+                'phone'    => '0911111111',
+            ]
+        );
+
+        // كاشير
         User::updateOrCreate(
             ['email' => 'cashier@midad.com'],
             [
                 'name'     => 'أحمد الكاشير',
                 'password' => Hash::make('password'),
-                'role'     => 'cashier',
+                'role'     => 'employee',
+                'position' => 'cashier',
                 'phone'    => '0922222222',
             ]
         );
+
+        // طباخ
         User::updateOrCreate(
-            ['email' => 'ali@midad.com'],
+            ['email' => 'chef@midad.com'],
             [
-                'name'     => ' علي الموظف',
+                'name'     => 'علي الطباخ',
                 'password' => Hash::make('password'),
-                'role'     => 'cashier',
-                'phone'    => '0922222222',
+                'role'     => 'employee',
+                'position' => 'chef',
+                'phone'    => '0933333333',
             ]
         );
+
+        // عامل نظافة
         User::updateOrCreate(
-            ['email' => 'ali@midad.com'],
+            ['email' => 'cleaner@midad.com'],
             [
-                'name'     => ' مجمد الموظف',
+                'name'     => 'محمد عامل النظافة',
                 'password' => Hash::make('password'),
-                'role'     => 'cashier',
-                'phone'    => '0922222222',
+                'role'     => 'employee',
+                'position' => 'cleaner',
+                'phone'    => '0944444444',
             ]
         );
 

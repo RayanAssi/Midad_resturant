@@ -6,7 +6,7 @@
     // خريطة لتحويل الـ slugs لأسماء جميلة
     $labels = [
         'admin'      => 'Admin',
-        'cashier'    => 'Cashier',
+        'employee'    => 'Employee',
         'menu-items' => 'Menu Items',
         'orders'     => 'Orders',
         'invoices'   => 'Invoices',
@@ -25,9 +25,9 @@
         'admin.orders.index'       => null,
         'admin.invoices.index'     => null,
         'admin.expenses.index'     => null,
-        'cashier.menu-items.index' => null,
-        'cashier.orders.index'     => null,
-        'cashier.orders.create'    => null,
+        'employee.menu-items.index' => null,
+        'employee.orders.index'     => null,
+        'employee.orders.create'    => null,
     ];
 @endphp
 

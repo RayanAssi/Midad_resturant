@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Cashier\InvoiceController;
+use App\Http\Controllers\Employee\InvoiceController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Cashier\MenuItemController as CashierMenuItemController;
-use App\Http\Controllers\Cashier\OrdersController as CashierOrdersController;
+use App\Http\Controllers\Employee\MenuItemController as EmployeeMenuItemController;
+use App\Http\Controllers\Employee\OrdersController as EmployeeOrdersController;
 use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
@@ -11,35 +11,35 @@ Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     }
     if (auth('web')->check()) {
-        return redirect()->route('cashier.orders.index');
+        return redirect()->route('employee.orders.index');
     }
-    return redirect('/cashier/login');
+    return redirect('/employee/login');
 });
 
 Route::middleware('auth')
-    ->prefix('cashier')
-    ->name('cashier.')
+    ->prefix('employee')
+    ->name('employee.')
     ->group(function () {
 
         // Menu Items
-        Route::get('menu-items', [CashierMenuItemController::class, 'index'])
+        Route::get('menu-items', [EmployeeMenuItemController::class, 'index'])
             ->name('menu-items.index');
 
         // Orders
-        Route::get('/', [CashierOrdersController::class, 'index'])
+        Route::get('/', [EmployeeOrdersController::class, 'index'])
             ->name('orders.index');
 
-        Route::get('/orders/create', [CashierOrdersController::class, 'create'])
+        Route::get('/orders/create', [EmployeeOrdersController::class, 'create'])
             ->name('orders.create');
-        Route::post('/orders', [CashierOrdersController::class, 'store'])
+        Route::post('/orders', [EmployeeOrdersController::class, 'store'])
             ->name('orders.store');
-        Route::get('/orders/{order}', [CashierOrdersController::class, 'show'])
+        Route::get('/orders/{order}', [EmployeeOrdersController::class, 'show'])
             ->name('orders.show');
-        Route::get('/orders/{order}/edit', [CashierOrdersController::class, 'edit'])
+        Route::get('/orders/{order}/edit', [EmployeeOrdersController::class, 'edit'])
             ->name('orders.edit');
-        Route::put('/orders/{order}', [CashierOrdersController::class, 'update'])
+        Route::put('/orders/{order}', [EmployeeOrdersController::class, 'update'])
             ->name('orders.update');
-        Route::delete('/orders/{order}', [CashierOrdersController::class, 'destroy'])
+        Route::delete('/orders/{order}', [EmployeeOrdersController::class, 'destroy'])
             ->name('orders.destroy');
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
         

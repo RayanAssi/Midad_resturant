@@ -7,26 +7,9 @@
             'price' => (float) ($m->price ?? 0),
         ];
     }
-
-    $existingItemsJson = [];
-    if (old('items')) {
-        foreach (old('items') as $item) {
-            $existingItemsJson[] = [
-                'menu_item_id' => $item['menu_item_id'] ?? '',
-                'quantity'     => $item['quantity'] ?? 1,
-            ];
-        }
-    } else {
-        foreach ($order->orderItems as $item) {
-            $existingItemsJson[] = [
-                'menu_item_id' => $item->menu_item_id,
-                'quantity'     => $item->quantity,
-            ];
-        }
-    }
 @endphp
 
-<x-layouts.cashier title="Edit Order #{{ $order->id }}">
+<x-layouts.employee title="New Order">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div class="lg:col-span-2 space-y-6">
@@ -69,12 +52,7 @@
 
                 <div class="px-5 py-4 bg-gradient-to-r from-amber-900/60 via-amber-800/40 to-transparent
                             border-b-2 border-amber-700/50 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-black text-amber-100">Edit Order #{{ $order->id }}</h3>
-                        <p class="text-[10px] text-amber-200/50 mt-0.5">
-                            {{ $order->created_at?->format('Y-m-d H:i') ?? '—' }}
-                        </p>
-                    </div>
+                    <h3 class="text-lg font-black text-amber-100">Current Order</h3>
                     <span id="cart-count"
                           class="px-3 py-1 rounded-full bg-amber-700 text-amber-50
                                  text-xs font-bold">0</span>
@@ -102,18 +80,17 @@
                     </div>
 
                     <form id="order-form"
-                          action="{{ route('cashier.orders.update', $order) }}"
+                          action="{{ route('employee.orders.store') }}"
                           method="POST"
                           class="space-y-3">
                         @csrf
-                        @method('PUT')
 
                         
 
                         <x-form.select
                             name="type"
                             label="Order Type"
-                            :selected="old('type', $order->type)"
+                            :selected="old('type', 'dine_in')"
                             :option="[
                                 'dine_in'  => 'Dine In',
                                 'take_out' => 'Take Out',
@@ -128,7 +105,7 @@
                                 name="table_no"
                                 label="Table No."
                                 placeholder="e.g. 5"
-                                :value="old('table_no', $order->table_no)"
+                                :value="old('table_no')"
                             />
                         </div>
 
@@ -138,7 +115,7 @@
                                 name="address"
                                 label="Address"
                                 placeholder="For delivery only"
-                                :value="old('address', $order->address)"
+                                :value="old('address')"
                             />
                         </div>
 
@@ -146,31 +123,22 @@
                             name="notes"
                             label="Notes"
                             placeholder="Any notes..."
-                            :value="old('notes', $order->notes)"
+                            :value="old('notes')"
                         />
 
                         <div id="hidden-items"></div>
 
-                        <div class="flex gap-2">
-                            <a href="{{ route('cashier.orders.show', $order) }}"
-                               class="flex-1 text-center py-3 rounded-xl font-black text-sm tracking-wide
-                                      bg-gray-700/50 hover:bg-gray-600/50 text-amber-100
-                                      border border-gray-600/50 transition-all">
-                                CANCEL
-                            </a>
-
-                            <button type="submit"
-                                    id="confirm-btn"
-                                    disabled
-                                    class="flex-1 py-3 rounded-xl font-black text-sm tracking-wide
-                                           bg-gradient-to-r from-green-600 to-green-800
-                                           hover:from-green-500 hover:to-green-700
-                                           text-white shadow-lg shadow-green-900/50
-                                           transition-all disabled:opacity-40
-                                           disabled:cursor-not-allowed">
-                                ✓ SAVE CHANGES
-                            </button>
-                        </div>
+                        <button type="submit"
+                                id="confirm-btn"
+                                disabled
+                                class="w-full py-3 rounded-xl font-black text-sm tracking-wide
+                                       bg-gradient-to-r from-green-600 to-green-800
+                                       hover:from-green-500 hover:to-green-700
+                                       text-white shadow-lg shadow-green-900/50
+                                       transition-all disabled:opacity-40
+                                       disabled:cursor-not-allowed">
+                            ✓ CONFIRM ORDER
+                        </button>
                     </form>
                 </div>
             </div>
@@ -213,7 +181,7 @@
             }
 
             typeSelect.addEventListener('change', toggleFields);
-            toggleFields(); // أول تحميل (يشتغل مع old + $order->type)
+            toggleFields(); // أول تحميل
         });
 
         /* ============================================================
@@ -221,7 +189,6 @@
         ============================================================ */
         const cart = {};
         const menuItems = @json($menuItemsJson);
-        const existingItems = @json($existingItemsJson);
 
         function addToCart(id, name, price) {
             if (cart[id]) {
@@ -310,23 +277,5 @@
             hiddenEl.innerHTML = hidden;
             btn.disabled = false;
         }
-
-        /* ============================================================
-           Load existing items (edit mode)
-        ============================================================ */
-        document.addEventListener('DOMContentLoaded', function () {
-            existingItems.forEach(function (item) {
-                const menuItem = menuItems.find(m => m.id == item.menu_item_id);
-                if (menuItem) {
-                    cart[menuItem.id] = {
-                        id: menuItem.id,
-                        name: menuItem.name,
-                        price: menuItem.price,
-                        qty: parseInt(item.quantity) || 1
-                    };
-                }
-            });
-            renderCart();
-        });
     </script>
-</x-layouts.cashier>
+</x-layouts.employee>

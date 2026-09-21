@@ -1,4 +1,4 @@
-<x-layouts.cashier title="Orders">
+<x-layouts.employee title="Orders">
 
     <div class="flex items-center justify-between mb-6">
         <h1
@@ -7,7 +7,7 @@
             Orders
         </h1>
 
-        <a href="{{ route('cashier.orders.create') }}"
+        <a href="{{ route('employee.orders.create') }}"
             class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-800
                   hover:from-red-500 hover:to-red-700 text-amber-50 font-bold
                   shadow-lg shadow-red-900/50 transition-all">
@@ -27,7 +27,7 @@
         // قالب الأزرار
         $actionsTemplate = <<<'BLADE'
             <div class="flex items-center justify-center gap-2">
-                <a href="{{ route('cashier.orders.show', $order) }}"
+                <a href="{{ route('employee.orders.show', $order) }}"
                    title="View"
                    class="p-2 rounded-lg border border-amber-400/40 bg-amber-500/10
                           text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/70
@@ -35,7 +35,7 @@
                     <x-lucide-eye class="w-4 h-4" />
                 </a>
 
-                <a href="{{ route('cashier.orders.edit', $order) }}"
+                <a href="{{ route('employee.orders.edit', $order) }}"
                    title="Edit"
                    class="p-2 rounded-lg border border-blue-400/40 bg-blue-500/10
                           text-blue-300 hover:bg-blue-500/20 hover:border-blue-400/70
@@ -43,7 +43,7 @@
                     <x-lucide-edit class="w-4 h-4" />
                 </a>
 
-                <form action="{{ route('cashier.orders.destroy', $order) }}"
+                <form action="{{ route('employee.orders.destroy', $order) }}"
                       method="POST"
                       onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟');"
                       class="inline">
@@ -100,4 +100,4 @@
         </x-slot:footer>
     </x-table>
 
-</x-layouts.cashier>
+</x-layouts.employee>

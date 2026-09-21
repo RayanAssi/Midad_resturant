@@ -1,4 +1,4 @@
-<x-layouts.cashier title="Invoice {{ $invoice->invoice_number }}">
+<x-layouts.employee title="Invoice {{ $invoice->invoice_number }}">
 
     <style>
         @media print {
@@ -62,7 +62,7 @@
 
             <div class="flex gap-2">
                 {{-- ✅ بدّل الـ route للكاشير --}}
-                <a href="{{ route('cashier.orders.index') }}"
+                <a href="{{ route('employee.orders.index') }}"
                    class="px-4 py-2 rounded-lg bg-black/40 border border-amber-500/30
                           text-amber-200 hover:border-amber-400/60 hover:bg-amber-500/10
                           transition-all flex items-center gap-2">
@@ -125,7 +125,7 @@
                 </div>
 
                 <div class="space-y-1 text-right">
-                    <p class="text-amber-200/50 text-xs uppercase tracking-wider">Cashier</p>
+                    <p class="text-amber-200/50 text-xs uppercase tracking-wider">Employee</p>
                     <p class="text-amber-100 font-bold">
                         {{ $invoice->creator?->name ?? '—' }}
                     </p>
@@ -208,4 +208,4 @@
 
     </div>
 
-</x-layouts.cashier>
+</x-layouts.employee>

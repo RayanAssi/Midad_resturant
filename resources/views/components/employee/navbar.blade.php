@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
 
         {{-- Logo (نفس السايدبار) --}}
-        <a href="{{ route('cashier.orders.index') }}" class="flex items-center gap-3">
+        <a href="{{ route('employee.orders.index') }}" class="flex items-center gap-3">
 
             <div
                 class="w-10 h-10 rounded-lg
@@ -24,7 +24,7 @@
         </a>
 
         <div class="flex items-center gap-4 flex-shrink-0">
-            <x-user-dropdown :profile-route="route('cashier.profile.show')" />
+            <x-user-dropdown :profile-route="route('employee.profile.show')" />
         </div>
     </div>
 </nav>

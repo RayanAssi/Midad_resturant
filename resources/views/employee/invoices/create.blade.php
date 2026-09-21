@@ -1,4 +1,4 @@
-<x-layouts.cashier title="Issue Invoice">
+<x-layouts.employee title="Issue Invoice">
 
     <div class="max-w-2xl mx-auto">
 
@@ -47,7 +47,7 @@
 
                     {{-- Print Button --}}
                     @if(session('invoice_id'))
-                        <a href="{{ route('cashier.invoices.show', session('invoice_id')) }}"
+                        <a href="{{ route('employee.invoices.show', session('invoice_id')) }}"
                            class="flex items-center justify-center gap-2
                                   px-6 py-3 rounded-lg
                                   bg-gradient-to-r from-amber-600 to-amber-800
@@ -61,7 +61,7 @@
                     @endif
 
                     {{-- Done Button --}}
-                    <a href="{{ route('cashier.orders.index') }}"
+                    <a href="{{ route('employee.orders.index') }}"
                        class="flex items-center justify-center gap-2
                               px-6 py-3 rounded-lg
                               bg-gradient-to-r from-emerald-600 to-emerald-800
@@ -77,7 +77,7 @@
             </div>
         @else
             {{-- ═══ Form ═══ --}}
-            <form action="{{ route('cashier.invoices.store') }}" method="POST"
+            <form action="{{ route('employee.invoices.store') }}" method="POST"
                   class="bg-gradient-to-br from-gray-900 via-gray-800 to-black
                          border-2 border-amber-500/30 rounded-2xl overflow-hidden
                          shadow-2xl shadow-amber-900/20">
@@ -263,4 +263,4 @@
 
     </div>
 
-</x-layouts.cashier>
+</x-layouts.employee>
