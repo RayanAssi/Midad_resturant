@@ -8,314 +8,368 @@
         ];
     }
 
+    $existingItemsJson = [];
     if (old('items')) {
-        $orderItemsJson = [];
         foreach (old('items') as $item) {
-            $orderItemsJson[] = [
+            $existingItemsJson[] = [
                 'menu_item_id' => $item['menu_item_id'] ?? '',
                 'quantity'     => $item['quantity'] ?? 1,
             ];
         }
     } else {
-        $orderItemsJson = $order->orderItems->map(function ($item) {
-            return [
+        foreach ($order->orderItems as $item) {
+            $existingItemsJson[] = [
                 'menu_item_id' => $item->menu_item_id,
                 'quantity'     => $item->quantity,
             ];
-        })->values()->toArray();
+        }
     }
 @endphp
 
-<x-layouts.admin title="Edit Order">
-    <div class="max-w-4xl mx-auto space-y-6">
+@if(auth()->user()?->can('orders.edit', 'web'))
+    <x-layouts.admin title="Edit Order #{{ $order->id }}">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                    border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
+            {{-- ============ Menu Section ============ --}}
+            <div class="lg:col-span-2 space-y-6">
+                <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                            border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
-            <div class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
-                        border-b-2 border-red-800/50">
-                <h2 class="text-2xl font-black text-amber-100">Edit Order #{{ $order->id }}</h2>
-                <p class="text-amber-200/60 text-sm mt-1">Update order details and items</p>
-            </div>
-
-            <div class="p-6">
-                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" id="order-form" class="space-y-6">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                        {{-- Order Type --}}
-                        <x-form.select
-                            name="type"
-                            label="Order Type"
-                            :selected="old('type', $order->type)"
-                            :option="[
-                                'dine_in'  => 'Dine In',
-                                'take_out' => 'Take Out',
-                                'delivery' => 'Delivery',
-                            ]"
-                        />
-
-                        {{-- Table No. (dine_in only) --}}
-                        <div id="table-no-wrapper" class="hidden">
-                            <x-form.input
-                                name="table_no"
-                                label="Table No."
-                                placeholder="e.g. 5"
-                                :value="old('table_no', $order->table_no)"
-                            />
+                    <div class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
+                                border-b-2 border-red-800/50 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-black text-amber-100">Menu</h2>
+                            <p class="text-amber-200/60 text-sm mt-1">Click an item to add it to the cart</p>
                         </div>
 
-                        {{-- Address (delivery only) --}}
-                        <div id="address-wrapper" class="hidden">
-                            <x-form.input
-                                name="address"
-                                label="Address"
-                                placeholder="For delivery only"
-                                :value="old('address', $order->address)"
-                            />
+                        {{-- Search --}}
+                        <div class="relative">
+                            <input type="text" id="menu-search"
+                                   placeholder="Search menu..."
+                                   class="w-48 px-4 py-2 pl-10 rounded-xl bg-black/40
+                                          border border-red-800/30 text-amber-100 text-sm
+                                          placeholder-amber-200/30
+                                          focus:outline-none focus:border-amber-400 transition">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-amber-200/40">🔍</span>
                         </div>
-
-                        {{-- Notes --}}
-                        <x-form.input
-                            name="notes"
-                            label="Notes"
-                            placeholder="Any additional notes..."
-                            :value="old('notes', $order->notes)"
-                        />
                     </div>
 
-                    <div class="border-t-2 border-red-800/30 pt-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-black text-amber-100 flex items-center gap-2">
-                                <span>🍽️</span>
-                                Items
-                            </h3>
-                            <button type="button"
-                                    onclick="addItemRow()"
-                                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700
-                                           hover:from-amber-500 hover:to-amber-600
-                                           text-white font-bold shadow-lg shadow-amber-900/30
-                                           transition-all hover:scale-105 active:scale-95 text-sm">
-                                + Add Item
-                            </button>
+                    <div class="p-6">
+                        @if(count($menuItemsJson) === 0)
+                            <p class="text-center text-amber-200/60 py-12">No menu items available</p>
+                        @else
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="menu-grid">
+                                @foreach($menuItems as $item)
+                                    <button type="button"
+                                            data-menu-id="{{ $item->id }}"
+                                            data-menu-name="{{ strtolower($item->name) }}"
+                                            onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }})"
+                                            class="menu-item-btn group p-4 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800
+                                                   border-2 border-red-800/50 hover:border-amber-400
+                                                   transition-all hover:scale-105 active:scale-95 text-left">
+                                        <p class="text-amber-100 font-bold truncate">{{ $item->name }}</p>
+                                        <p class="text-amber-400 font-black text-lg mt-1">
+                                            {{ number_format($item->price, 0) }}
+                                            <span class="text-xs">SYP</span>
+                                        </p>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- ============ Cart Panel ============ --}}
+            <div class="lg:col-span-1">
+                <div class="lg:sticky lg:top-24 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                            border-2 border-amber-500/40 shadow-2xl shadow-amber-900/20 overflow-hidden">
+
+                    <div class="px-5 py-4 bg-gradient-to-r from-amber-900/60 via-amber-800/40 to-transparent
+                                border-b-2 border-amber-700/50 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-black text-amber-100">Edit Order #{{ $order->id }}</h3>
+                            <p class="text-[10px] text-amber-200/50 mt-0.5">
+                                {{ $order->created_at?->format('Y-m-d H:i') ?? '—' }}
+                            </p>
                         </div>
+                        <span id="cart-count"
+                              class="px-3 py-1 rounded-full bg-amber-700 text-amber-50
+                                     text-xs font-bold">0</span>
+                    </div>
 
-                        @error('items')
-                            <p class="mb-3 text-sm text-red-400">⚠ {{ $message }}</p>
-                        @enderror
-
-                        @error('items.*.menu_item_id')
-                            <p class="mb-3 text-sm text-red-400">⚠ {{ $message }}</p>
-                        @enderror
-
-                        <div id="items-container" class="space-y-3"></div>
-
-                        <p id="empty-message" class="text-center text-amber-200/50 py-6 text-sm">
-                            No items. Click "Add Item" to start.
+                    <div id="cart-items" class="max-h-[40vh] overflow-y-auto p-4 space-y-2">
+                        <p class="text-center text-amber-200/40 text-sm py-8">
+                            Cart is empty
                         </p>
                     </div>
 
-                    <div class="p-5 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                                border-2 border-amber-500/40 shadow-lg shadow-amber-900/20">
-                        <h3 class="text-lg font-black text-amber-100 mb-4 flex items-center gap-2">
-                            <span>💰</span>
-                            Order Summary
-                        </h3>
-
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-amber-100">
-                                <span class="font-bold">Subtotal:</span>
-                                <span class="font-black text-amber-400" id="subtotal-display">0.00 SYP</span>
-                            </div>
-                            <div class="flex justify-between border-t-2 border-amber-500/30 pt-3">
-                                <span class="font-black text-amber-100 text-lg">Total:</span>
-                                <span class="font-black text-green-400 text-2xl" id="total-display">0.00 SYP</span>
-                            </div>
+                    <div class="px-5 py-4 border-t-2 border-amber-800/40
+                                bg-gradient-to-r from-transparent to-amber-900/30">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-amber-200/70 text-sm font-bold">Subtotal</span>
+                            <span id="cart-subtotal" class="text-lg font-black text-amber-300">0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-amber-200/70 text-sm font-bold">Tax (15%)</span>
+                            <span id="cart-tax" class="text-lg font-black text-orange-300">0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between mb-4 border-t border-amber-500/30 pt-3">
+                            <span class="text-amber-100 text-sm font-black">TOTAL</span>
+                            <span id="cart-total" class="text-2xl font-black text-green-400">0.00</span>
                         </div>
 
-                        <p class="text-xs text-amber-200/50 mt-3">
-                            💡 Tax will be calculated on the invoice page
-                        </p>
-                    </div>
+                        <form id="order-form"
+                              action="{{ route('admin.orders.update', $order) }}"
+                              method="POST"
+                              class="space-y-3">
+                            @csrf
+                            @method('PUT')
 
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit"
-                                class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-800
-                                       hover:from-red-500 hover:to-red-700
-                                       text-amber-50 font-bold shadow-lg shadow-red-900/50
-                                       transition-all hover:scale-105 active:scale-95">
-                            💾 Update Order
-                        </button>
-                        <a href="{{ route('admin.orders.index') }}"
-                           class="px-6 py-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50
-                                  text-amber-100 font-bold transition-all
-                                  border border-gray-600/50">
-                            Cancel
-                        </a>
+                            <x-form.select
+                                name="type"
+                                label="Order Type"
+                                :selected="old('type', $order->type)"
+                                :option="[
+                                    'dine_in'  => 'Dine In',
+                                    'take_out' => 'Take Out',
+                                    'delivery' => 'Delivery',
+                                ]"
+                                placeholder="Select type..."
+                            />
+
+                            {{-- Table No. --}}
+                            <div id="table-no-wrapper" class="hidden">
+                                <x-form.input
+                                    name="table_no"
+                                    label="Table No."
+                                    placeholder="e.g. 5"
+                                    :value="old('table_no', $order->table_no)"
+                                />
+                            </div>
+
+                            {{-- Address --}}
+                            <div id="address-wrapper" class="hidden">
+                                <x-form.input
+                                    name="address"
+                                    label="Address"
+                                    placeholder="For delivery only"
+                                    :value="old('address', $order->address)"
+                                />
+                            </div>
+
+                            <x-form.input
+                                name="notes"
+                                label="Notes"
+                                placeholder="Any notes..."
+                                :value="old('notes', $order->notes)"
+                            />
+
+                            <div id="hidden-items"></div>
+
+                            <div class="flex gap-2">
+                                <a href="{{ route('admin.orders.show', $order) }}"
+                                   class="flex-1 text-center py-3 rounded-xl font-black text-sm tracking-wide
+                                          bg-gray-700/50 hover:bg-gray-600/50 text-amber-100
+                                          border border-gray-600/50 transition-all">
+                                    CANCEL
+                                </a>
+
+                                <button type="submit"
+                                        id="confirm-btn"
+                                        disabled
+                                        class="flex-1 py-3 rounded-xl font-black text-sm tracking-wide
+                                               bg-gradient-to-r from-green-600 to-green-800
+                                               hover:from-green-500 hover:to-green-700
+                                               text-white shadow-lg shadow-green-900/50
+                                               transition-all disabled:opacity-40
+                                               disabled:cursor-not-allowed">
+                                    ✓ SAVE CHANGES
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
+
         </div>
-    </div>
-</x-layouts.admin>
 
-<script>
-    /* ============================================================
-       Order Type → Toggle Table No. / Address
-    ============================================================ */
-    document.addEventListener('DOMContentLoaded', function () {
-        const typeSelect     = document.querySelector('select[name="type"]');
-        const tableWrapper   = document.getElementById('table-no-wrapper');
-        const addressWrapper = document.getElementById('address-wrapper');
+        <script>
+            /* ============================================================
+               Order Type → Toggle Table No. / Address
+            ============================================================ */
+            document.addEventListener('DOMContentLoaded', function () {
+                const typeSelect     = document.querySelector('select[name="type"]');
+                const tableWrapper   = document.getElementById('table-no-wrapper');
+                const addressWrapper = document.getElementById('address-wrapper');
 
-        if (!typeSelect || !tableWrapper || !addressWrapper) return;
+                if (!typeSelect || !tableWrapper || !addressWrapper) return;
 
-        const tableInput   = tableWrapper.querySelector('input[name="table_no"]');
-        const addressInput = addressWrapper.querySelector('input[name="address"]');
+                const tableInput   = tableWrapper.querySelector('input[name="table_no"]');
+                const addressInput = addressWrapper.querySelector('input[name="address"]');
 
-        function toggleFields() {
-            const type = typeSelect.value;
+                function toggleFields() {
+                    const type = typeSelect.value;
 
-            // إخفاء الكل + إزالة required
-            tableWrapper.classList.add('hidden');
-            addressWrapper.classList.add('hidden');
-            if (tableInput)   tableInput.required   = false;
-            if (addressInput) addressInput.required = false;
+                    tableWrapper.classList.add('hidden');
+                    addressWrapper.classList.add('hidden');
+                    if (tableInput)   tableInput.required   = false;
+                    if (addressInput) addressInput.required = false;
 
-            // إظهار حسب النوع
-            if (type === 'dine_in') {
-                tableWrapper.classList.remove('hidden');
-                if (tableInput) tableInput.required = true;
-            } else if (type === 'delivery') {
-                addressWrapper.classList.remove('hidden');
-                if (addressInput) addressInput.required = true;
-            }
-            // take_out → both hidden
-        }
+                    if (type === 'dine_in') {
+                        tableWrapper.classList.remove('hidden');
+                        if (tableInput) tableInput.required = true;
+                    } else if (type === 'delivery') {
+                        addressWrapper.classList.remove('hidden');
+                        if (addressInput) addressInput.required = true;
+                    }
+                }
 
-        typeSelect.addEventListener('change', toggleFields);
-        toggleFields(); // أول تحميل (يشتغل مع old values + $order->type)
-    });
-
-    /* ============================================================
-       Items
-    ============================================================ */
-    const menuItems     = @json($menuItemsJson);
-    const existingItems = @json($orderItemsJson);
-
-    console.log('MenuItems:', menuItems);
-    console.log('Existing Items:', existingItems);
-
-    let rowIndex = 0;
-
-    function addItemRow(selectedId = '', qty = 1) {
-        const container    = document.getElementById('items-container');
-        const emptyMessage = document.getElementById('empty-message');
-
-        if (!container) return;
-
-        emptyMessage.style.display = 'none';
-
-        const index = rowIndex++;
-
-        let optionsHtml = '';
-        if (menuItems.length === 0) {
-            optionsHtml = '<option value="" disabled>⚠️ No items available</option>';
-        } else {
-            menuItems.forEach(function (item) {
-                const selected = (item.id == selectedId) ? ' selected' : '';
-                optionsHtml += '<option value="' + item.id + '" data-price="' + item.price + '"' + selected + '>'
-                             + item.name + ' — ' + item.price + ' SYP'
-                             + '</option>';
+                typeSelect.addEventListener('change', toggleFields);
+                toggleFields();
             });
-        }
 
-        const row = document.createElement('div');
-        row.className = 'item-row grid grid-cols-12 gap-2 items-center p-3 rounded-xl bg-gray-900/60 border border-red-800/30';
+            /* ============================================================
+               Menu Search
+            ============================================================ */
+            document.addEventListener('DOMContentLoaded', function () {
+                const searchInput = document.getElementById('menu-search');
+                const menuButtons = document.querySelectorAll('.menu-item-btn');
 
-        row.innerHTML = `
-            <div class="col-span-7">
-                <select name="items[${index}][menu_item_id]"
-                        required
-                        onchange="updateTotals()"
-                        class="w-full px-3 py-2.5 bg-gradient-to-br from-gray-900 to-gray-800
-                               border-2 border-red-800/50 rounded-xl text-amber-50
-                               focus:outline-none focus:border-amber-400 transition">
-                    <option value="" disabled ${!selectedId ? 'selected' : ''}>Select item...</option>
-                    ${optionsHtml}
-                </select>
-            </div>
+                if (!searchInput) return;
 
-            <div class="col-span-3">
-                <input type="number"
-                       name="items[${index}][quantity]"
-                       value="${qty}"
-                       min="1"
-                       required
-                       oninput="updateTotals()"
-                       placeholder="Qty"
-                       class="w-full px-3 py-2.5 bg-gradient-to-br from-gray-900 to-gray-800
-                              border-2 border-red-800/50 rounded-xl text-amber-50 text-center
-                              focus:outline-none focus:border-amber-400 transition">
-            </div>
+                searchInput.addEventListener('input', function () {
+                    const term = this.value.toLowerCase().trim();
 
-            <div class="col-span-2 flex justify-end">
-                <button type="button"
-                        onclick="removeItemRow(this)"
-                        class="w-10 h-10 rounded-xl bg-red-500/20 hover:bg-red-500/40
-                               border border-red-500/40 text-red-300 font-bold
-                               flex items-center justify-center transition-all
-                               hover:scale-110 active:scale-95"
-                        title="Remove">
-                    ✕
-                </button>
-            </div>
-        `;
-
-        container.appendChild(row);
-        updateTotals();
-    }
-
-    function removeItemRow(button) {
-        button.closest('.item-row').remove();
-
-        const container    = document.getElementById('items-container');
-        const emptyMessage = document.getElementById('empty-message');
-
-        if (container.children.length === 0) {
-            emptyMessage.style.display = 'block';
-        }
-
-        updateTotals();
-    }
-
-    function updateTotals() {
-        let subtotal = 0;
-
-        document.querySelectorAll('.item-row').forEach(function (row) {
-            const select = row.querySelector('select');
-            const input  = row.querySelector('input[type="number"]');
-            const option = select.options[select.selectedIndex];
-            const qty    = parseInt(input.value) || 0;
-
-            if (option && option.dataset.price) {
-                subtotal += parseFloat(option.dataset.price) * qty;
-            }
-        });
-
-        document.getElementById('subtotal-display').textContent = subtotal.toFixed(2) + ' SYP';
-        document.getElementById('total-display').textContent    = subtotal.toFixed(2) + ' SYP';
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        if (existingItems && existingItems.length > 0) {
-            existingItems.forEach(function (item) {
-                addItemRow(item.menu_item_id || '', item.quantity || 1);
+                    menuButtons.forEach(btn => {
+                        const name = btn.dataset.menuName;
+                        btn.style.display = name.includes(term) ? '' : 'none';
+                    });
+                });
             });
-        } else {
-            addItemRow();
-        }
-    });
-</script>
+
+            /* ============================================================
+               Cart
+            ============================================================ */
+            const cart = {};
+            const menuItems = @json($menuItemsJson);
+            const existingItems = @json($existingItemsJson);
+
+            function addToCart(id, name, price) {
+                if (cart[id]) {
+                    cart[id].qty++;
+                } else {
+                    cart[id] = { id: id, name: name, price: parseFloat(price), qty: 1 };
+                }
+                renderCart();
+            }
+
+            function removeFromCart(id) {
+                delete cart[id];
+                renderCart();
+            }
+
+            function changeQty(id, delta) {
+                if (!cart[id]) return;
+                cart[id].qty += delta;
+                if (cart[id].qty <= 0) delete cart[id];
+                renderCart();
+            }
+
+            function renderCart() {
+                const itemsEl    = document.getElementById('cart-items');
+                const countEl    = document.getElementById('cart-count');
+                const subtotalEl = document.getElementById('cart-subtotal');
+                const taxEl      = document.getElementById('cart-tax');
+                const totalEl    = document.getElementById('cart-total');
+                const hiddenEl   = document.getElementById('hidden-items');
+                const btn        = document.getElementById('confirm-btn');
+
+                const ids = Object.keys(cart);
+
+                if (ids.length === 0) {
+                    itemsEl.innerHTML = '<p class="text-center text-amber-200/40 text-sm py-8">Cart is empty</p>';
+                    countEl.textContent = '0';
+                    subtotalEl.textContent = '0.00';
+                    taxEl.textContent = '0.00';
+                    totalEl.textContent = '0.00';
+                    hiddenEl.innerHTML = '';
+                    btn.disabled = true;
+                    return;
+                }
+
+                let subtotal = 0;
+                let count = 0;
+                let html = '';
+                let hidden = '';
+
+                ids.forEach(function (id, i) {
+                    const item = cart[id];
+                    const sub = item.price * item.qty;
+                    subtotal += sub;
+                    count += item.qty;
+
+                    html += `
+                        <div class="flex items-center justify-between gap-2
+                                    p-3 rounded-lg bg-black/40 border border-amber-800/30">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-amber-100 text-sm font-bold truncate">${item.name}</p>
+                                <p class="text-amber-300/70 text-xs">${item.price.toFixed(0)} × ${item.qty} = ${sub.toFixed(0)}</p>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="changeQty(${id}, -1)"
+                                        class="w-7 h-7 rounded bg-red-900/60 hover:bg-red-800 text-amber-100 text-sm font-bold">−</button>
+                                <button type="button" onclick="changeQty(${id}, 1)"
+                                        class="w-7 h-7 rounded bg-green-900/60 hover:bg-green-800 text-amber-100 text-sm font-bold">+</button>
+                                <button type="button" onclick="removeFromCart(${id})"
+                                        class="w-7 h-7 rounded bg-red-700/60 hover:bg-red-600 text-white text-sm font-bold">×</button>
+                            </div>
+                        </div>
+                    `;
+
+                    hidden += `<input type="hidden" name="items[${i}][menu_item_id]" value="${id}">`;
+                    hidden += `<input type="hidden" name="items[${i}][quantity]" value="${item.qty}">`;
+                });
+
+                const tax = subtotal * 0.15;
+                const total = subtotal + tax;
+
+                itemsEl.innerHTML = html;
+                countEl.textContent = count;
+                subtotalEl.textContent = subtotal.toFixed(2);
+                taxEl.textContent = tax.toFixed(2);
+                totalEl.textContent = total.toFixed(2);
+                hiddenEl.innerHTML = hidden;
+                btn.disabled = false;
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                existingItems.forEach(function (item) {
+                    const menuItem = menuItems.find(m => m.id == item.menu_item_id);
+                    if (menuItem) {
+                        cart[menuItem.id] = {
+                            id: menuItem.id,
+                            name: menuItem.name,
+                            price: menuItem.price,
+                            qty: parseInt(item.quantity) || 1
+                        };
+                    }
+                });
+                renderCart();
+            });
+        </script>
+    </x-layouts.admin>
+@else
+    <x-layouts.admin title="Access Denied">
+        <div class="max-w-2xl mx-auto text-center py-20">
+            <div class="text-8xl mb-6">🚫</div>
+            <h1 class="text-3xl font-black text-red-400 mb-3">Access Denied</h1>
+            <p class="text-amber-200/60 mb-6">You don't have permission to edit orders.</p>
+            <a href="{{ route('admin.orders.index') }}"
+               class="inline-block px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500
+                      text-white font-bold transition-all">
+                ← Back to Orders
+            </a>
+        </div>
+    </x-layouts.admin>
+@endif

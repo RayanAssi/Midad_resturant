@@ -185,13 +185,16 @@
                       text-amber-100 font-bold transition-all border border-gray-600/50">
                 Back
             </a>
-            <a href="{{ route('admin.orders.edit', $order->id) }}"
-               class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700
-                      hover:from-amber-500 hover:to-amber-600
-                      text-white font-bold shadow-lg shadow-amber-900/30
-                      transition-all hover:scale-105 active:scale-95">
-                Edit Order
-            </a>
+
+            @if(auth()->user()?->hasRole('super-admin'))
+                <a href="{{ route('admin.orders.edit', $order->id) }}"
+                   class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700
+                          hover:from-amber-500 hover:to-amber-600
+                          text-white font-bold shadow-lg shadow-amber-900/30
+                          transition-all hover:scale-105 active:scale-95">
+                    Edit Order
+                </a>
+            @endif
         </div>
 
     </div>

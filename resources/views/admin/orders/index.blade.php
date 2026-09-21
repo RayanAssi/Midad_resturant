@@ -14,15 +14,17 @@
                 </p>
             </div>
 
-            <a href="{{ route('admin.orders.create') }}"
-               class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
-                      bg-gradient-to-r from-red-600 to-red-800
-                      hover:from-red-500 hover:to-red-700
-                      text-amber-50 font-bold shadow-lg shadow-red-900/50
-                      transition-all hover:scale-105 active:scale-95">
-                <span class="text-lg">+</span>
-                New Order
-            </a>
+            @if(auth()->user()?->hasRole('super-admin'))
+                <a href="{{ route('admin.orders.create') }}"
+                   class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+                          bg-gradient-to-r from-red-600 to-red-800
+                          hover:from-red-500 hover:to-red-700
+                          text-amber-50 font-bold shadow-lg shadow-red-900/50
+                          transition-all hover:scale-105 active:scale-95">
+                    <span class="text-lg">+</span>
+                    New Order
+                </a>
+            @endif
         </div>
 
         {{-- ============ Stats Cards ============ --}}
@@ -92,7 +94,6 @@
                     border-2 border-red-800/30 shadow-lg overflow-hidden">
             <div class="p-3 flex items-center gap-2 overflow-x-auto">
 
-                {{-- All --}}
                 <a href="{{ route('admin.orders.index', array_filter(request()->except('type', 'page'))) }}"
                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
                           transition-all whitespace-nowrap
@@ -110,7 +111,6 @@
                     </span>
                 </a>
 
-                {{-- Dine In --}}
                 <a href="{{ route('admin.orders.index', array_merge(request()->except('type', 'page'), ['type' => 'dine_in'])) }}"
                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
                           transition-all whitespace-nowrap
@@ -128,7 +128,6 @@
                     </span>
                 </a>
 
-                {{-- Take Out --}}
                 <a href="{{ route('admin.orders.index', array_merge(request()->except('type', 'page'), ['type' => 'take_out'])) }}"
                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
                           transition-all whitespace-nowrap
@@ -146,7 +145,6 @@
                     </span>
                 </a>
 
-                {{-- Delivery --}}
                 <a href="{{ route('admin.orders.index', array_merge(request()->except('type', 'page'), ['type' => 'delivery'])) }}"
                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
                           transition-all whitespace-nowrap
@@ -164,7 +162,6 @@
                     </span>
                 </a>
 
-                {{-- Search --}}
                 <form method="GET" action="{{ route('admin.orders.index') }}"
                       class="flex items-center gap-2 ml-auto">
                     @if(request('type'))
@@ -200,20 +197,21 @@
         @php
             $headers = ['#', 'Type', 'Table / Address', 'User', 'Total', 'Date', 'Actions'];
 
-            // SVG Icons
             $eyeSvg = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
             $editSvg = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>';
             $trashSvg = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
 
-            $rows = $orders->map(function ($order) use ($eyeSvg, $editSvg, $trashSvg) {
-                // Type badge
+            // ✅ التعديل: auth() بدل auth('web') + hasRole
+            $user = auth()->user();
+            $isSuperAdmin = $user && $user->hasRole('super-admin');
+
+            $rows = $orders->map(function ($order) use ($eyeSvg, $editSvg, $trashSvg, $isSuperAdmin) {
                 $typeBadge = match($order->type) {
                     'dine_in'  => '<span class="px-2 py-1 rounded-md text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">🍽️ Dine In</span>',
                     'delivery' => '<span class="px-2 py-1 rounded-md text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40">🛵 Delivery</span>',
                     default    => '<span class="px-2 py-1 rounded-md text-xs font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40">🥡 Take Out</span>',
                 };
 
-                // Location
                 if ($order->table_no) {
                     $location = '<span class="text-amber-100">Table ' . e($order->table_no) . '</span>';
                 } elseif ($order->address) {
@@ -222,9 +220,11 @@
                     $location = '<span class="text-amber-200/40">—</span>';
                 }
 
-                // Actions (SVG مباشر — نفس طريقة cashier)
-                $actions = '
-                    <div class="flex items-center justify-center gap-2">
+                // ✅ Actions: بس للـ super-admin
+                $actions = '<div class="flex items-center justify-center gap-2">';
+
+                if ($isSuperAdmin) {
+                    $actions .= '
                         <a href="' . route('admin.orders.show', $order->id) . '"
                            title="View"
                            class="p-2 rounded-lg border border-amber-400/40 bg-amber-500/10
@@ -232,6 +232,7 @@
                                   transition-all">
                             ' . $eyeSvg . '
                         </a>
+
                         <a href="' . route('admin.orders.edit', $order->id) . '"
                            title="Edit"
                            class="p-2 rounded-lg border border-blue-400/40 bg-blue-500/10
@@ -239,6 +240,7 @@
                                   transition-all">
                             ' . $editSvg . '
                         </a>
+
                         <form action="' . route('admin.orders.destroy', $order->id) . '"
                               method="POST"
                               onsubmit="return confirm(\'Are you sure?\');"
@@ -252,8 +254,10 @@
                                 ' . $trashSvg . '
                             </button>
                         </form>
-                    </div>
-                ';
+                    ';
+                }
+
+                $actions .= '</div>';
 
                 return [
                     '<span class="text-amber-400 font-black">#' . $order->id . '</span>',
