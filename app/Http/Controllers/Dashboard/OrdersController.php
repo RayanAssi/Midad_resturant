@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class OrdersController extends Controller
 {
-    /**
-     * عرض قائمة كل الطلبات
-     */
+    
     public function index(Request $request)
     {
         $query = Order::with(['user', 'orderItems.menuItem', 'invoice']);
@@ -56,9 +54,7 @@ class OrdersController extends Controller
         return view('admin.orders.index', compact('orders', 'stats', 'typeCounts'));
     }
 
-    /**
-     * عرض فورم إنشاء طلب جديد
-     */
+    
     public function create()
     {
         $menuItems = MenuItem::all();
@@ -66,14 +62,12 @@ class OrdersController extends Controller
         return view('admin.orders.create', compact('menuItems'));
     }
 
-    /**
-     * حفظ طلب جديد
-     */
+    
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'type' => 'required|in:dine_in,take_out,delivery',
-            'table_no' => 'required_if:type,dine_in|nullable|string',
+            'table_no' => 'required_if:type,dine_in|nullable|string|max:10|regex:/^[A-Za-z0-9\-]+$/',
             'address' => 'required_if:type,delivery|nullable|string',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -125,9 +119,7 @@ class OrdersController extends Controller
         }
     }
 
-    /**
-     * عرض تفاصيل طلب
-     */
+    
     public function show($id)
     {
         $order = Order::with(['user', 'orderItems.menuItem', 'invoice'])->find($id);
@@ -140,9 +132,7 @@ class OrdersController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
-    /**
-     * عرض فورم تعديل الطلب
-     */
+    
     public function edit($id)
     {
         $order = Order::with('orderItems')->find($id);
@@ -157,9 +147,7 @@ class OrdersController extends Controller
         return view('admin.orders.edit', compact('order', 'menuItems'));
     }
 
-    /**
-     * تحديث الطلب
-     */
+    
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
@@ -220,9 +208,7 @@ class OrdersController extends Controller
         }
     }
 
-    /**
-     * حذف الطلب
-     */
+    
     public function destroy($id)
     {
         $order = Order::find($id);
@@ -254,9 +240,7 @@ class OrdersController extends Controller
         }
     }
 
-    /**
-     * حساب مجموع الطلب (helper داخلي)
-     */
+    
     private function calculateOrderTotal(Order $order)
     {
         $order->load('orderItems');
