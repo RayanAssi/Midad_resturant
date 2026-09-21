@@ -31,6 +31,24 @@ class UsersSeeder extends Seeder
                 'phone'    => '0922222222',
             ]
         );
+        User::updateOrCreate(
+            ['email' => 'ali@midad.com'],
+            [
+                'name'     => ' علي الموظف',
+                'password' => Hash::make('password'),
+                'role'     => 'cashier',
+                'phone'    => '0922222222',
+            ]
+        );
+        User::updateOrCreate(
+            ['email' => 'ali@midad.com'],
+            [
+                'name'     => ' مجمد الموظف',
+                'password' => Hash::make('password'),
+                'role'     => 'cashier',
+                'phone'    => '0922222222',
+            ]
+        );
 
         
 
