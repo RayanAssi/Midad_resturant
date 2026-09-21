@@ -10,7 +10,7 @@ class UsersSeeder extends Seeder
 {
     public function run(): void
     {
-        // المدير
+        
         User::updateOrCreate(
             ['email' => 'admin@midad.com'],
             [
@@ -22,20 +22,9 @@ class UsersSeeder extends Seeder
             ]
         );
 
-        // الكاشير
-         // المدير
-        User::updateOrCreate(
-            ['email' => 'manager@midad.com'],
-            [
-                'name'     => 'مدير المطعم',
-                'password' => Hash::make('password'),
-                'role'     => 'manager',
-                'position' => 'manager',
-                'phone'    => '0911111111',
-            ]
-        );
+        
 
-        // كاشير
+        
         User::updateOrCreate(
             ['email' => 'cashier@midad.com'],
             [
@@ -47,7 +36,7 @@ class UsersSeeder extends Seeder
             ]
         );
 
-        // طباخ
+        
         User::updateOrCreate(
             ['email' => 'chef@midad.com'],
             [
@@ -59,7 +48,7 @@ class UsersSeeder extends Seeder
             ]
         );
 
-        // عامل نظافة
+        
         User::updateOrCreate(
             ['email' => 'cleaner@midad.com'],
             [
