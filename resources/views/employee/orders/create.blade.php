@@ -2,8 +2,8 @@
     $menuItemsJson = [];
     foreach ($menuItems as $m) {
         $menuItemsJson[] = [
-            'id'    => $m->id,
-            'name'  => $m->name ?? 'Unnamed',
+            'id' => $m->id,
+            'name' => $m->name ?? 'Unnamed',
             'price' => (float) ($m->price ?? 0),
         ];
     }
@@ -13,24 +13,26 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div class="lg:col-span-2 space-y-6">
-            <div class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
+            <div
+                class="rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                         border-2 border-red-800/30 shadow-2xl shadow-red-900/20 overflow-hidden">
 
-                <div class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
+                <div
+                    class="px-6 py-5 bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
                             border-b-2 border-red-800/50">
                     <h2 class="text-2xl font-black text-amber-100">Menu</h2>
                     <p class="text-amber-200/60 text-sm mt-1">Click an item to add it to the cart</p>
                 </div>
 
                 <div class="p-6">
-                    @if(count($menuItemsJson) === 0)
+                    @if (count($menuItemsJson) === 0)
                         <p class="text-center text-amber-200/60 py-12">No menu items available</p>
                     @else
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            @foreach($menuItems as $item)
+                            @foreach ($menuItems as $item)
                                 <button type="button"
-                                        onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }})"
-                                        class="group p-4 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800
+                                    onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }})"
+                                    class="group p-4 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800
                                                border-2 border-red-800/50 hover:border-amber-400
                                                transition-all hover:scale-105 active:scale-95 text-left">
                                     <p class="text-amber-100 font-bold truncate">{{ $item->name }}</p>
@@ -47,14 +49,16 @@
         </div>
 
         <div class="lg:col-span-1">
-            <div class="lg:sticky lg:top-24 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
+            <div
+                class="lg:sticky lg:top-24 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                         border-2 border-amber-500/40 shadow-2xl shadow-amber-900/20 overflow-hidden">
 
-                <div class="px-5 py-4 bg-gradient-to-r from-amber-900/60 via-amber-800/40 to-transparent
+                <div
+                    class="px-5 py-4 bg-gradient-to-r from-amber-900/60 via-amber-800/40 to-transparent
                             border-b-2 border-amber-700/50 flex items-center justify-between">
                     <h3 class="text-lg font-black text-amber-100">Current Order</h3>
                     <span id="cart-count"
-                          class="px-3 py-1 rounded-full bg-amber-700 text-amber-50
+                        class="px-3 py-1 rounded-full bg-amber-700 text-amber-50
                                  text-xs font-bold">0</span>
                 </div>
 
@@ -64,7 +68,8 @@
                     </p>
                 </div>
 
-                <div class="px-5 py-4 border-t-2 border-amber-800/40
+                <div
+                    class="px-5 py-4 border-t-2 border-amber-800/40
                             bg-gradient-to-r from-transparent to-amber-900/30">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-amber-200/70 text-sm font-bold">Subtotal</span>
@@ -79,65 +84,44 @@
                         <span id="cart-total" class="text-2xl font-black text-green-400">0.00</span>
                     </div>
 
-                    <form id="order-form"
-                          action="{{ route('employee.orders.store') }}"
-                          method="POST"
-                          class="space-y-3">
+                    <form id="order-form" action="{{ route('employee.orders.store') }}" method="POST"
+                        class="space-y-3">
                         @csrf
 
-                        
 
-                        <x-form.select
-                            name="type"
-                            label="Order Type"
-                            :selected="old('type', 'dine_in')"
-                            :option="[
-                                'dine_in'  => 'Dine In',
-                                'take_out' => 'Take Out',
-                                'delivery' => 'Delivery',
-                            ]"
-                            placeholder="Select type..."
-                        />
+
+                        <x-form.select name="type" label="Order Type" :selected="old('type', 'dine_in')" :option="[
+                            'dine_in' => 'Dine In',
+                            'take_out' => 'Take Out',
+                            'delivery' => 'Delivery',
+                        ]"
+                            placeholder="Select type..." />
 
                         {{-- Table No. (dine_in only) --}}
                         <div id="table-no-wrapper" class="hidden">
-                            <x-form.input
-                                name="table_no"
-                                label="Table No."
-                                placeholder="e.g. 5"
-                                :value="old('table_no')"
-                            />
+                            <x-form.input name="table_no" label="Table No." placeholder="e.g. 5" :value="old('table_no')" />
                         </div>
 
                         {{-- Address (delivery only) --}}
                         <div id="address-wrapper" class="hidden">
-                            <x-form.input
-                                name="address"
-                                label="Address"
-                                placeholder="For delivery only"
-                                :value="old('address')"
-                            />
+                            <x-form.input name="address" label="Address" placeholder="For delivery only"
+                                :value="old('address')" />
                         </div>
 
-                        <x-form.input
-                            name="notes"
-                            label="Notes"
-                            placeholder="Any notes..."
-                            :value="old('notes')"
-                        />
+                        <x-form.input name="notes" label="Notes" placeholder="Any notes..." :value="old('notes')" />
 
                         <div id="hidden-items"></div>
 
-                        <button type="submit"
-                                id="confirm-btn"
-                                disabled
-                                class="w-full py-3 rounded-xl font-black text-sm tracking-wide
-                                       bg-gradient-to-r from-green-600 to-green-800
-                                       hover:from-green-500 hover:to-green-700
-                                       text-white shadow-lg shadow-green-900/50
-                                       transition-all disabled:opacity-40
-                                       disabled:cursor-not-allowed">
-                            ✓ CONFIRM ORDER
+                        <button type="submit" id="confirm-btn" disabled
+                            class="w-full py-3 rounded-xl font-black text-sm tracking-wide
+               bg-gradient-to-r from-amber-600 to-amber-800
+               hover:from-amber-500 hover:to-amber-700
+               text-white shadow-lg shadow-amber-900/50
+               transition-all disabled:opacity-40
+               disabled:cursor-not-allowed
+               flex items-center justify-center gap-2">
+                            <span>Next: Create Invoice</span>
+                            <span class="text-xl">→</span>
                         </button>
                     </form>
                 </div>
@@ -148,16 +132,16 @@
 
     <script>
         /* ============================================================
-           Order Type → Toggle Table No. / Address
-        ============================================================ */
-        document.addEventListener('DOMContentLoaded', function () {
-            const typeSelect     = document.querySelector('select[name="type"]');
-            const tableWrapper   = document.getElementById('table-no-wrapper');
+               Order Type → Toggle Table No. / Address
+            ============================================================ */
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.querySelector('select[name="type"]');
+            const tableWrapper = document.getElementById('table-no-wrapper');
             const addressWrapper = document.getElementById('address-wrapper');
 
             if (!typeSelect || !tableWrapper || !addressWrapper) return;
 
-            const tableInput   = tableWrapper.querySelector('input[name="table_no"]');
+            const tableInput = tableWrapper.querySelector('input[name="table_no"]');
             const addressInput = addressWrapper.querySelector('input[name="address"]');
 
             function toggleFields() {
@@ -166,7 +150,7 @@
                 // إخفاء الكل + إزالة required
                 tableWrapper.classList.add('hidden');
                 addressWrapper.classList.add('hidden');
-                if (tableInput)   tableInput.required   = false;
+                if (tableInput) tableInput.required = false;
                 if (addressInput) addressInput.required = false;
 
                 // إظهار حسب النوع
@@ -194,7 +178,12 @@
             if (cart[id]) {
                 cart[id].qty++;
             } else {
-                cart[id] = { id: id, name: name, price: parseFloat(price), qty: 1 };
+                cart[id] = {
+                    id: id,
+                    name: name,
+                    price: parseFloat(price),
+                    qty: 1
+                };
             }
             renderCart();
         }
@@ -212,13 +201,13 @@
         }
 
         function renderCart() {
-            const itemsEl    = document.getElementById('cart-items');
-            const countEl    = document.getElementById('cart-count');
+            const itemsEl = document.getElementById('cart-items');
+            const countEl = document.getElementById('cart-count');
             const subtotalEl = document.getElementById('cart-subtotal');
-            const taxEl      = document.getElementById('cart-tax');
-            const totalEl    = document.getElementById('cart-total');
-            const hiddenEl   = document.getElementById('hidden-items');
-            const btn        = document.getElementById('confirm-btn');
+            const taxEl = document.getElementById('cart-tax');
+            const totalEl = document.getElementById('cart-total');
+            const hiddenEl = document.getElementById('hidden-items');
+            const btn = document.getElementById('confirm-btn');
 
             const ids = Object.keys(cart);
 
@@ -238,7 +227,7 @@
             let html = '';
             let hidden = '';
 
-            ids.forEach(function (id, i) {
+            ids.forEach(function(id, i) {
                 const item = cart[id];
                 const sub = item.price * item.qty;
                 subtotal += sub;
