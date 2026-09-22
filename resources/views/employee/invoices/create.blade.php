@@ -73,200 +73,161 @@
                          shadow-2xl shadow-amber-900/20">
                 @csrf
 
-                @if ($selectedOrder)
-                    <input type="hidden" name="order_id" value="{{ $selectedOrder->id }}">
+                <input type="hidden" name="order_id" value="{{ $selectedOrder->id }}">
 
-                    {{-- ═══ Order Info Header ═══ --}}
-                    <div class="px-6 py-5 bg-gradient-to-r from-amber-900/40 via-amber-800/20 to-transparent
-                                border-b-2 border-amber-500/30">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-lg font-black text-amber-100">Order Details</h2>
-                                <p class="text-amber-200/60 text-xs mt-0.5">Review before issuing</p>
-                            </div>
-                            <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                                <x-lucide-shopping-bag class="w-5 h-5 text-amber-300" />
-                            </div>
+                {{-- ═══ Order Info Header ═══ --}}
+                <div class="px-6 py-5 bg-gradient-to-r from-amber-900/40 via-amber-800/20 to-transparent
+                            border-b-2 border-amber-500/30">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-black text-amber-100">Order Details</h2>
+                            <p class="text-amber-200/60 text-xs mt-0.5">Review before issuing</p>
+                        </div>
+                        <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                            <x-lucide-shopping-bag class="w-5 h-5 text-amber-300" />
                         </div>
                     </div>
+                </div>
 
-                    {{-- ═══ Order Info ═══ --}}
-                    <div class="px-6 py-5 grid grid-cols-3 gap-4 border-b border-amber-500/20">
-                        <div>
-                            <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Order #</p>
-                            <p class="text-amber-100 font-black text-lg">#{{ $selectedOrder->id }}</p>
-                        </div>
-                        <div>
-                            <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Type</p>
-                            <p class="text-amber-100 font-bold capitalize">
-                                {{ str_replace('_', ' ', $selectedOrder->type) }}
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Subtotal</p>
-                            <p class="text-amber-100 font-black">
-                                {{ number_format($selectedOrder->total_amount, 2) }}
-                                <span class="text-xs">{{ config('restaurant.currency') }}</span>
-                            </p>
-                        </div>
+                {{-- ═══ Order Info ═══ --}}
+                <div class="px-6 py-5 grid grid-cols-3 gap-4 border-b border-amber-500/20">
+                    <div>
+                        <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Order #</p>
+                        <p class="text-amber-100 font-black text-lg">#{{ $selectedOrder->id }}</p>
                     </div>
-
-                    {{-- ═══ Calculations ═══ --}}
-                    @php
-                        $taxRate  = config('restaurant.tax_rate') / 100;
-                        $subtotal = $selectedOrder->total_amount;
-                        $discount = old('discount_amount', 0);
-                        $tax      = ($subtotal - $discount) * $taxRate;
-                        $total    = $subtotal - $discount + $tax;
-                    @endphp
-
-                    {{-- ═══ Discount Input ═══ --}}
-                    <div class="px-6 py-5 border-b border-amber-500/20">
-                        <label class="flex items-center gap-2 text-amber-200 font-bold mb-3 text-sm">
-                            <x-lucide-percent class="w-4 h-4" />
-                            Discount (Optional)
-                        </label>
-
-                        <input type="number"
-                               name="discount_amount"
-                               id="discount_amount"
-                               step="0.01"
-                               min="0"
-                               value="{{ $discount }}"
-                               placeholder="0.00"
-                               class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
-                                      text-amber-100 font-bold text-lg
-                                      focus:border-amber-400 focus:outline-none
-                                      transition-colors">
-
-                        {{-- ⚠️ رسالة الخطأ اللحظية --}}
-                        <p id="discount-warning"
-                           class="hidden mt-3 text-sm text-red-400 flex items-center gap-1 animate-pulse">
+                    <div>
+                        <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Type</p>
+                        <p class="text-amber-100 font-bold capitalize">
+                            {{ str_replace('_', ' ', $selectedOrder->type) }}
                         </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-amber-200/50 text-xs uppercase tracking-wider mb-1">Subtotal</p>
+                        <p class="text-amber-100 font-black">
+                            {{ number_format($selectedOrder->total_amount, 2) }}
+                            <span class="text-xs">{{ config('restaurant.currency') }}</span>
+                        </p>
+                    </div>
+                </div>
 
-                        @error('discount_amount')
-                            <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                        @enderror
+                {{-- ═══ Calculations ═══ --}}
+                @php
+                    $taxRate  = config('restaurant.tax_rate') / 100;
+                    $subtotal = $selectedOrder->total_amount;
+                    $discount = old('discount_amount', 0);
+                    $tax      = ($subtotal - $discount) * $taxRate;
+                    $total    = $subtotal - $discount + $tax;
+                @endphp
+
+                {{-- ═══ Discount Input ═══ --}}
+                <div class="px-6 py-5 border-b border-amber-500/20">
+                    <label class="flex items-center gap-2 text-amber-200 font-bold mb-3 text-sm">
+                        <x-lucide-percent class="w-4 h-4" />
+                        Discount (Optional)
+                    </label>
+
+                    <input type="number"
+                           name="discount_amount"
+                           id="discount_amount"
+                           step="0.01"
+                           min="0"
+                           value="{{ $discount }}"
+                           placeholder="0.00"
+                           class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
+                                  text-amber-100 font-bold text-lg
+                                  focus:border-amber-400 focus:outline-none
+                                  transition-colors">
+
+                    <p id="discount-warning"
+                       class="hidden mt-3 text-sm text-red-400 flex items-center gap-1 animate-pulse">
+                    </p>
+
+                    @error('discount_amount')
+                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- ═══ Summary ═══ --}}
+                <div class="px-6 py-5 border-b border-amber-500/20">
+                    <div class="flex items-center gap-2 mb-3">
+                        <x-lucide-receipt class="w-4 h-4 text-amber-300" />
+                        <h3 class="text-amber-200 font-bold text-sm uppercase tracking-wider">
+                            Summary
+                        </h3>
                     </div>
 
-                    {{-- ═══ Summary ═══ --}}
-                    <div class="px-6 py-5 border-b border-amber-500/20">
-                        <div class="flex items-center gap-2 mb-3">
-                            <x-lucide-receipt class="w-4 h-4 text-amber-300" />
-                            <h3 class="text-amber-200 font-bold text-sm uppercase tracking-wider">
-                                Summary
-                            </h3>
+                    <div class="bg-black/50 border border-amber-500/20 rounded-xl p-4 space-y-3">
+
+                        <div class="flex justify-between items-center text-amber-100">
+                            <span class="text-sm uppercase tracking-wider text-amber-200/60">Subtotal</span>
+                            <span class="font-bold">
+                                {{ number_format($subtotal, 2) }} {{ config('restaurant.currency') }}
+                            </span>
                         </div>
 
-                        <div class="bg-black/50 border border-amber-500/20 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center text-red-300">
+                            <span class="text-sm uppercase tracking-wider">Discount</span>
+                            <span class="font-bold" id="sum-discount">
+                                - {{ number_format($discount, 2) }} {{ config('restaurant.currency') }}
+                            </span>
+                        </div>
 
-                            <div class="flex justify-between items-center text-amber-100">
-                                <span class="text-sm uppercase tracking-wider text-amber-200/60">Subtotal</span>
-                                <span class="font-bold">
-                                    {{ number_format($subtotal, 2) }} {{ config('restaurant.currency') }}
-                                </span>
-                            </div>
+                        <div class="flex justify-between items-center text-blue-300">
+                            <span class="text-sm uppercase tracking-wider">
+                                Tax ({{ config('restaurant.tax_rate') }}%)
+                            </span>
+                            <span class="font-bold" id="sum-tax">
+                                {{ number_format($tax, 2) }} {{ config('restaurant.currency') }}
+                            </span>
+                        </div>
 
-                            <div class="flex justify-between items-center text-red-300">
-                                <span class="text-sm uppercase tracking-wider">Discount</span>
-                                <span class="font-bold" id="sum-discount">
-                                    - {{ number_format($discount, 2) }} {{ config('restaurant.currency') }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between items-center text-blue-300">
-                                <span class="text-sm uppercase tracking-wider">
-                                    Tax ({{ config('restaurant.tax_rate') }}%)
-                                </span>
-                                <span class="font-bold" id="sum-tax">
-                                    {{ number_format($tax, 2) }} {{ config('restaurant.currency') }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between items-center pt-3 border-t-2 border-amber-500/40">
-                                <span class="text-base font-black text-amber-200 uppercase tracking-wider">
-                                    Total
-                                </span>
-                                <span class="text-2xl font-black text-amber-300" id="sum-total">
-                                    {{ number_format($total, 2) }}
-                                    <span class="text-sm">{{ config('restaurant.currency') }}</span>
-                                </span>
-                            </div>
+                        <div class="flex justify-between items-center pt-3 border-t-2 border-amber-500/40">
+                            <span class="text-base font-black text-amber-200 uppercase tracking-wider">
+                                Total
+                            </span>
+                            <span class="text-2xl font-black text-amber-300" id="sum-total">
+                                {{ number_format($total, 2) }}
+                                <span class="text-sm">{{ config('restaurant.currency') }}</span>
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    {{-- ═══ Notes ═══ --}}
-                    <div class="px-6 py-5 border-b border-amber-500/20">
-                        <label class="flex items-center gap-2 text-amber-200 font-bold mb-3 text-sm">
-                            <x-lucide-message-square class="w-4 h-4" />
-                            Notes (Optional)
-                        </label>
-                        <textarea name="notes" rows="3" placeholder="Any additional notes..."
-                            class="w-full px-4 py-2.5 rounded-lg bg-black/60 border-2 border-amber-500/30
-                                         text-amber-100 focus:border-amber-400 focus:outline-none
-                                         resize-none transition-colors">{{ old('notes') }}</textarea>
-                    </div>
+                {{-- ═══ Notes ═══ --}}
+                <div class="px-6 py-5 border-b border-amber-500/20">
+                    <label class="flex items-center gap-2 text-amber-200 font-bold mb-3 text-sm">
+                        <x-lucide-message-square class="w-4 h-4" />
+                        Notes (Optional)
+                    </label>
+                    <textarea name="notes" rows="3" placeholder="Any additional notes..."
+                        class="w-full px-4 py-2.5 rounded-lg bg-black/60 border-2 border-amber-500/30
+                                 text-amber-100 focus:border-amber-400 focus:outline-none
+                                 resize-none transition-colors">{{ old('notes') }}</textarea>
+                </div>
 
-                    {{-- ═══ Submit ═══ --}}
-                    <div class="px-6 py-5 bg-black/30">
-                        <button type="submit"
-                                id="submit-btn"
-                                class="w-full flex items-center justify-center gap-2
-                                       px-6 py-4 rounded-xl
-                                       bg-gradient-to-r from-emerald-600 to-emerald-800
-                                       hover:from-emerald-500 hover:to-emerald-700
-                                       text-white font-black text-lg
-                                       shadow-lg shadow-emerald-900/50
-                                       transition-all
-                                       hover:scale-[1.02] active:scale-[0.98]
-                                       disabled:opacity-50 disabled:cursor-not-allowed">
-                            <x-lucide-receipt class="w-5 h-5" />
-                            Issue Invoice
-                        </button>
-                    </div>
-                @else
-                    {{-- ═══ Order Selection ═══ --}}
-                    <div class="px-6 py-6 border-b border-amber-500/20">
-                        <label class="flex items-center gap-2 text-amber-200 font-bold mb-3 text-sm">
-                            <x-lucide-list class="w-4 h-4" />
-                            Select Order
-                        </label>
-                        <select name="order_id" required
-                            class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
-                                       text-amber-100 font-medium
-                                       focus:border-amber-400 focus:outline-none
-                                       transition-colors">
-                            <option value="">-- Choose an order --</option>
-                            @foreach ($orders as $order)
-                                <option value="{{ $order->id }}" @selected(old('order_id') == $order->id)>
-                                    #{{ $order->id }} — {{ ucfirst(str_replace('_', ' ', $order->type)) }} —
-                                    {{ number_format($order->total_amount, 2) }} {{ config('restaurant.currency') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="px-6 py-5 bg-black/30">
-                        <button type="submit"
+                {{-- ═══ Submit ═══ --}}
+                <div class="px-6 py-5 bg-black/30">
+                    <button type="submit"
+                            id="submit-btn"
                             class="w-full flex items-center justify-center gap-2
-                                       px-6 py-4 rounded-xl
-                                       bg-gradient-to-r from-emerald-600 to-emerald-800
-                                       hover:from-emerald-500 hover:to-emerald-700
-                                       text-white font-black text-lg
-                                       shadow-lg shadow-emerald-900/50
-                                       transition-all
-                                       hover:scale-[1.02] active:scale-[0.98]">
-                            <x-lucide-arrow-right class="w-5 h-5" />
-                            Continue to Invoice
-                        </button>
-                    </div>
-                @endif
+                                   px-6 py-4 rounded-xl
+                                   bg-gradient-to-r from-emerald-600 to-emerald-800
+                                   hover:from-emerald-500 hover:to-emerald-700
+                                   text-white font-black text-lg
+                                   shadow-lg shadow-emerald-900/50
+                                   transition-all
+                                   hover:scale-[1.02] active:scale-[0.98]
+                                   disabled:opacity-50 disabled:cursor-not-allowed">
+                        <x-lucide-receipt class="w-5 h-5" />
+                        Issue Invoice
+                    </button>
+                </div>
             </form>
         @endif
     </div>
 
     {{-- ═══ Script — Live Update + Validation ═══ --}}
-    @if($selectedOrder)
+    @if($selectedOrder && !session('invoice_created'))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const subtotal  = {{ (float) $subtotal }};
@@ -289,12 +250,10 @@
                     const tax     = taxable * (taxRate / 100);
                     const total   = taxable + tax;
 
-                    // ═══ تحديث القيم ═══
                     discountDisplay.textContent = '- ' + discount.toFixed(2) + ' ' + currency;
                     taxDisplay.textContent      = tax.toFixed(2) + ' ' + currency;
                     totalDisplay.textContent    = total.toFixed(2) + ' ' + currency;
 
-                    // ═══ Validation لحظي ═══
                     let errorMsg = null;
 
                     if (discount < 0) {
@@ -305,7 +264,6 @@
                         errorMsg = '⚠️ الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب';
                     }
 
-                    // ═══ عرض / إخفاء الرسالة ═══
                     if (errorMsg) {
                         if (warningEl) {
                             warningEl.textContent = errorMsg;

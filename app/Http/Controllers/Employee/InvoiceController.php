@@ -11,19 +11,63 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
-    public function create(Request $request)
-    {
+    public function index(Request $request)
+{
+    $query = Invoice::with(['order', 'creator'])
+        ->where('created_by', Auth::id());   
 
-        $orders = Order::whereDoesntHave('invoice')
-            ->latest()
-            ->get();
-
-        $selectedOrder = $request->order_id
-            ? Order::find($request->order_id)
-            : null;
-
-        return view('employee.invoices.create', compact('orders', 'selectedOrder'));
+    // ═══ Search ═══
+    if ($search = $request->search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('invoice_number', 'like', "%{$search}%")
+              ->orWhere('order_id', 'like', "%{$search}%")
+              ->orWhere('tax_number', 'like', "%{$search}%");
+        });
     }
+
+    // ═══ Date From ═══
+    if ($dateFrom = $request->date_from) {
+        $query->whereDate('created_at', '>=', $dateFrom);
+    }
+
+    // ═══ Date To ═══
+    if ($dateTo = $request->date_to) {
+        $query->whereDate('created_at', '<=', $dateTo);
+    }
+
+    $invoices = $query->latest()->paginate(15)->withQueryString();
+
+    return view('employee.invoices.index', compact('invoices'));
+}
+    public function create(Request $request)
+{
+    $orderId = $request->query('order_id');
+
+    
+    if (!$orderId) {
+        return redirect()
+            ->route('employee.orders.index')
+            ->with('error', 'يجب اختيار طلب أولاً لإصدار فاتورة');
+    }
+
+    
+    $selectedOrder = Order::with(['orderItems.menuItem', 'user'])->find($orderId);
+
+    if (!$selectedOrder) {
+        return redirect()
+            ->route('employee.orders.index')
+            ->with('error', 'الطلب غير موجود');
+    }
+
+    
+    if ($selectedOrder->invoice) {
+        return redirect()
+            ->route('employee.invoices.show', $selectedOrder->invoice->id)
+            ->with('error', 'هذا الطلب له فاتورة بالفعل');
+    }
+
+    return view('employee.invoices.create', compact('selectedOrder'));
+}
 
    public function store(Request $request)
 {
