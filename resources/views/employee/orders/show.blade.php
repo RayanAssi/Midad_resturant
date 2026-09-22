@@ -83,7 +83,7 @@
                 </div>
             @endif
 
-            {{-- employee --}}
+            {{-- Employee --}}
             <div>
                 <p class="text-xs text-amber-300/60 uppercase tracking-wider mb-1">Employee</p>
                 <p class="text-amber-100 font-bold">{{ $order->user->name ?? '—' }}</p>
@@ -93,7 +93,11 @@
             <div>
                 <p class="text-xs text-amber-300/60 uppercase tracking-wider mb-1">Total</p>
                 <p class="text-amber-100 font-black text-xl">
-                    {{ number_format($order->total_amount ?? 0, 2) }} SYP
+                    @if($order->invoice)
+                        {{ number_format($order->invoice->total_amount, 2) }} SYP
+                    @else
+                        {{ number_format($order->total_amount ?? 0, 2) }} SYP
+                    @endif
                 </p>
             </div>
 
@@ -183,14 +187,63 @@
                         @endforeach
                     </tbody>
 
-                    {{-- Total --}}
-                    <tfoot>
-                        <tr class="border-t-2 border-red-800/40 bg-gradient-to-r from-transparent to-red-900/20">
+                    {{-- ✅ Totals --}}
+                    <tfoot class="border-t-2 border-red-800/40 bg-black/20">
+
+                        {{-- Subtotal --}}
+                        <tr>
                             <td colspan="3" class="px-6 py-4 text-right font-bold text-amber-200/80">
+                                Subtotal
+                            </td>
+                            <td class="px-6 py-4 text-center font-black text-amber-100">
+                                {{ number_format($order->orderItems->sum('subtotal') ?? 0, 2) }} SYP
+                            </td>
+                        </tr>
+
+                        
+                        @if($order->invoice && $order->invoice->discount_amount > 0)
+                            @php
+                                $subtotalForRate = $order->orderItems->sum('subtotal');
+                                $discountRate = $subtotalForRate > 0
+                                    ? ($order->invoice->discount_amount / $subtotalForRate) * 100
+                                    : 0;
+                            @endphp
+                            <tr>
+                                <td colspan="3" class="px-6 py-4 text-right font-bold text-red-300">
+                                    Discount
+                                    <span class="text-red-200/70 text-xs">
+                                        ({{ number_format($discountRate, 1) }}%)
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center font-black text-red-400">
+                                    - {{ number_format($order->invoice->discount_amount, 2) }} SYP
+                                </td>
+                            </tr>
+                        @endif
+
+                        
+                        @if($order->invoice && $order->invoice->tax_amount > 0)
+                            <tr>
+                                <td colspan="3" class="px-6 py-4 text-right font-bold text-blue-300">
+                                    Tax ({{ number_format($order->invoice->tax_rate, 2) }}%)
+                                </td>
+                                <td class="px-6 py-4 text-center font-black text-blue-400">
+                                    {{ number_format($order->invoice->tax_amount, 2) }} SYP
+                                </td>
+                            </tr>
+                        @endif
+
+                        {{-- Total --}}
+                        <tr class="border-t-2 border-amber-500/30">
+                            <td colspan="3" class="px-6 py-4 text-right font-black text-amber-100 text-lg">
                                 Total
                             </td>
-                            <td class="px-6 py-4 text-center font-black text-amber-100 text-lg">
-                                {{ number_format($order->orderItems->sum('subtotal') ?? 0, 2) }} SYP
+                            <td class="px-6 py-4 text-center font-black text-green-400 text-2xl">
+                                @if($order->invoice)
+                                    {{ number_format($order->invoice->total_amount, 2) }} SYP
+                                @else
+                                    {{ number_format($order->total_amount ?? 0, 2) }} SYP
+                                @endif
                             </td>
                         </tr>
                     </tfoot>

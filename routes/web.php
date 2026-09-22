@@ -26,7 +26,7 @@ Route::middleware('auth')
             ->name('menu-items.index');
 
         // Orders
-        Route::get('/', [EmployeeOrdersController::class, 'index'])
+        Route::get('/orders', [EmployeeOrdersController::class, 'index'])
             ->name('orders.index');
 
         Route::get('/orders/create', [EmployeeOrdersController::class, 'create'])

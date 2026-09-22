@@ -13,11 +13,10 @@
                     Complete the invoice details
                 </p>
             </div>
-
         </div>
 
         {{-- ═══ Success State ═══ --}}
-        @if(session('invoice_created'))
+        @if (session('invoice_created'))
             <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black
                         border-2 border-emerald-500/40 rounded-2xl p-8 space-y-6 text-center
                         shadow-2xl shadow-emerald-900/20">
@@ -42,48 +41,39 @@
                     </p>
                 </div>
 
-                {{-- ✅ زرين: Print + Done --}}
                 <div class="grid grid-cols-2 gap-3">
-
-                    {{-- Print Button --}}
-                    @if(session('invoice_id'))
+                    @if (session('invoice_id'))
                         <a href="{{ route('employee.invoices.show', session('invoice_id')) }}"
-                           class="flex items-center justify-center gap-2
-                                  px-6 py-3 rounded-lg
+                            class="flex items-center justify-center gap-2 px-6 py-3 rounded-lg
                                   bg-gradient-to-r from-amber-600 to-amber-800
                                   hover:from-amber-500 hover:to-amber-700
                                   text-white font-black text-lg
-                                  shadow-lg shadow-amber-900/50
-                                  transition-all">
+                                  shadow-lg shadow-amber-900/50 transition-all">
                             <x-lucide-printer class="w-5 h-5" />
                             Print
                         </a>
                     @endif
 
-                    {{-- Done Button --}}
                     <a href="{{ route('employee.orders.index') }}"
-                       class="flex items-center justify-center gap-2
-                              px-6 py-3 rounded-lg
+                        class="flex items-center justify-center gap-2 px-6 py-3 rounded-lg
                               bg-gradient-to-r from-emerald-600 to-emerald-800
                               hover:from-emerald-500 hover:to-emerald-700
                               text-white font-black text-lg
-                              shadow-lg shadow-emerald-900/50
-                              transition-all">
+                              shadow-lg shadow-emerald-900/50 transition-all">
                         <x-lucide-check-circle class="w-5 h-5" />
                         Done
                     </a>
-
                 </div>
             </div>
         @else
             {{-- ═══ Form ═══ --}}
             <form action="{{ route('employee.invoices.store') }}" method="POST"
-                  class="bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                class="bg-gradient-to-br from-gray-900 via-gray-800 to-black
                          border-2 border-amber-500/30 rounded-2xl overflow-hidden
                          shadow-2xl shadow-amber-900/20">
                 @csrf
 
-                @if($selectedOrder)
+                @if ($selectedOrder)
                     <input type="hidden" name="order_id" value="{{ $selectedOrder->id }}">
 
                     {{-- ═══ Order Info Header ═══ --}}
@@ -136,13 +126,27 @@
                             <x-lucide-percent class="w-4 h-4" />
                             Discount (Optional)
                         </label>
-                        <input type="number" name="discount_amount" step="0.01" min="0"
+
+                        <input type="number"
+                               name="discount_amount"
+                               id="discount_amount"
+                               step="0.01"
+                               min="0"
                                value="{{ $discount }}"
                                placeholder="0.00"
                                class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
                                       text-amber-100 font-bold text-lg
                                       focus:border-amber-400 focus:outline-none
                                       transition-colors">
+
+                        {{-- ⚠️ رسالة الخطأ اللحظية --}}
+                        <p id="discount-warning"
+                           class="hidden mt-3 text-sm text-red-400 flex items-center gap-1 animate-pulse">
+                        </p>
+
+                        @error('discount_amount')
+                            <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- ═══ Summary ═══ --}}
@@ -165,7 +169,7 @@
 
                             <div class="flex justify-between items-center text-red-300">
                                 <span class="text-sm uppercase tracking-wider">Discount</span>
-                                <span class="font-bold">
+                                <span class="font-bold" id="sum-discount">
                                     - {{ number_format($discount, 2) }} {{ config('restaurant.currency') }}
                                 </span>
                             </div>
@@ -174,7 +178,7 @@
                                 <span class="text-sm uppercase tracking-wider">
                                     Tax ({{ config('restaurant.tax_rate') }}%)
                                 </span>
-                                <span class="font-bold">
+                                <span class="font-bold" id="sum-tax">
                                     {{ number_format($tax, 2) }} {{ config('restaurant.currency') }}
                                 </span>
                             </div>
@@ -183,12 +187,11 @@
                                 <span class="text-base font-black text-amber-200 uppercase tracking-wider">
                                     Total
                                 </span>
-                                <span class="text-2xl font-black text-amber-300">
+                                <span class="text-2xl font-black text-amber-300" id="sum-total">
                                     {{ number_format($total, 2) }}
                                     <span class="text-sm">{{ config('restaurant.currency') }}</span>
                                 </span>
                             </div>
-
                         </div>
                     </div>
 
@@ -198,9 +201,8 @@
                             <x-lucide-message-square class="w-4 h-4" />
                             Notes (Optional)
                         </label>
-                        <textarea name="notes" rows="3"
-                                  placeholder="Any additional notes..."
-                                  class="w-full px-4 py-2.5 rounded-lg bg-black/60 border-2 border-amber-500/30
+                        <textarea name="notes" rows="3" placeholder="Any additional notes..."
+                            class="w-full px-4 py-2.5 rounded-lg bg-black/60 border-2 border-amber-500/30
                                          text-amber-100 focus:border-amber-400 focus:outline-none
                                          resize-none transition-colors">{{ old('notes') }}</textarea>
                     </div>
@@ -208,6 +210,7 @@
                     {{-- ═══ Submit ═══ --}}
                     <div class="px-6 py-5 bg-black/30">
                         <button type="submit"
+                                id="submit-btn"
                                 class="w-full flex items-center justify-center gap-2
                                        px-6 py-4 rounded-xl
                                        bg-gradient-to-r from-emerald-600 to-emerald-800
@@ -215,12 +218,12 @@
                                        text-white font-black text-lg
                                        shadow-lg shadow-emerald-900/50
                                        transition-all
-                                       hover:scale-[1.02] active:scale-[0.98]">
+                                       hover:scale-[1.02] active:scale-[0.98]
+                                       disabled:opacity-50 disabled:cursor-not-allowed">
                             <x-lucide-receipt class="w-5 h-5" />
                             Issue Invoice
                         </button>
                     </div>
-
                 @else
                     {{-- ═══ Order Selection ═══ --}}
                     <div class="px-6 py-6 border-b border-amber-500/20">
@@ -229,14 +232,15 @@
                             Select Order
                         </label>
                         <select name="order_id" required
-                                class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
+                            class="w-full px-4 py-3 rounded-lg bg-black/60 border-2 border-amber-500/30
                                        text-amber-100 font-medium
                                        focus:border-amber-400 focus:outline-none
                                        transition-colors">
                             <option value="">-- Choose an order --</option>
-                            @foreach($orders as $order)
+                            @foreach ($orders as $order)
                                 <option value="{{ $order->id }}" @selected(old('order_id') == $order->id)>
-                                    #{{ $order->id }} — {{ ucfirst(str_replace('_', ' ', $order->type)) }} — {{ number_format($order->total_amount, 2) }} {{ config('restaurant.currency') }}
+                                    #{{ $order->id }} — {{ ucfirst(str_replace('_', ' ', $order->type)) }} —
+                                    {{ number_format($order->total_amount, 2) }} {{ config('restaurant.currency') }}
                                 </option>
                             @endforeach
                         </select>
@@ -244,7 +248,7 @@
 
                     <div class="px-6 py-5 bg-black/30">
                         <button type="submit"
-                                class="w-full flex items-center justify-center gap-2
+                            class="w-full flex items-center justify-center gap-2
                                        px-6 py-4 rounded-xl
                                        bg-gradient-to-r from-emerald-600 to-emerald-800
                                        hover:from-emerald-500 hover:to-emerald-700
@@ -257,10 +261,82 @@
                         </button>
                     </div>
                 @endif
-
             </form>
         @endif
-
     </div>
 
+    {{-- ═══ Script — Live Update + Validation ═══ --}}
+    @if($selectedOrder)
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const subtotal  = {{ (float) $subtotal }};
+                const taxRate   = {{ (float) config('restaurant.tax_rate') }};
+                const currency  = '{{ config('restaurant.currency') }}';
+
+                const discountEl      = document.getElementById('discount_amount');
+                const discountDisplay = document.getElementById('sum-discount');
+                const taxDisplay      = document.getElementById('sum-tax');
+                const totalDisplay    = document.getElementById('sum-total');
+                const warningEl       = document.getElementById('discount-warning');
+                const submitBtn       = document.getElementById('submit-btn');
+
+                if (!discountEl || !discountDisplay || !taxDisplay || !totalDisplay) return;
+
+                function updateSummary() {
+                    const discount = parseFloat(discountEl.value) || 0;
+
+                    const taxable = subtotal - discount;
+                    const tax     = taxable * (taxRate / 100);
+                    const total   = taxable + tax;
+
+                    // ═══ تحديث القيم ═══
+                    discountDisplay.textContent = '- ' + discount.toFixed(2) + ' ' + currency;
+                    taxDisplay.textContent      = tax.toFixed(2) + ' ' + currency;
+                    totalDisplay.textContent    = total.toFixed(2) + ' ' + currency;
+
+                    // ═══ Validation لحظي ═══
+                    let errorMsg = null;
+
+                    if (discount < 0) {
+                        errorMsg = '⚠️ الخصم لا يمكن أن يكون أقل من صفر';
+                    } else if (discount > subtotal) {
+                        errorMsg = '⚠️ الخصم (' + discount.toFixed(2) + ' ' + currency + ') لا يمكن أن يكون أكبر من قيمة الفاتورة (' + subtotal.toFixed(2) + ' ' + currency + ')';
+                    } else if (total < 0) {
+                        errorMsg = '⚠️ الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب';
+                    }
+
+                    // ═══ عرض / إخفاء الرسالة ═══
+                    if (errorMsg) {
+                        if (warningEl) {
+                            warningEl.textContent = errorMsg;
+                            warningEl.classList.remove('hidden');
+                        }
+
+                        discountEl.classList.remove('border-amber-500/30', 'focus:border-amber-400');
+                        discountEl.classList.add('border-red-500', 'focus:border-red-400');
+
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                    } else {
+                        if (warningEl) {
+                            warningEl.classList.add('hidden');
+                        }
+
+                        discountEl.classList.remove('border-red-500', 'focus:border-red-400');
+                        discountEl.classList.add('border-amber-500/30', 'focus:border-amber-400');
+
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
+                }
+
+                discountEl.addEventListener('input', updateSummary);
+                updateSummary();
+            });
+        </script>
+    @endif
 </x-layouts.employee>

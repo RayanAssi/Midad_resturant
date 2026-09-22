@@ -73,7 +73,7 @@ class OrdersController extends Controller
 
         DB::commit();
 
-        // ✅ التعديل الوحيد هنا
+        
         return redirect()
             ->route('employee.invoices.create', ['order_id' => $order->id])
             ->with('flashMessage', 'Order created — please issue the invoice');
