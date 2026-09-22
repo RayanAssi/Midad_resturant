@@ -74,7 +74,6 @@ class InvoiceController extends Controller
         'order_id'        => 'required|exists:orders,id',
         'subtotal'        => 'required|numeric|min:0',
         'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
-        'tax_rate'        => 'required|numeric|min:0|max:100',
         'notes'           => 'nullable|string|max:500',
     ]);
 
@@ -96,7 +95,9 @@ class InvoiceController extends Controller
     
     $subtotal = (float) $request->subtotal;
     $discount = (float) ($request->discount_amount ?? 0);
+    $taxRate  = (float) config('restaurant.tax_rate');   
 
+    // ═══ 4) Validation: discount <= subtotal ═══
     if ($discount > $subtotal) {
         return back()
             ->withErrors([
@@ -105,13 +106,11 @@ class InvoiceController extends Controller
             ->withInput();
     }
 
-    
-    $taxRate  = (float) $request->tax_rate;
     $taxable  = $subtotal - $discount;
     $taxAmt   = $taxable * ($taxRate / 100);
     $total    = $taxable + $taxAmt;
 
-    
+    // ═══ 5) Validation: total >= 0 ═══
     if ($total < 0) {
         return back()
             ->withErrors([
@@ -129,7 +128,7 @@ class InvoiceController extends Controller
             'order_id'        => $order->id,
             'subtotal'        => $subtotal,
             'discount_amount' => $discount,
-            'tax_rate'        => $taxRate,
+            'tax_rate'        => $taxRate,           // ← من config
             'tax_amount'      => $taxAmt,
             'total_amount'    => $total,
             'tax_number'      => 'TAX-' . now()->format('Ymd') . '-' . $order->id,
@@ -162,30 +161,51 @@ class InvoiceController extends Controller
     }
 
     public function update(Request $request, Invoice $invoice)
-    {
-        $validated = $request->validate([
-            'discount_amount' => 'nullable|numeric|min:0',
-            'notes'           => 'nullable|string',
-        ]);
+{
+    
+    $validated = $request->validate([
+        'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
+        'notes'           => 'nullable|string|max:500',
+    ]);
 
-        $taxRate   = config('restaurant.tax_rate') / 100;
-        $subtotal  = $invoice->subtotal;
-        $discount  = $validated['discount_amount'] ?? 0;
-        $taxAmount = ($subtotal - $discount) * $taxRate;
-        $total     = $subtotal - $discount + $taxAmount;
+    
+    $subtotal = (float) $invoice->subtotal;
+    $discount = (float) ($validated['discount_amount'] ?? 0);
+    $taxRate  = (float) config('restaurant.tax_rate');
 
-        $invoice->update([
-            'discount_amount' => $discount,
-            'tax_rate'        => $taxRate * 100,
-            'tax_amount'      => $taxAmount,
-            'total_amount'    => $total,
-            'notes'           => $validated['notes'] ?? null,
-        ]);
-
-        return redirect()
-            ->route('admin.invoices.index')
-            ->with('success', 'updated invoice successfully');
+    // ═══ 3) Validation: discount <= subtotal ═══
+    if ($discount > $subtotal) {
+        return back()
+            ->withErrors([
+                'discount_amount' => 'الخصم لا يمكن أن يكون أكبر من المجموع الفرعي'
+            ])
+            ->withInput();
     }
+
+    $taxable = $subtotal - $discount;
+    $taxAmt  = $taxable * ($taxRate / 100);
+    $total   = $taxable + $taxAmt;
+
+    if ($total < 0) {
+        return back()
+            ->withErrors([
+                'discount_amount' => 'الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب'
+            ])
+            ->withInput();
+    }
+
+    $invoice->update([
+        'discount_amount' => $discount,
+        'tax_rate'        => $taxRate,      
+        'tax_amount'      => $taxAmt,
+        'total_amount'    => $total,
+        'notes'           => $validated['notes'] ?? null,
+    ]);
+
+    return redirect()
+        ->route('admin.invoices.index')
+        ->with('success', 'Invoice updated successfully');
+}
 
     public function destroy(Invoice $invoice)
     {

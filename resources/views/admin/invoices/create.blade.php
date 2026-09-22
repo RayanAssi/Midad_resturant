@@ -132,13 +132,19 @@
                             :value="old('discount_amount', 0)"
                         />
 
-                        <x-form.input
-                            name="tax_rate"
-                            type="number"
-                            label="Tax Rate (%)"
-                            placeholder="15"
-                            :value="old('tax_rate', $taxRate)"
-                        />
+                        <div>
+        <label class="block text-sm font-bold mb-2 text-amber-100">
+            Tax Rate (%)
+        </label>
+        <input type="text"
+               value="{{ $taxRate }}%"
+               readonly
+               class="w-full px-4 py-3 rounded-lg bg-black/40 border-2 border-amber-500/30
+                      text-amber-400 font-bold cursor-not-allowed opacity-80">
+        <p class="text-xs text-amber-200/50 mt-2">
+            💡 الضريبة ثابتة حسب القانون — لا يمكن تعديلها
+        </p>
+    </div>
                     </div>
 
                     <x-form.input
@@ -200,30 +206,28 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const subtotal   = {{ (float) $subtotal }};
-            const discountEl = document.querySelector('[name="discount_amount"]');
-            const taxRateEl  = document.querySelector('[name="tax_rate"]');
+    document.addEventListener('DOMContentLoaded', function () {
+        const subtotal   = {{ (float) $subtotal }};
+        const taxRate    = {{ (float) $taxRate }};   // ← من config — ثابتة
+        const discountEl = document.querySelector('[name="discount_amount"]');
 
-            function updateSummary() {
-                const discount = parseFloat(discountEl.value) || 0;
-                const taxRate  = parseFloat(taxRateEl.value) || 0;
+        if (!discountEl) return;
 
-                const taxable = subtotal - discount;
-                const tax     = taxable * (taxRate / 100);
-                const total   = taxable + tax;
+        function updateSummary() {
+            const discount = parseFloat(discountEl.value) || 0;
 
-                document.getElementById('sum-subtotal').textContent  = subtotal.toFixed(2) + ' SYP';
-                document.getElementById('sum-discount').textContent  = '-' + discount.toFixed(2) + ' SYP';
-                document.getElementById('sum-tax-rate').textContent  = taxRate;
-                document.getElementById('sum-tax').textContent       = tax.toFixed(2) + ' SYP';
-                document.getElementById('sum-total').textContent     = total.toFixed(2) + ' SYP';
-            }
+            const taxable = subtotal - discount;
+            const tax     = taxable * (taxRate / 100);
+            const total   = taxable + tax;
 
-            if (discountEl) discountEl.addEventListener('input', updateSummary);
-            if (taxRateEl)  taxRateEl.addEventListener('input', updateSummary);
+            document.getElementById('sum-subtotal').textContent = subtotal.toFixed(2) + ' SYP';
+            document.getElementById('sum-discount').textContent = '-' + discount.toFixed(2) + ' SYP';
+            document.getElementById('sum-tax').textContent      = tax.toFixed(2) + ' SYP';
+            document.getElementById('sum-total').textContent    = total.toFixed(2) + ' SYP';
+        }
 
-            updateSummary();
-        });
-    </script>
+        discountEl.addEventListener('input', updateSummary);
+        updateSummary();
+    });
+</script>
 </x-layouts.admin>
