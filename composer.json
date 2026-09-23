@@ -12,6 +12,7 @@
         "laravel/tinker": "^3.0",
         "mcamara/laravel-localization": "^2.4",
         "spatie/laravel-permission": "^8.3",
+        "stichoza/google-translate-php": "^5.3",
         "technikermathe/blade-lucide-icons": "^3.180"
     },
     "require-dev": {
