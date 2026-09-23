@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — Midad Restaurant</title>
+    <title>{{ __('admin_auth.title') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
@@ -43,24 +43,40 @@
     {{-- Content --}}
     <div class="relative w-full max-w-[420px]">
 
+        {{-- ═══ Language Switcher ═══ --}}
+        <div class="flex justify-center mb-6">
+            <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                @foreach (config('laravellocalization.supportedLocales') as $code => $locale)
+                    <a href="{{ route('locale.switch', $code) }}"
+                        class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200
+                              {{ app()->getLocale() === $code
+                                  ? 'bg-red-600 text-white shadow-lg shadow-red-900/30'
+                                  : 'text-gray-500 hover:text-white hover:bg-white/[0.05]' }}">
+                        {{ $locale['native'] }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         {{-- Logo and title --}}
         <div class="text-center mb-8">
             <div
-                class="inline-flex items-center justify-center w-14 h-14 rounded-2xl 
-                        bg-gradient-to-br from-red-600 to-red-800 
-                        shadow-lg shadow-red-900/30 mb-5">
+    class="inline-flex items-center justify-center w-14 h-14 rounded-2xl 
+            bg-gradient-to-br from-red-600 to-red-800 
+            shadow-lg shadow-red-900/30 mb-5"
+    style="margin-left: auto !important; margin-right: auto !important; display: flex !important;">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    stroke-width="2">
+                    stroke-width="2" dir="ltr">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
 
-            <h1 class="text-2xl font-bold text-white mb-1.5">
-                Welcome Back
+            <h1 class="text-2xl font-bold text-white mb-1.5 text-center">
+                {{ __('admin_auth.welcome_back') }}
             </h1>
-            <p class="text-sm text-gray-500">
-                Sign in to access the Midad Restaurant dashboard
+            <p class="text-sm text-gray-500 text-center">
+                {{ __('admin_auth.subtitle') }}
             </p>
         </div>
 
@@ -77,7 +93,7 @@
                             bg-red-950/40 border border-red-900/50">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                     <span class="text-[10px] font-semibold text-red-300 tracking-wider uppercase">
-                        Admin Access
+                        {{ __('admin_auth.admin_access') }}
                     </span>
                 </div>
             </div>
@@ -96,9 +112,9 @@
                 {{-- Email --}}
                 <div>
                     <label for="email" class="block text-xs font-medium text-gray-400 mb-2">
-                        Email Address
+                        {{ __('admin_auth.email') }}
                     </label>
-                    <div class="relative">
+                    <div class="relative" dir="ltr">
                         {{-- Email icon (left) --}}
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -127,16 +143,16 @@
                 <div x-data="{ showPassword: false }">
                     <div class="flex items-center justify-between mb-2">
                         <label for="password" class="text-xs font-medium text-gray-400">
-                            Password
+                            {{ __('admin_auth.password') }}
                         </label>
                         @if (Route::has('password.request'))
                             <a href="{{ route('password.request') }}"
                                 class="text-xs text-gray-500 hover:text-red-400 transition-colors">
-                                Forgot?
+                                {{ __('admin_auth.forgot') }}
                             </a>
                         @endif
                     </div>
-                    <div class="relative">
+                    <div class="relative" dir="ltr">
                         {{-- Lock icon (left) --}}
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -184,6 +200,7 @@
                         <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
+
                 {{-- Login button --}}
                 <button type="submit"
                     class="w-full py-2.5 rounded-lg font-medium text-sm
@@ -192,14 +209,16 @@
                                transition-all duration-200
                                shadow-lg shadow-red-900/30
                                focus:outline-none focus:ring-2 focus:ring-red-500/50">
-                    Sign In
+                    {{ __('admin_auth.sign_in') }}
                 </button>
             </form>
 
             {{-- Divider --}}
             <div class="flex items-center gap-3 my-5">
                 <div class="flex-1 h-px bg-white/[0.06]"></div>
-                <span class="text-[10px] text-gray-600 uppercase tracking-wider">Secure</span>
+                <span class="text-[10px] text-gray-600 uppercase tracking-wider">
+                    {{ __('admin_auth.secure') }}
+                </span>
                 <div class="flex-1 h-px bg-white/[0.06]"></div>
             </div>
 
@@ -210,13 +229,13 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span>Encrypted connection • This panel is for admins only</span>
+                <span>{{ __('admin_auth.security_notice') }}</span>
             </div>
         </div>
 
         {{-- Footer --}}
         <p class="text-center text-[11px] text-gray-700 mt-6">
-            © {{ date('Y') }} Midad Restaurant — All rights reserved
+            {{ __('admin_auth.footer', ['year' => date('Y')]) }}
         </p>
     </div>
 </body>
