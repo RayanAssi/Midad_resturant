@@ -47,7 +47,7 @@ class UsersSeeder extends Seeder
                 'phone'    => '0933333333',
             ]
         );
-        $chef->syncRoles(['cashier']);
+        $chef->syncRoles(['menu-manager']);
 
         
         $expenseManager = User::updateOrCreate(

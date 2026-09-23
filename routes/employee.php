@@ -12,46 +12,50 @@ Route::middleware('auth')
     ->name('employee.')
     ->group(function () {
 
-            
         Route::get('/', function () {
             return redirect()->route('employee.dashboard');
         })->name('home');
 
-        // ═══ Dashboard ═══
+        
         Route::get('dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // ═══ Menu Items ═══
-        Route::get('menu-items', [EmployeeMenuItemController::class, 'index'])
-            ->name('menu-items.index');
-
-        // ═══ Orders ═══
-        Route::get('orders', [EmployeeOrdersController::class, 'index'])
-            ->name('orders.index');
-        Route::get('orders/create', [EmployeeOrdersController::class, 'create'])
-            ->name('orders.create');
-        Route::post('orders', [EmployeeOrdersController::class, 'store'])
-            ->name('orders.store');
-        Route::get('orders/{order}', [EmployeeOrdersController::class, 'show'])
-            ->name('orders.show');
-        Route::get('orders/{order}/edit', [EmployeeOrdersController::class, 'edit'])
-            ->name('orders.edit');
-        Route::put('orders/{order}', [EmployeeOrdersController::class, 'update'])
-            ->name('orders.update');
-        Route::delete('orders/{order}', [EmployeeOrdersController::class, 'destroy'])
-            ->name('orders.destroy');
-
-        // ═══ Profile ═══
+        
         Route::get('profile', [ProfileController::class, 'show'])
             ->name('profile.show');
 
-        // ═══ Invoices ═══
-        Route::get('invoices', [InvoiceController::class, 'index'])
-            ->name('invoices.index');
-        Route::get('invoices/create', [InvoiceController::class, 'create'])
-            ->name('invoices.create');
-        Route::post('invoices', [InvoiceController::class, 'store'])
-            ->name('invoices.store');
-        Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])
-            ->name('invoices.show');
+        
+        Route::middleware('role:menu-manager|super-admin')
+            ->prefix('menu-items')
+            ->name('menu-items.')
+            ->group(function () {
+                Route::get('/', [EmployeeMenuItemController::class, 'index'])->name('index');
+                
+            });
+
+        
+        Route::middleware('role:cashier|super-admin')
+            ->prefix('orders')
+            ->name('orders.')
+            ->group(function () {
+                Route::get('/', [EmployeeOrdersController::class, 'index'])->name('index');
+                Route::get('create', [EmployeeOrdersController::class, 'create'])->name('create');
+                Route::post('/', [EmployeeOrdersController::class, 'store'])->name('store');
+                Route::get('{order}', [EmployeeOrdersController::class, 'show'])->name('show');
+                Route::get('{order}/edit', [EmployeeOrdersController::class, 'edit'])->name('edit');
+                Route::put('{order}', [EmployeeOrdersController::class, 'update'])->name('update');
+                Route::delete('{order}', [EmployeeOrdersController::class, 'destroy'])->name('destroy');
+            });
+
+        
+        Route::middleware('role:cashier|super-admin')
+            ->prefix('invoices')
+            ->name('invoices.')
+            ->group(function () {
+                Route::get('/', [InvoiceController::class, 'index'])->name('index');
+                Route::get('create', [InvoiceController::class, 'create'])->name('create');
+                Route::post('/', [InvoiceController::class, 'store'])->name('store');
+                Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
+            });
+
     });
