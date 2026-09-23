@@ -30,7 +30,13 @@ Route::middleware('auth')
             ->name('menu-items.')
             ->group(function () {
                 Route::get('/', [EmployeeMenuItemController::class, 'index'])->name('index');
-                
+                Route::get('create',   [EmployeeMenuItemController::class, 'create']) ->name('create');
+                Route::post('/',       [EmployeeMenuItemController::class, 'store'])  ->name('store');
+                Route::get('{menuItem}',        [EmployeeMenuItemController::class, 'show'])   ->name('show');
+                Route::get('{menuItem}/edit',   [EmployeeMenuItemController::class, 'edit'])   ->name('edit');
+                Route::put('{menuItem}',        [EmployeeMenuItemController::class, 'update']) ->name('update');
+                Route::delete('{menuItem}',     [EmployeeMenuItemController::class, 'destroy'])->name('destroy');
+            
             });
 
         

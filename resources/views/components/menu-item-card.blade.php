@@ -3,6 +3,7 @@
     'editable' => false,
     'deletable' => false,
     'orderable' => false,
+    'routePrefix' => 'admin',   // ✅ جديد — القيمة الافتراضية للأدمن
 ])
 
 @php
@@ -49,11 +50,11 @@
              class="w-full h-full object-cover
                     group-hover:scale-110 transition-transform duration-500" />
 
-        <div class="absolute inset-0 bg-gradient-to-t 
+        <div class="absolute inset-0 bg-gradient-to-t
                     from-black via-black/40 to-transparent"></div>
 
         {{-- Category badge --}}
-        <span class="absolute top-3 right-3 text-xs font-bold 
+        <span class="absolute top-3 right-3 text-xs font-bold
                      px-3 py-1 rounded-full border backdrop-blur-sm
                      {{ $theme['badge'] }}">
             {{ $item->category_label }}
@@ -67,7 +68,7 @@
         </h3>
 
         <div class="mt-auto pt-3 flex items-baseline gap-1">
-            <span class="text-2xl font-black text-transparent bg-clip-text 
+            <span class="text-2xl font-black text-transparent bg-clip-text
                          bg-gradient-to-r from-amber-300 to-orange-400">
                 {{ number_format($item->price, 2) }}
             </span>
@@ -77,7 +78,7 @@
 
     {{-- Actions --}}
     @if($editable || $deletable || $orderable)
-        <div class="px-5 py-3 
+        <div class="px-5 py-3
                     bg-gradient-to-r from-red-900/30 to-transparent
                     border-t-2 border-red-800/40
                     flex items-center gap-2 justify-end">
@@ -97,7 +98,8 @@
             @endif
 
             @if($editable)
-                <a href="{{ route('admin.menu-items.edit', $item) }}"
+                {{-- ✅ استخدم routePrefix --}}
+                <a href="{{ route($routePrefix . '.menu-items.edit', $item) }}"
                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg
                           bg-amber-500/20 hover:bg-amber-500/30
                           border border-amber-500/40 text-amber-300
@@ -107,20 +109,14 @@
             @endif
 
             @if($deletable)
-                <form action="{{ route('admin.menu-items.destroy', $item) }}"
-                      method="POST"
-                      onsubmit="return confirm('Delete {{ addslashes($item->name) }}?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg
-                                   bg-red-500/20 hover:bg-red-500/30
-                                   border border-red-500/40 text-red-300
-                                   transition-all hover:scale-110">
-                        <x-lucide-trash class="w-4 h-4" />
- 
-                    </button>
-                </form>
+                <button type="button"
+                        onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->name) }}')"
+                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg
+                               bg-red-500/20 hover:bg-red-500/30
+                               border border-red-500/40 text-red-300
+                               transition-all hover:scale-110">
+                    <x-lucide-trash class="w-4 h-4" />
+                </button>
             @endif
         </div>
     @endif

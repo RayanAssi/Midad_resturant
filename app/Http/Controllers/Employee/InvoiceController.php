@@ -20,8 +20,8 @@ class InvoiceController extends Controller
     if ($search = $request->search) {
         $query->where(function ($q) use ($search) {
             $q->where('invoice_number', 'like', "%{$search}%")
-              ->orWhere('order_id', 'like', "%{$search}%")
-              ->orWhere('tax_number', 'like', "%{$search}%");
+            ->orWhere('order_id', 'like', "%{$search}%")
+            ->orWhere('tax_number', 'like', "%{$search}%");
         });
     }
 
@@ -47,7 +47,7 @@ class InvoiceController extends Controller
     if (!$orderId) {
         return redirect()
             ->route('employee.orders.index')
-            ->with('error', 'يجب اختيار طلب أولاً لإصدار فاتورة');
+            ->with('error', 'You must select an order first to issue an invoice.');
     }
 
     
@@ -56,14 +56,14 @@ class InvoiceController extends Controller
     if (!$selectedOrder) {
         return redirect()
             ->route('employee.orders.index')
-            ->with('error', 'الطلب غير موجود');
+            ->with('error', 'The order does not exist');
     }
 
     
     if ($selectedOrder->invoice) {
         return redirect()
             ->route('employee.invoices.show', $selectedOrder->invoice->id)
-            ->with('error', 'هذا الطلب له فاتورة بالفعل');
+            ->with('error', 'The order already has an invoice');
     }
 
     return view('employee.invoices.create', compact('selectedOrder'));
@@ -71,47 +71,47 @@ class InvoiceController extends Controller
 
    public function store(Request $request)
 {
-    // ═══ 1) Validation الأساسي ═══
+    
     $validated = $request->validate([
         'order_id'        => 'required|exists:orders,id',
         'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
         'notes'           => 'nullable|string|max:500',
     ]);
 
-    // ═══ 2) جيب الـ order مرة وحدة ═══
+    
     $order = Order::findOrFail($validated['order_id']);
 
-    // ═══ 3) تحقق: ما في فاتورة سابقة ═══
+    
     if ($order->invoice) {
-        return back()->with('error', 'هذا الطلب له فاتورة بالفعل');
+        return back()->with('error', 'The order already has an invoice');
     }
 
-    // ═══ 4) الحسابات ═══
+    
     $subtotal = (float) $order->total_amount;
     $discount = (float) ($validated['discount_amount'] ?? 0);
 
-    // ═══ 5) Validation إضافي: discount <= subtotal ═══
+    
     if ($discount > $subtotal) {
         return back()
             ->withErrors([
-                'discount_amount' => 'الخصم لا يمكن أن يكون أكبر من المجموع الفرعي (' . number_format($subtotal, 2) . ' SYP)'
+                'discount_amount' => 'The discount cannot be larger than the subtotal (' . number_format($subtotal, 2) . ' SYP)'
             ])
             ->withInput();
     }
 
-    // ═══ 6) الحسابات النهائية ═══
+    
     $taxRate   = (float) config('restaurant.tax_rate') / 100;
     $taxAmount = ($subtotal - $discount) * $taxRate;
     $total     = $subtotal - $discount + $taxAmount;
 
-    // ═══ 7) حماية إضافية: total مو سالب ═══
+    
     if ($total < 0) {
         return back()
-            ->withErrors(['discount_amount' => 'الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب'])
+            ->withErrors(['discount_amount' => 'The discount is too large — the total cannot be negative.'])
             ->withInput();
     }
 
-    // ═══ 8) إنشاء الفاتورة ═══
+    
     DB::beginTransaction();
 
     try {
