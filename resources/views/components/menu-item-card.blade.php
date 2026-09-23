@@ -3,7 +3,7 @@
     'editable' => false,
     'deletable' => false,
     'orderable' => false,
-    'routePrefix' => 'admin',   // ✅ جديد — القيمة الافتراضية للأدمن
+    'routePrefix' => 'admin',  
 ])
 
 @php
@@ -98,7 +98,7 @@
             @endif
 
             @if($editable)
-                {{-- ✅ استخدم routePrefix --}}
+                
                 <a href="{{ route($routePrefix . '.menu-items.edit', $item) }}"
                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg
                           bg-amber-500/20 hover:bg-amber-500/30
