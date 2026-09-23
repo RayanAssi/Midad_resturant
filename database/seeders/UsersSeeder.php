@@ -25,7 +25,7 @@ class UsersSeeder extends Seeder
         $admin->assignRole('super-admin');
 
         
-        User::updateOrCreate(
+        $cashier = User::updateOrCreate(
             ['email' => 'cashier@midad.com'],
             [
                 'name'     => 'أحمد الكاشير',
@@ -35,9 +35,9 @@ class UsersSeeder extends Seeder
                 'phone'    => '0922222222',
             ]
         );
-
+    $cashier->syncRoles(['cashier']);
         
-        User::updateOrCreate(
+        $chef = User::updateOrCreate(
             ['email' => 'chef@midad.com'],
             [
                 'name'     => 'علي الطباخ',
@@ -47,18 +47,20 @@ class UsersSeeder extends Seeder
                 'phone'    => '0933333333',
             ]
         );
+        $chef->syncRoles(['cashier']);
 
         
-        User::updateOrCreate(
-            ['email' => 'cleaner@midad.com'],
+        $expenseManager = User::updateOrCreate(
+            ['email' => 'expense@midad.com'],
             [
-                'name'     => 'محمد عامل النظافة',
+                'name'     => 'سامر مسؤول المصاريف',
                 'password' => Hash::make('password'),
                 'role'     => 'employee',
-                'position' => 'cleaner',
+                'position' => 'expense-manager',
                 'phone'    => '0944444444',
             ]
         );
+        $expenseManager->syncRoles(['expense-manager']);
 
         
 
