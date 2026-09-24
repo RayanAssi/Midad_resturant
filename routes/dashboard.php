@@ -8,7 +8,11 @@ use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
+<<<<<<< HEAD
 use App\Http\Controllers\Dashboard\ExpensesController;
+=======
+use App\Http\Controllers\Dashboard\TranslationController;
+>>>>>>> eaf93196f98a2775c16e5cb40258d4b83c76d8b3
 
 /*
 |--------------------------------------------------------------------------
@@ -21,9 +25,7 @@ Route::post('/admin/logout', AdminLogoutController::class)
     ->name('admin.logout');
 
 /*
-|--------------------------------------------------------------------------
-| Admin Routes (محمية بـ auth:admin)
-|--------------------------------------------------------------------------
+Admin Routes
 */
 Route::middleware('auth:admin')
     ->prefix('admin')
@@ -84,4 +86,21 @@ Route::middleware('auth:admin')
             Route::put('/{id}', [RoleController::class, 'update'])->name('update');
             Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
         });
+<<<<<<< HEAD
     });
+=======
+
+        // Translations
+        Route::match(['post', 'put'], '/translate/{group}/{field}', [TranslationController::class, 'translate'])
+            ->name('translations.translate')
+            ->where(['group' => '[a-z_]+', 'field' => '[a-z_]+']);
+
+        Route::post('translations/update/{group}/{field}', [TranslationController::class, 'update'])
+            ->name('translations.update')
+            ->where(['group' => '[a-z_]+', 'field' => '[a-z_]+']);
+
+        Route::post('translations/destroy/{group}/{field}', [TranslationController::class, 'destroy'])
+            ->name('translations.destroy')
+            ->where(['group' => '[a-z_]+', 'field' => '[a-z_]+']);
+    });
+>>>>>>> eaf93196f98a2775c16e5cb40258d4b83c76d8b3
