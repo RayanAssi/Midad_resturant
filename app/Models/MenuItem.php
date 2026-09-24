@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,13 @@ use Illuminate\Support\Facades\Storage;
 
 class MenuItem extends Model
 {
+    use Translatable;
+
+    public function getTranslatableAttributes(): array
+    {
+        return ['name','category'];
+    }
+
     protected $casts = [
         'price' => 'decimal:2',
     ];

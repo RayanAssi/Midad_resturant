@@ -24,7 +24,7 @@
                   class="p-6 space-y-5">
                 @csrf
 
-                @include('admin.menu-items._form')
+                @include('admin.menu-items._form',['translations'=>$translations ?? []])
 
                 <div class="flex items-center justify-end gap-3 pt-4">
                     <a href="{{ route('admin.menu-items.index') }}"
