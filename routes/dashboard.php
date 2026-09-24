@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\MenuItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
+use App\Http\Controllers\Dashboard\ExpensesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,20 +51,30 @@ Route::middleware('auth:admin')
             ->name('two-factor.enable');
         Route::delete('user/two-factor-authentication', [ProfileController::class, 'disableTwoFactor'])
             ->name('two-factor.disable');
-        // 2FA Confirm Page
         Route::get('profile/2fa/confirm', function () {
             return view('admin.auth.confirm-password');
-        })->name('profile.2fa.confirm');      
-        
+        })->name('profile.2fa.confirm');
+
         // Menu Items
         Route::resource('menu-items', MenuItemController::class);
 
-        // Expenses
-        Route::get('expenses', fn() => view('admin.expenses.index'))->name('expenses.index');
+        // Expenses — خارج roles، مباشرة جوّا admin
+        Route::prefix('expenses')
+            ->name('expenses.')
+            ->group(function () {
+                Route::get('/', [ExpensesController::class, 'index'])->name('index');
+                Route::get('create', [ExpensesController::class, 'create'])->name('create');
+                Route::post('/', [ExpensesController::class, 'store'])->name('store');
+                Route::get('{expense}', [ExpensesController::class, 'show'])->name('show');
+                Route::get('{expense}/edit', [ExpensesController::class, 'edit'])->name('edit');
+                Route::put('{expense}', [ExpensesController::class, 'update'])->name('update');
+                Route::delete('{expense}', [ExpensesController::class, 'destroy'])->name('destroy');
+            });
 
+        // Invoices
         Route::resource('invoices', InvoiceController::class);
 
-        //Roles
+        // Roles — لحالها بدون expenses
         Route::prefix('roles')->name('roles.')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->name('index');
             Route::get('/create', [RoleController::class, 'create'])->name('create');

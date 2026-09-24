@@ -28,7 +28,7 @@ class FortifyServiceProvider extends ServiceProvider
             // إعدادات المشرفين
             Config::set('fortify.guard', 'admin');
             Config::set('fortify.passwords', 'admin'); 
-            Config::set('fortify.home', '/admin/menu-items');
+            Config::set('fortify.home', '/admin/');
             Config::set('fortify.prefix', 'admin');
         } else {
             // إعدادات المستخدمين العاديين
