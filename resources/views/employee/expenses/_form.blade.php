@@ -3,6 +3,9 @@
     $action = $action ?? route('employee.expenses.store');
     $method = $method ?? 'POST';
     $submitLabel = $submitLabel ?? ($isEdit ? 'Update Expense' : 'Create Expense');
+
+    $today = now()->toDateString();
+    $oneYearAgo = now()->subYear()->toDateString();
 @endphp
 
 <form action="{{ $action }}" method="POST"
@@ -60,20 +63,20 @@
             <div>
                 <label for="amount"
                     class="block text-xs font-bold text-amber-300/80
-                                           uppercase tracking-widest mb-2">
+               uppercase tracking-widest mb-2">
                     Amount <span class="text-red-400">*</span>
                 </label>
                 <div class="relative">
-                    <input type="number" name="amount" id="amount" step="0.01" min="0"
-                        value="{{ old('amount', $expense->amount ?? '') }}" placeholder="0.00"
+                    <input type="number" name="amount" id="amount" step="0.01" min="1"
+                        value="{{ old('amount', $expense->amount ?? '') }}" placeholder="1.00" required
                         class="w-full px-4 py-3 pr-20 rounded-lg
-                                  bg-black/50 border-2 border-red-800/30
-                                  text-amber-100 placeholder-amber-200/30
-                                  focus:outline-none focus:border-amber-600/60
-                                  transition-colors" />
+                   bg-black/50 border-2 border-red-800/30
+                   text-amber-100 placeholder-amber-200/30
+                   focus:outline-none focus:border-amber-600/60
+                   transition-colors" />
                     <span
                         class="absolute inset-y-0 right-4 flex items-center
-                                 text-amber-300/70 text-xs font-bold tracking-wider pointer-events-none">
+                   text-amber-300/70 text-xs font-bold tracking-wider pointer-events-none">
                         {{ config('restaurant.currency', 'SYP') }}
                     </span>
                 </div>
@@ -90,16 +93,18 @@
             <div>
                 <label for="date"
                     class="block text-xs font-bold text-amber-300/80
-                                         uppercase tracking-widest mb-2">
+               uppercase tracking-widest mb-2">
                     Date <span class="text-red-400">*</span>
                 </label>
                 <input type="date" name="date" id="date"
-                    value="{{ old('date', isset($expense) && $expense->date ? $expense->date->format('Y-m-d') : now()->format('Y-m-d')) }}"
+                    value="{{ old('date', isset($expense) && $expense->date ? $expense->date->format('Y-m-d') : $today) }}"
+                    min="{{ $oneYearAgo }}" max="{{ $today }}" required
                     class="w-full px-4 py-3 rounded-lg
-                              bg-black/50 border-2 border-red-800/30
-                              text-amber-100
-                              focus:outline-none focus:border-amber-600/60
-                              transition-colors" />
+               bg-black/50 border-2 border-red-800/30
+               text-amber-100
+               [color-scheme:dark]
+               focus:outline-none focus:border-amber-600/60
+               transition-colors" />
 
                 @error('date')
                     <p class="mt-2 text-sm text-red-400 flex items-center gap-1">

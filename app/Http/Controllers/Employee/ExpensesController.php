@@ -98,8 +98,8 @@ class ExpensesController extends Controller
     {
         $data = $request->validate([
             'title'  => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'date'   => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'date'   => ['required', 'date', 'before_or_equal:today'],
         ]);
 
         $data['user_id'] = auth('web')->id();
@@ -135,8 +135,8 @@ class ExpensesController extends Controller
 
         $data = $request->validate([
             'title'  => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'date'   => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'date'   => ['required', 'date', 'before_or_equal:today'],
         ]);
 
         $expense->update($data);
