@@ -57,7 +57,8 @@
             @foreach($items as $item)
                 <x-menu-item-card :item="$item"
                                   :editable="true"
-                                  :deletable="true" />
+                                  :deletable="true"
+                                  route-prefix="admin"  />
             @endforeach
         </div>
 
