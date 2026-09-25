@@ -11,7 +11,8 @@
               flex flex-col">
 
     {{-- Logo --}}
-    <div class="flex items-center gap-3 px-5 py-3.5
+    <div
+        class="flex items-center gap-3 px-5 py-3.5
                   border-b-2 border-red-800/35
             shadow-sm shadow-red-900/30 backdrop-blur-sm">
 
@@ -70,6 +71,10 @@
 
                     @case('layout-dashboard')
                         <x-lucide-layout-dashboard class="w-5 h-5 flex-shrink-0" />
+                    @break
+
+                    @case('user-group')
+                        <x-lucide-user-group class="w-5 h-5 flex-shrink-0" />
                     @break
 
                     @default

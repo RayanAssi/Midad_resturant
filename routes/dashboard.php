@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\ExpensesController;
 use App\Http\Controllers\Dashboard\TranslationController;
+use App\Http\Controllers\Dashboard\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,18 @@ Route::middleware('auth:admin')
             Route::put('/{id}', [RoleController::class, 'update'])->name('update');
             Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
         });
+
+        Route::prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('create', [UserController::class, 'create'])->name('create');
+                Route::post('/', [UserController::class, 'store'])->name('store');
+                Route::get('{user}', [UserController::class, 'show'])->name('show');
+                Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
+                Route::put('{user}', [UserController::class, 'update'])->name('update');
+                Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
+            });
 
         // Translations
         Route::match(['post', 'put'], '/translate/{group}/{field}', [TranslationController::class, 'translate'])
