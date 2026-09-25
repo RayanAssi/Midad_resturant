@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
-    /**
-     * عرض قائمة الأدوار
-     */
+    
     public function index()
     {
         $roles = Role::with('permissions')->withCount('users')->get();
@@ -26,9 +24,7 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles', 'stats'));
     }
 
-    /**
-     * فورم إنشاء دور
-     */
+    
     public function create()
     {
         $permissions = Permission::all()->groupBy(function ($permission) {
@@ -39,9 +35,7 @@ class RoleController extends Controller
         return view('admin.roles.create', compact('permissions'));
     }
 
-    /**
-     * حفظ دور جديد
-     */
+    
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -73,9 +67,7 @@ class RoleController extends Controller
         }
     }
 
-    /**
-     * عرض دور
-     */
+    
     public function show($id)
     {
         $role = Role::with('permissions')->find($id);
@@ -88,66 +80,71 @@ class RoleController extends Controller
         return view('admin.roles.show', compact('role'));
     }
 
-    /**
-     * فورم تعديل دور
-     */
+    
     public function edit($id)
-    {
-        $role = Role::with('permissions')->find($id);
+{
+    $role = Role::with('permissions')->find($id);
 
-        if (!$role) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', 'Role not found');
-        }
-
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode('.', $permission->name)[0];
-        });
-
-        $rolePermissions = $role->permissions->pluck('name')->toArray();
-
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+    if (!$role) {
+        return redirect()->route('admin.roles.index')
+            ->with('error', 'Role not found');
     }
 
-    /**
-     * تحديث دور
-     */
+    
+    if ($role->name === 'super-admin') {
+        return redirect()->route('admin.roles.index')
+            ->with('error', 'The super-admin role is protected and cannot be edited.');
+    }
+
+    $permissions = Permission::all()->groupBy(function ($permission) {
+        return explode('.', $permission->name)[0];
+    });
+
+    $rolePermissions = $role->permissions->pluck('name')->toArray();
+
+    return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+}
+
+    
     public function update(Request $request, $id)
-    {
-        $role = Role::find($id);
+{
+    $role = Role::find($id);
 
-        if (!$role) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', 'Role not found');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name'          => 'required|string|max:255|unique:roles,name,' . $id,
-            'permissions'   => 'nullable|array',
-            'permissions.*' => 'exists:permissions,name',
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        try {
-            $role->update(['name' => $request->name]);
-
-            $role->syncPermissions($request->permissions ?? []);
-
-            return redirect()
-                ->route('admin.roles.index')
-                ->with('flashMessage', 'Role updated successfully');
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
-        }
+    if (!$role) {
+        return redirect()->route('admin.roles.index')
+            ->with('error', 'Role not found');
     }
 
-    /**
-     * حذف دور
-     */
+    
+    if ($role->name === 'super-admin') {
+        return back()->with('error', 'The super-admin role is protected and cannot be updated.');
+    }
+
+    $validator = Validator::make($request->all(), [
+        'name'          => 'required|string|max:255|unique:roles,name,' . $id,
+        'permissions'   => 'nullable|array',
+        'permissions.*' => 'exists:permissions,name',
+    ]);
+
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
+    }
+
+    try {
+        $role->update(['name' => $request->name]);
+
+        $role->syncPermissions($request->permissions ?? []);
+
+        return redirect()
+            ->route('admin.roles.index')
+            ->with('flashMessage', 'Role updated successfully');
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+    }
+}
+
+    
     public function destroy($id)
     {
         $role = Role::find($id);
@@ -157,7 +154,7 @@ class RoleController extends Controller
                 ->with('error', 'Role not found');
         }
 
-        // منع حذف super-admin
+        
         if ($role->name === 'super-admin') {
             return back()->with('error', 'Cannot delete super-admin role');
         }
