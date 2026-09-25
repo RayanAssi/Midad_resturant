@@ -35,6 +35,12 @@ return [
             'route'  => 'admin.expenses.index',
             'active' => 'admin.expenses.*',
         ],
+        [
+            'label'  => 'Employees',
+            'icon'   => 'user-group',
+            'route'  => 'admin.users.index',
+            'active' => 'admin.users.*',
+        ],
     ],
 
     /*
