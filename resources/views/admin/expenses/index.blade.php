@@ -334,9 +334,10 @@
             <button type="submit"
                     class="px-4 py-2 rounded-lg
                            bg-gradient-to-r from-amber-600 to-red-700
-                           hover:from-amber-500 hover:to-red-600
-                           text-white font-bold text-sm
-                           shadow-lg shadow-red-900/40 transition-all">
+                           bg-gradient-to-r from-red-600 to-red-800
+                           hover:from-red-500 hover:to-red-700
+                           text-amber-50 font-bold text-sm
+                           shadow-lg shadow-red-900/50 transition-all">
                 Apply
             </button>
         </div>
