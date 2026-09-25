@@ -13,8 +13,7 @@ use Illuminate\Validation\Rule;
  * Controller عام للترجمة التلقائية لكل الأقسام (بدون JavaScript).
  *
  * المسار: POST /admin/dashboard/translate/{group}/{field}
- * مثال: POST /admin/dashboard/translate/categories/name
- * مثال: POST /admin/dashboard/translate/categories/description
+ * مثال: POST /admin/dashboard/translate/menu_items/name
  */
 class TranslationController extends Controller
 {
@@ -23,12 +22,7 @@ class TranslationController extends Controller
     ) {}
 
     /**
-     * ترجمة حقل عربي (name أو description) وحفظه في lang/{locale}.json
-     *
-     * @example
-     * // formaction من زر الترجمة يرسل كل حقول النموذج:
-     * // name=ملابس, description=وصف عربي, locale=en
-     * // عند field=description يُترجم حقل الوصف فقط
+     * ترجمة حقل إنجليزي (name أو description) وحفظه في lang/{locale}.json
      */
     public function translate(Request $request, string $group, string $field): RedirectResponse
     {
@@ -57,14 +51,15 @@ class TranslationController extends Controller
         if ($text === '') {
             return redirect()->back()
                 ->withInput()
-                ->with('translation_error', 'أدخل النص بالعربية أولاً.')
+                ->with('translation_error', 'أدخل النص بالإنجليزية أولاً.')
                 ->with('translated_field', $field);
         }
 
         try {
             $translation = $this->translationService->translate(
                 $text,
-                $validated['locale']
+                $validated['locale'],
+                config('translation.base_locale', 'en')
             );
 
             if (! $translation) {
@@ -103,6 +98,7 @@ class TranslationController extends Controller
         ], [
             "{$field}_translations.{$locale}.required" => 'أدخل نص الترجمة أولاً.',
         ]);
+
         $model = $this->makeModelInstance($group);
 
         if (! $model) {
@@ -124,7 +120,7 @@ class TranslationController extends Controller
         if ($text === '') {
             return redirect()->back()
                 ->withInput()
-                ->with('translation_error', 'أدخل النص بالعربية أولاً.')
+                ->with('translation_error', 'أدخل النص بالإنجليزية أولاً.')
                 ->with('translated_field', $field);
         }
 
@@ -171,7 +167,7 @@ class TranslationController extends Controller
         if ($text === '') {
             return redirect()->back()
                 ->withInput()
-                ->with('translation_error', 'أدخل النص بالعربية أولاً.')
+                ->with('translation_error', 'أدخل النص بالإنجليزية أولاً.')
                 ->with('translated_field', $field);
         }
 
@@ -213,9 +209,6 @@ class TranslationController extends Controller
             ->with('translated_field', $field);
     }
 
-    /**
-     * @return array<string, array<string, string|null>>
-     */
     protected function resolveAllFieldTranslations(
         Request $request,
         object $model,

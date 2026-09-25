@@ -8,25 +8,17 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 /**
  * خدمة الترجمة التلقائية عبر Google Translate (مكتبة Stichoza).
  *
- * لا تحتاج API Key — تستخدم الترجمة المجانية مباشرة.
- * النتائج تُخزَّن في Cache لمدة 30 يوماً لتسريع الترجمات المتكررة.
+ * الترجمة من الإنجليزية (المصدر) إلى العربية/التركية (الهدف).
  *
  * @example
  * // $service = app(TranslationService::class);
- * // $service->translate('ملابس', 'en');  // => "Clothes"
- * // $service->translate('ملابس', 'tr');  // => "Giyim"
+ * // $service->translate('Clothes', 'ar');  // => "ملابس"
+ * // $service->translate('Clothes', 'tr');  // => "Giyim"
  */
 class TranslationService
 {
     protected GoogleTranslate $translator;
 
-    /**
-     * تهيئة مكتبة Google Translate عند إنشاء الخدمة.
-     *
-     * @example
-     * // يُستدعى تلقائياً عند أول استخدام:
-     * // app(TranslationService::class);
-     */
     public function __construct()
     {
         $this->translator = new GoogleTranslate;
@@ -35,16 +27,11 @@ class TranslationService
     /**
      * ترجمة نص من لغة مصدر إلى لغة هدف.
      *
-     * @param  string  $text  النص المراد ترجمته (عادةً عربي)
-     * @param  string  $targetLang  اللغة المطلوبة (en, tr)
-     * @param  string  $sourceLang  اللغة الأصلية (افتراضي: ar)
-     *
-     * @example
-     * // translate('إلكترونيات', 'en', 'ar') => "Electronics"
-     * // translate('إلكترونيات', 'ar', 'ar') => "إلكترونيات" (نفس اللغة)
-     * // translate('', 'en')                  => "" (نص فارغ)
+     * @param  string  $text  النص المراد ترجمته (عادةً إنجليزي)
+     * @param  string  $targetLang  اللغة المطلوبة (ar, tr)
+     * @param  string  $sourceLang  اللغة الأصلية (افتراضي: en)
      */
-    public function translate(string $text, string $targetLang, string $sourceLang = 'ar'): ?string
+    public function translate(string $text, string $targetLang, string $sourceLang = 'en'): ?string
     {
         $text = trim($text);
 
