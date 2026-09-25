@@ -19,7 +19,6 @@ return [
 
     'target_locales' => ['ar'],
     'groups'=>[
-       /*  'categories' => \App\Models\Category::class, */
         'menu_items' => \App\Models\MenuItem::class,
     ]
 

@@ -44,7 +44,7 @@ class TranslationService
      * // translate('إلكترونيات', 'ar', 'ar') => "إلكترونيات" (نفس اللغة)
      * // translate('', 'en')                  => "" (نص فارغ)
      */
-    public function translate(string $text, string $targetLang, string $sourceLang = 'en'): ?string
+    public function translate(string $text, string $targetLang, string $sourceLang = 'ar'): ?string
     {
         $text = trim($text);
 
