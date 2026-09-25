@@ -32,6 +32,12 @@
     <div class="row mt-3">
         @foreach (config('translation.target_locales') as $locale)
             @php
+                $inputName = "{$field}_translations[{$locale}]";
+                $inputId = "translation-{$field}-{$locale}";
+                $storedValue = $translations[$locale] ?? '';
+                $value = old($inputName, $storedValue);
+                $hasStoredTranslation = trim((string) $storedValue) !== '';
+                $hasValue = trim((string) $value) !== '';
             @endphp
             <div class="col-md-6">
                 <label for="{{ $inputId }}">{{ strtoupper($locale) }}</label>

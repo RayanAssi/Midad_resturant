@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\MenuItem;
 use App\Services\TranslationService;
 use App\Traits\Translatable;
 use Illuminate\Http\RedirectResponse;
@@ -31,76 +30,62 @@ class TranslationController extends Controller
      * // name=ملابس, description=وصف عربي, locale=en
      * // عند field=description يُترجم حقل الوصف فقط
      */
-   public function translate(Request $request, string $group, string $field): RedirectResponse|\Illuminate\Http\JsonResponse
-{
-    $validated = $request->validate([
-        'locale' => ['required', Rule::in(config('translation.target_locales'))],
-    ]);
+    public function translate(Request $request, string $group, string $field): RedirectResponse
+    {
+        $validated = $request->validate([
+            'locale' => ['required', Rule::in(config('translation.target_locales'))],
+        ]);
 
-    $model = $this->makeModelInstance($group);
+        $model = $this->makeModelInstance($group);
 
-    if (! $model) {
-        return $this->translateError($request, $field, 'نوع القسم غير مدعوم.');
-    }
-
-    if (! in_array($field, $model->getTranslatableAttributes(), true)) {
-        return $this->translateError($request, $field, 'هذا الحقل غير مدعوم للترجمة.');
-    }
-
-    $text = trim((string) $request->input($field, ''));
-
-    if ($text === '') {
-        return $this->translateError($request, $field, 'أدخل النص أولاً.');
-    }
-
-    try {
-        $translation = $this->translationService->translate(
-            $text,
-            $validated['locale']
-        );
-
-        if (! $translation) {
-            throw new \RuntimeException('فشلت الترجمة.');
+        if (! $model) {
+            return redirect()->back()
+                ->withInput()
+                ->with('translation_error', 'نوع القسم غير مدعوم.')
+                ->with('translated_field', $field);
         }
 
-        $model->addTranslationToJson($text, $validated['locale'], $translation);
-    } catch (\Throwable $exception) {
-        return $this->translateError($request, $field, $exception->getMessage());
+        if (! in_array($field, $model->getTranslatableAttributes(), true)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('translation_error', 'هذا الحقل غير مدعوم للترجمة.')
+                ->with('translated_field', $field);
+        }
+
+        $text = trim((string) $request->input($field, ''));
+
+        if ($text === '') {
+            return redirect()->back()
+                ->withInput()
+                ->with('translation_error', 'أدخل النص بالعربية أولاً.')
+                ->with('translated_field', $field);
+        }
+
+        try {
+            $translation = $this->translationService->translate(
+                $text,
+                $validated['locale']
+            );
+
+            if (! $translation) {
+                throw new \RuntimeException('فشلت الترجمة.');
+            }
+
+            $model->addTranslationToJson($text, $validated['locale'], $translation);
+        } catch (\Throwable $exception) {
+            return redirect()->back()
+                ->withInput()
+                ->with('translation_error', $exception->getMessage())
+                ->with('translated_field', $field);
+        }
+
+        return $this->redirectWithTranslations(
+            $request,
+            $model,
+            $field,
+            'تمت الترجمة وحفظها في ملف JSON.'
+        );
     }
-
-    // ✅ رد JSON للـ AJAX
-    if ($request->expectsJson() || $request->ajax()) {
-        return response()->json([
-            'message'     => 'تمت الترجمة بنجاح.',
-            'translation' => $translation,
-            'field'       => $field,
-            'locale'      => $validated['locale'],
-        ]);
-    }
-
-    // رد عادي للفورم
-    return $this->redirectWithTranslations(
-        $request,
-        $model,
-        $field,
-        'تمت الترجمة وحفظها في ملف JSON.'
-    );
-}
-
-/**
- * مساعد للرد عند الخطأ (JSON أو redirect)
- */
-protected function translateError(Request $request, string $field, string $message)
-{
-    if ($request->expectsJson() || $request->ajax()) {
-        return response()->json(['message' => $message], 422);
-    }
-
-    return redirect()->back()
-        ->withInput()
-        ->with('translation_error', $message)
-        ->with('translated_field', $field);
-}
 
     /**
      * حفظ تعديل يدوي على ترجمة موجودة في lang/{locale}.json
@@ -282,9 +267,8 @@ protected function translateError(Request $request, string $field, string $messa
 
     protected function getModelClass(string $group): ?string
     {
-        return match ($group) {
-            'menu_items' => MenuItem::class,
-            default => null,
-        };
+        $class = config("translation.groups.{$group}");
+
+        return is_string($class) ? $class : null;
     }
 }

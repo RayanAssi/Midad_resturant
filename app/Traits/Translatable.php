@@ -61,7 +61,7 @@ trait Translatable
         $locale = $locale ?? app()->getLocale();
         $value = $this->{$field};
 
-        if ($locale === 'en' || $value === null || trim((string) $value) === '') {
+        if ($locale === 'ar' || $value === null || trim((string) $value) === '') {
             return $value;
         }
 
@@ -80,7 +80,7 @@ trait Translatable
             return false;
         }
 
-        if ($locale === 'en') {
+        if ($locale === 'ar') {
             return true;
         }
 
@@ -125,7 +125,7 @@ trait Translatable
             return null;
         }
 
-        if ($locale === 'en') {
+        if ($locale === 'ar') {
             return $value;
         }
 

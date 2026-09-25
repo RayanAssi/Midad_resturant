@@ -32,10 +32,6 @@ class MenuItemController extends Controller
         $menuItem = new MenuItem();
         return view('admin.menu-items.create', [
             'menuItem' => $menuItem,
-            'translations' => [
-                'name' => session('name_translations', []),
-                'category' => session('category_translations', []),
-            ],
         ]);
     }
 
@@ -79,10 +75,6 @@ class MenuItemController extends Controller
     {
         return view('admin.menu-items.edit', [
             'item' => $menuItem,
-            'translations' => [
-                'name' => session('name_translations', $menuItem->translationsForText($menuItem->name ?? '')),
-                'category' => session('category_translations', []),
-            ],
             /* 'translations' => [
                 'name' => session(
                     'name.translations',
