@@ -1,11 +1,13 @@
 @props(['user'])
 
 <div class="profile-panel hidden" data-panel="roles">
-    <div class="rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
+    <div
+        class="rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black
                 border-2 border-amber-500/30 shadow-2xl overflow-hidden">
 
         {{-- Header --}}
-        <div class="px-6 py-5 bg-gradient-to-r from-amber-900/40 via-amber-800/20 to-transparent
+        <div
+            class="px-6 py-5 bg-gradient-to-r from-amber-900/40 via-amber-800/20 to-transparent
                     border-b-2 border-amber-700/40 flex items-center justify-between flex-wrap gap-3">
             <div>
                 <h2 class="text-2xl font-black text-amber-100 flex items-center gap-2">
@@ -19,7 +21,7 @@
 
             @can('roles.manage', 'web')
                 <a href="{{ route('admin.roles.create') }}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
                           bg-gradient-to-r from-red-600 to-red-800
                           hover:from-red-500 hover:to-red-700
                           text-amber-50 font-bold shadow-lg shadow-red-900/50
@@ -33,7 +35,8 @@
         {{-- Stats --}}
         <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            <div class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
+            <div
+                class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
                         border-2 border-red-800/30 p-5">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-2xl">🛡️</span>
@@ -44,7 +47,8 @@
                 </p>
             </div>
 
-            <div class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
+            <div
+                class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
                         border-2 border-amber-500/30 p-5">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-2xl">🔑</span>
@@ -55,7 +59,8 @@
                 </p>
             </div>
 
-            <div class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
+            <div
+                class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
                         border-2 border-green-500/30 p-5">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-2xl">👥</span>
@@ -66,7 +71,8 @@
                 </p>
             </div>
 
-            <div class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
+            <div
+                class="rounded-2xl bg-gradient-to-br from-gray-900 to-black
                         border-2 border-blue-500/30 p-5">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-2xl">🎭</span>
@@ -88,7 +94,8 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-gradient-to-r from-red-900/60 to-transparent
+                            <tr
+                                class="bg-gradient-to-r from-red-900/60 to-transparent
                                        border-b-2 border-red-700/50">
                                 <th class="px-6 py-4 text-sm font-bold text-amber-100">#</th>
                                 <th class="px-6 py-4 text-sm font-bold text-amber-100">Role</th>
@@ -104,7 +111,8 @@
                                         #{{ $role->id }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        <span class="px-3 py-1 rounded-full text-sm font-bold
+                                        <span
+                                            class="px-3 py-1 rounded-full text-sm font-bold
                                                      bg-amber-500/20 text-amber-300
                                                      border border-amber-500/40">
                                             {{ $role->name }}
@@ -119,42 +127,45 @@
                                     <td class="px-6 py-4">
                                         <div class="flex items-center justify-end gap-2">
                                             @can('roles.manage', 'web')
-                                                <a href="{{ route('admin.roles.edit', $role->id) }}"
-                                                   class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30
-                                                          border border-blue-500/40 text-blue-300
-                                                          text-xs font-bold transition-all">
-                                                    Edit
-                                                </a>
+                                                @if ($role->name !== 'super-admin')
 
-                                                @if($role->name !== 'super-admin')
-                                                    <form action="{{ route('admin.roles.destroy', $role->id) }}"
-                                                          method="POST" class="inline"
-                                                          onsubmit="return confirm('Delete this role?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
+                                                    <a href="{{ route('admin.roles.edit', $role->id) }}"
+                                                        class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30
+                          border border-blue-500/40 text-blue-300
+                          text-xs font-bold transition-all">
+                                                        Edit
+                                                    </a>
+                                                @endif
+
+                                                    @if ($role->name !== 'super-admin')
+                                                        <form action="{{ route('admin.roles.destroy', $role->id) }}"
+                                                            method="POST" class="inline"
+                                                            onsubmit="return confirm('Delete this role?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
                                                                 class="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30
                                                                        border border-red-500/40 text-red-300
                                                                        text-xs font-bold transition-all">
-                                                            Delete
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            @endcan
+                                                                Delete
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endcan
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-amber-200/60">
-                                        No roles yet
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-amber-200/60">
+                                            No roles yet
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>

@@ -86,12 +86,15 @@
                                                   transition-all">
                                             View
                                         </a>
-                                        <a href="{{ route('admin.roles.edit', $role->id) }}"
-                                           class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30
-                                                  border border-blue-500/40 text-blue-300 text-sm
-                                                  transition-all">
-                                            Edit
-                                        </a>
+                                        @if($role->name !== 'super-admin')
+            
+            <a href="{{ route('admin.roles.edit', $role->id) }}"
+               class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30
+                      border border-blue-500/40 text-blue-300 text-sm
+                      transition-all">
+                Edit
+            </a>
+            @endif
                                         @if($role->name !== 'super-admin')
                                             <form action="{{ route('admin.roles.destroy', $role->id) }}"
                                                   method="POST" class="inline"
