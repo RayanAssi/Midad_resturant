@@ -42,7 +42,7 @@ class DashboardController extends Controller
             ? (($expensesToday - $expensesYesterday) / $expensesYesterday) * 100
             : ($expensesToday > 0 ? 100 : 0);
 
-        // ═══ Chart — آخر 7 أيام ═══
+        
         $salesLast7Days = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);

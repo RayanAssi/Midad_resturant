@@ -12,7 +12,7 @@ class ExpensesController extends Controller
 {
     public function index(Request $request)
     {
-        // ═══ 1) الفلاتر المشتركة ═══
+        
         $filters = function ($query) use ($request) {
             if ($request->filled('search')) {
                 $query->where('title', 'like', '%' . $request->search . '%');
@@ -35,7 +35,7 @@ class ExpensesController extends Controller
             }
         };
 
-        // ═══ 2) إحصائيات الفلترة (Expenses) ═══
+        
         $total   = Expense::query()->tap($filters)->sum('amount');
         $count   = Expense::query()->tap($filters)->count();
         $average = $count > 0 ? $total / $count : 0;
@@ -45,7 +45,7 @@ class ExpensesController extends Controller
             ->orderByDesc('amount')
             ->first();
 
-        // ═══ 3) إيرادات الفلترة (Invoices) ═══
+        
         $revenueFilters = function ($query) use ($request) {
             if ($request->filled('from')) {
                 $query->whereDate('created_at', '>=', $request->from);
@@ -59,14 +59,14 @@ class ExpensesController extends Controller
         $netProfit = $revenue - $total;
         $margin    = $revenue > 0 ? ($netProfit / $revenue) * 100 : 0;
 
-        // ═══ 4) إحصائيات اليوم ═══
+        
         $todayCount    = Expense::whereDate('date', today())->count();
         $todayExpenses = Expense::whereDate('date', today())->sum('amount');
         $todayRevenue  = Invoice::whereDate('created_at', today())->sum('total_amount');
         $todayNet      = $todayRevenue - $todayExpenses;
         $todayMargin   = $todayRevenue > 0 ? ($todayNet / $todayRevenue) * 100 : 0;
 
-        // ═══ 5) إحصائيات الشهر ═══
+        
         $monthCount    = Expense::whereMonth('date', now()->month)
             ->whereYear('date', now()->year)
             ->count();
@@ -82,13 +82,13 @@ class ExpensesController extends Controller
         $monthNet    = $monthRevenue - $monthExpenses;
         $monthMargin = $monthRevenue > 0 ? ($monthNet / $monthRevenue) * 100 : 0;
 
-        // ═══ 6) المستخدمون للفلترة ═══
+        
         $users = User::withCount('expenses')
         ->role('expense-manager', 'web')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        // ═══ 7) الجدول ═══
+        
         $expenses = Expense::query()
             ->with('user')
             ->tap($filters)

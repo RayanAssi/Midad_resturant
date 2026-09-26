@@ -101,7 +101,7 @@ class InvoiceController extends Controller
     if ($discount > $subtotal) {
         return back()
             ->withErrors([
-                'discount_amount' => 'الخصم (' . number_format($discount, 2) . ' SYP) لا يمكن أن يكون أكبر من المجموع الفرعي (' . number_format($subtotal, 2) . ' SYP)'
+                'discount_amount' => 'The discount (' . number_format($discount, 2) . ' SYP) cannot be greater than the subtotal (' . number_format($subtotal, 2) . ' SYP)'
             ])
             ->withInput();
     }
@@ -114,7 +114,7 @@ class InvoiceController extends Controller
     if ($total < 0) {
         return back()
             ->withErrors([
-                'discount_amount' => 'الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب'
+                'discount_amount' => 'The discount is too large — the total cannot be negative.'
             ])
             ->withInput();
     }
@@ -128,7 +128,7 @@ class InvoiceController extends Controller
             'order_id'        => $order->id,
             'subtotal'        => $subtotal,
             'discount_amount' => $discount,
-            'tax_rate'        => $taxRate,           // ← من config
+            'tax_rate'        => $taxRate,          
             'tax_amount'      => $taxAmt,
             'total_amount'    => $total,
             'tax_number'      => 'TAX-' . now()->format('Ymd') . '-' . $order->id,
@@ -177,7 +177,7 @@ class InvoiceController extends Controller
     if ($discount > $subtotal) {
         return back()
             ->withErrors([
-                'discount_amount' => 'الخصم لا يمكن أن يكون أكبر من المجموع الفرعي'
+                'discount_amount' => 'The discount cannot be greater than the subtotal.'
             ])
             ->withInput();
     }
@@ -189,7 +189,7 @@ class InvoiceController extends Controller
     if ($total < 0) {
         return back()
             ->withErrors([
-                'discount_amount' => 'الخصم كبير جداً — الإجمالي لا يمكن أن يكون سالب'
+                'discount_amount' => 'The discount is too large — the total cannot be negative.'
             ])
             ->withInput();
     }
@@ -208,11 +208,26 @@ class InvoiceController extends Controller
 }
 
     public function destroy(Invoice $invoice)
-    {
-        $invoice->delete();
+{
+    try {
+        DB::beginTransaction();
+
+        
+        if ($invoice->order) {
+            $invoice->order->delete();   
+        } else {
+            $invoice->delete();
+        }
+
+        DB::commit();
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with('success', 'deleted invoice successfully');
+            ->with('flashMessage', 'Invoice and order deleted');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', $e->getMessage());
     }
+}
 }

@@ -124,109 +124,107 @@
     </div>
 
     {{-- FILTER --}}
-    {{-- FILTER --}}
-<form method="GET"
-      class="mb-6 overflow-hidden rounded-2xl
-             bg-gradient-to-br from-gray-900 via-gray-800 to-black
-             border-2 border-red-800/30
-             shadow-2xl shadow-red-900/20">
+    <form method="GET"
+          class="mb-6 overflow-hidden rounded-2xl
+                 bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                 border-2 border-red-800/30
+                 shadow-2xl shadow-red-900/20">
 
-    {{-- Header --}}
-    <div class="px-6 py-4
-                bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
-                border-b-2 border-red-700/50 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <x-lucide-search class="w-4 h-4 text-amber-400" />
-            <h3 class="text-sm font-bold text-amber-100 uppercase tracking-wider">
-                Filter & Search
-            </h3>
+        {{-- Header --}}
+        <div class="px-6 py-4
+                    bg-gradient-to-r from-red-900/60 via-red-800/40 to-transparent
+                    border-b-2 border-red-700/50 flex items-center justify-between">
+            <div class="flex items-center gap-            <div class="flex items-center gap-2">
+                <x-lucide-search class="w-4 h-4 text-amber-400" />
+                <h3 class="text-sm font-bold text-amber-100 uppercase tracking-wider">
+                    Filter & Search
+                </h3>
+            </div>
+
+            @if (request('search') || request('phone') || request('position'))
+                <a href="{{ route('admin.users.index') }}"
+                   class="inline-flex items-center gap-1.5 text-xs text-amber-300
+                          hover:text-amber-100 font-bold
+                          transition-colors">
+                    <x-lucide-x class="w-3.5 h-3.5" />
+                    Clear all
+                </a>
+            @endif
         </div>
 
-        @if (request('search') || request('phone') || request('position'))
-            <a href="{{ route('admin.users.index') }}"
-               class="inline-flex items-center gap-1.5 text-xs text-amber-300
-                      hover:text-amber-100 font-bold
-                      transition-colors">
-                <x-lucide-x class="w-3.5 h-3.5" />
-                Clear all
-            </a>
-        @endif
-    </div>
+        {{-- Body --}}
+        <div class="px-6 py-5 flex flex-wrap items-end gap-6">
 
-    {{-- Body --}}
-    <div class="px-6 py-5 flex flex-wrap items-end gap-6">
+            {{-- Search --}}
+            <div class="flex items-center gap-2">
+                <label for="search"
+                       class="flex items-center gap-1.5 text-[10px] font-bold
+                              text-amber-300/80 uppercase tracking-widest
+                              whitespace-nowrap">
+                    Search
+                </label>
+                <input type="text" name="search" id="search"
+                       value="{{ request('search') }}"
+                       placeholder="Name or Email..."
+                       class="w-48 px-3 py-2 rounded-lg bg-black/50
+                              border-2 border-red-800/30
+                              text-amber-100 placeholder-amber-200/30 text-sm
+                              focus:outline-none focus:border-amber-600/60
+                              transition-colors" />
+            </div>
 
-        {{-- Search --}}
-        <div class="flex items-center gap-2">
-            <label for="search"
-                   class="flex items-center gap-1.5 text-[10px] font-bold
-                          text-amber-300/80 uppercase tracking-widest
-                          whitespace-nowrap">
-                Search
-            </label>
-            <input type="text" name="search" id="search"
-                   value="{{ request('search') }}"
-                   placeholder="Name or Email..."
-                   class="w-48 px-3 py-2 rounded-lg bg-black/50
-                          border-2 border-red-800/30
-                          text-amber-100 placeholder-amber-200/30 text-sm
-                          focus:outline-none focus:border-amber-600/60
-                          transition-colors" />
-        </div>
+            {{-- Phone --}}
+            <div class="flex items-center gap-2">
+                <label for="phone"
+                       class="flex items-center gap-1.5 text-[10px] font-bold
+                              text-amber-300/80 uppercase tracking-widest
+                              whitespace-nowrap">
+                    Phone
+                </label>
+                <input type="text" name="phone" id="phone"
+                       value="{{ request('phone') }}"
+                       placeholder="0991234567"
+                       class="w-36 px-3 py-2 rounded-lg bg-black/50
+                              border-2 border-red-800/30
+                              text-amber-100 placeholder-amber-200/30 text-sm
+                              focus:outline-none focus:border-amber-600/60
+                              transition-colors" />
+            </div>
 
-        {{-- Phone --}}
-        <div class="flex items-center gap-2">
-            <label for="phone"
-                   class="flex items-center gap-1.5 text-[10px] font-bold
-                          text-amber-300/80 uppercase tracking-widest
-                          whitespace-nowrap">
-                Phone
-            </label>
-            <input type="text" name="phone" id="phone"
-                   value="{{ request('phone') }}"
-                   placeholder="0991234567"
-                   class="w-36 px-3 py-2 rounded-lg bg-black/50
-                          border-2 border-red-800/30
-                          text-amber-100 placeholder-amber-200/30 text-sm
-                          focus:outline-none focus:border-amber-600/60
-                          transition-colors" />
-        </div>
+            {{-- Position --}}
+            <div class="flex items-center gap-2">
+                <label for="position"
+                       class="flex items-center gap-1.5 text-[10px] font-bold
+                              text-amber-300/80 uppercase tracking-widest
+                              whitespace-nowrap">
+                    Position
+                </label>
+                <input type="text" name="position" id="position"
+                       value="{{ request('position') }}"
+                       placeholder="Cashier, Chef..."
+                       class="w-40 px-3 py-2 rounded-lg bg-black/50
+                              border-2 border-red-800/30
+                              text-amber-100 placeholder-amber-200/30 text-sm
+                              focus:outline-none focus:border-amber-600/60
+                              transition-colors" />
+            </div>
 
-        {{-- Position --}}
-        <div class="flex items-center gap-2">
-            <label for="position"
-                   class="flex items-center gap-1.5 text-[10px] font-bold
-                          text-amber-300/80 uppercase tracking-widest
-                          whitespace-nowrap">
-                Position
-            </label>
-            <input type="text" name="position" id="position"
-                   value="{{ request('position') }}"
-                   placeholder="Cashier, Chef..."
-                   class="w-40 px-3 py-2 rounded-lg bg-black/50
-                          border-2 border-red-800/30
-                          text-amber-100 placeholder-amber-200/30 text-sm
-                          focus:outline-none focus:border-amber-600/60
-                          transition-colors" />
-        </div>
-
-        {{-- Apply --}}
-        <button type="submit"
-                class="inline-flex items-center gap-2
-                       px-4 py-2 rounded-lg                       
+            {{-- Apply --}}
+            <button type="submit"
+                    class="inline-flex items-center gap-2
+                           px-4 py-2 rounded-lg
                            bg-gradient-to-r from-red-600 to-red-800
                            hover:from-red-500 hover:to-red-700
                            text-amber-50 font-bold
-                           shadow-lg shadow-red-900/50 transition-all"
-                       ">
+                           shadow-lg shadow-red-900/50 transition-all">
                 Filter
-        </button>
-    </div>
-</form>
+            </button>
+        </div>
+    </form>
 
     {{-- TABLE --}}
     @php
-        $headers = ['#', 'Name', 'Email', 'Phone', 'Position', 'Joined', 'Actions'];
+        $headers = ['#', 'Name', 'Email', 'Phone', 'Position', 'Roles', 'Joined', 'Actions'];
 
         $actionsTemplate = <<<'BLADE'
             <div class="flex items-center justify-center gap-2">
@@ -267,6 +265,20 @@
             ->map(function ($user) use ($actionsTemplate) {
                 $actions = \Illuminate\Support\Facades\Blade::render($actionsTemplate, ['user' => $user]);
 
+                // ✅ Spatie Roles badges
+                $rolesHtml = '';
+                if ($user->roles->count()) {
+                    foreach ($user->roles as $role) {
+                        $rolesHtml .= '<span class="inline-block text-[10px] px-2 py-0.5 rounded-full
+                                                    bg-amber-600/20 text-amber-300 border border-amber-600/40
+                                                    mr-1 mb-1">'
+                                      . e($role->name) .
+                                      '</span>';
+                    }
+                } else {
+                    $rolesHtml = '<span class="text-[10px] text-red-400/60 italic">No role</span>';
+                }
+
                 return [
                     '<span class="text-amber-200/50">#' . $user->id . '</span>',
                     '<span class="font-bold text-amber-100">' . e($user->name) . '</span>',
@@ -276,6 +288,7 @@
                                  bg-amber-500/15 text-amber-200 border border-amber-400/30">'
                         . e($user->position) .
                     '</span>',
+                    '<div class="flex flex-wrap">' . $rolesHtml . '</div>',
                     '<span class="text-amber-200/60">' . $user->created_at->format('Y-m-d') . '</span>',
                     $actions,
                 ];
