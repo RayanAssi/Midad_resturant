@@ -160,16 +160,16 @@
                             </a>
 
                             <button type="submit"
-                                    id="confirm-btn"
-                                    disabled
-                                    class="flex-1 py-3 rounded-xl font-black text-sm tracking-wide
-                                           bg-gradient-to-r from-green-600 to-green-800
-                                           hover:from-green-500 hover:to-green-700
-                                           text-white shadow-lg shadow-green-900/50
-                                           transition-all disabled:opacity-40
-                                           disabled:cursor-not-allowed">
-                                ✓ SAVE CHANGES
-                            </button>
+        id="confirm-btn"
+        disabled
+        class="flex-1 py-3 rounded-xl font-black text-sm tracking-wide
+               bg-gradient-to-r from-green-600 to-green-800
+               hover:from-green-500 hover:to-green-700
+               text-white shadow-lg shadow-green-900/50
+               transition-all disabled:opacity-40
+               disabled:cursor-not-allowed">
+    ✓ NEXT
+</button>
                         </div>
                     </form>
                 </div>

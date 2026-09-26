@@ -43,20 +43,7 @@
                     <x-lucide-edit class="w-4 h-4" />
                 </a>
 
-                <form action="{{ route('employee.orders.destroy', $order) }}"
-                      method="POST"
-                      onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟');"
-                      class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            title="Delete"
-                            class="p-2 rounded-lg border border-red-400/40 bg-red-500/10
-                                   text-red-300 hover:bg-red-500/20 hover:border-red-400/70
-                                   transition-all">
-                        <x-lucide-trash class="w-4 h-4" />
-                    </button>
-                </form>
+                
             </div>
         BLADE;
 

@@ -154,4 +154,73 @@ class InvoiceController extends Controller
         $invoice->load(['order', 'creator']);
         return view('employee.invoices.show', compact('invoice'));
     }
+
+    /**
+ * Show the form to edit the invoice.
+ */
+public function edit(Invoice $invoice)
+{
+    $invoice->load(['order.orderItems.menuItem', 'creator']);
+
+    return view('employee.invoices.edit', compact('invoice'));
+}
+
+/**
+ * Update the invoice.
+ */
+public function update(Request $request, Invoice $invoice)
+{
+    $validated = $request->validate([
+        'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
+        'notes'           => 'nullable|string|max:500',
+    ]);
+
+    $subtotal = (float) $invoice->subtotal;
+    $discount = (float) ($validated['discount_amount'] ?? 0);
+
+    if ($discount > $subtotal) {
+        return back()
+            ->withErrors([
+                'discount_amount' => 'The discount cannot be larger than the subtotal (' . number_format($subtotal, 2) . ' SYP)'
+            ])
+            ->withInput();
+    }
+
+    $taxRate   = (float) config('restaurant.tax_rate') / 100;
+    $taxable   = $subtotal - $discount;
+    $taxAmount = $taxable * $taxRate;
+    $total     = $taxable + $taxAmount;
+
+    if ($total < 0) {
+        return back()
+            ->withErrors(['discount_amount' => 'The discount is too large.'])
+            ->withInput();
+    }
+
+    try {
+        DB::beginTransaction();
+
+        $invoice->update([
+            'discount_amount' => $discount,
+            'tax_rate'        => $taxRate * 100,
+            'tax_amount'      => $taxAmount,
+            'total_amount'    => $total,
+            'notes'           => $validated['notes'] ?? null,
+        ]);
+
+        if ($invoice->order) {
+            $invoice->order->update(['total_amount' => $total]);
+        }
+
+        DB::commit();
+
+        return redirect()
+            ->route('employee.invoices.show', $invoice->id)
+            ->with('flashMessage', 'Invoice updated successfully');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+    }
+}
 }

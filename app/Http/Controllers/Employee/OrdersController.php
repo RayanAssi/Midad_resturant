@@ -100,66 +100,96 @@ class OrdersController extends Controller
     }
 
     public function update(Request $request, Order $order)
-    {
-        $validator = Validator::make($request->all(), [
+{
+    $validator = Validator::make($request->all(), [
+        'type' => 'required|in:dine_in,take_out,delivery',
+        'table_no' => 'required_if:type,dine_in|nullable|string',
+        'address' => 'required_if:type,delivery|nullable|string',
+        'notes' => 'nullable|string',
+        'items' => 'required|array|min:1',
+        'items.*.menu_item_id' => 'required|exists:menu_items,id',
+        'items.*.quantity' => 'required|integer|min:1',
+    ]);
 
-            'type' => 'required|in:dine_in,take_out,delivery',
-            'table_no' => 'required_if:type,dine_in|nullable|string',
-            'address' => 'required_if:type,delivery|nullable|string',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.menu_item_id' => 'required|exists:menu_items,id',
-            'items.*.quantity' => 'required|integer|min:1',
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
+    }
+
+    try {
+        DB::beginTransaction();
+
+        
+        $order->update([
+            'type' => $request->type,
+            'table_no' => $request->table_no,
+            'address' => $request->address,
+            'notes' => $request->notes,
         ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+        
+        $order->orderItems()->delete();
+
+        foreach ($request->items as $item) {
+            $menuItem = MenuItem::find($item['menu_item_id']);
+            $quantity = (int) $item['quantity'];
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'menu_item_id' => $menuItem->id,
+                'quantity' => $quantity,
+                'price' => $menuItem->price,
+                'subtotal' => $quantity * $menuItem->price,
+            ]);
         }
 
-        try {
-            DB::beginTransaction();
+        
+        $newSubtotal = $order->orderItems()->sum('subtotal');
+        $order->update(['total_amount' => $newSubtotal]);
 
-            $order->update([
-                
-                'type' => $request->type,
-                'table_no' => $request->table_no,
-                'address' => $request->address,
-                'notes' => $request->notes,
-            ]);
+        
+        if ($order->invoice) {
+            $invoice = $order->invoice;
 
-            $order->orderItems()->delete();
+            
+            $discount = (float) $invoice->discount_amount;
 
-            foreach ($request->items as $item) {
-                $menuItem = MenuItem::find($item['menu_item_id']);
-                $quantity = (int) $item['quantity'];
-
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'menu_item_id' => $menuItem->id,
-                    'quantity' => $quantity,
-                    'price' => $menuItem->price,
-                    'subtotal' => $quantity * $menuItem->price,
-                ]);
+            
+            if ($discount > $newSubtotal) {
+                $discount = $newSubtotal;  
             }
 
-            $total = $order->orderItems()->sum('subtotal');
-            $order->update(['total_amount' => $total]);
+            $taxRate = (float) config('restaurant.tax_rate') / 100;
+            $taxable = $newSubtotal - $discount;
+            $taxAmount = $taxable * $taxRate;
+            $newTotal = $taxable + $taxAmount;
 
-            DB::commit();
-
-            return redirect()
-                ->route('employee.orders.show', $order)
-                ->with('flashMessage', 'Order updated successfully');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+            
+            $invoice->update([
+                'subtotal' => $newSubtotal,
+                'discount_amount' => $discount,
+                'tax_amount' => $taxAmount,
+                'total_amount' => $newTotal,
+            ]);
         }
+
+        DB::commit();
+
+        
+        if ($order->invoice) {
+            return redirect()
+                ->route('employee.invoices.edit', $order->invoice->id)
+                ->with('flashMessage', 'Order updated. Review the invoice.');
+        }
+
+        
+        return redirect()
+            ->route('employee.invoices.create', ['order_id' => $order->id])
+            ->with('flashMessage', 'Order updated — please issue the invoice');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
     }
-    public function destroy(Order $order)
-    {
-        $order->delete();
-        return redirect()->route('employee.orders.index')
-            ->with('success', 'Order deleted successfully.');
-    }
+}
+    
 }
