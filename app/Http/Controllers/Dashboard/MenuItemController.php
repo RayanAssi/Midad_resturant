@@ -114,7 +114,7 @@ class MenuItemController extends Controller
             'price' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:100'
             ],
 
             'category' => [
@@ -126,7 +126,7 @@ class MenuItemController extends Controller
             ],
 
             'image' => [
-                'nullable',
+                'required',
                 'image',
                 'max:5120'
             ],
