@@ -208,11 +208,26 @@ class InvoiceController extends Controller
 }
 
     public function destroy(Invoice $invoice)
-    {
-        $invoice->delete();
+{
+    try {
+        DB::beginTransaction();
+
+        // ✅ حذف Invoice → احذف Order كمان (يدوياً)
+        if ($invoice->order) {
+            $invoice->order->delete();   // Cascade يحذف الفاتورة كمان
+        } else {
+            $invoice->delete();
+        }
+
+        DB::commit();
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with('success', 'deleted invoice successfully');
+            ->with('flashMessage', 'Invoice and order deleted');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', $e->getMessage());
     }
+}
 }
