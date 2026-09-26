@@ -12,46 +12,53 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index(Request $request)
-{
-    $query = User::query()->where('role', 'employee');
+    public function index(Request $request)
+    {
+        $query = User::query()->where('role', 'employee');
 
-    // ═══ 1) Search — name + email ═══
-    if ($request->filled('search')) {
-        $query->where(function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->search . '%')
-              ->orWhere('email', 'like', '%' . $request->search . '%');
-        });
+        // ═══ 1) Search — name + email ═══
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // ═══ 2) Phone ═══
+        if ($request->filled('phone')) {
+            $query->where('phone', 'like', '%' . $request->phone . '%');
+        }
+
+        // ═══ 3) Position ═══
+        if ($request->filled('position')) {
+            $query->where('position', 'like', '%' . $request->position . '%');
+        }
+
+        $users = $query->latest()->paginate(15)->withQueryString();
+
+        $total      = User::where('role', 'employee')->count();
+        $todayCount = User::where('role', 'employee')->whereDate('created_at', today())->count();
+
+        return view('admin.users.index', [
+            'users'      => $users,
+            'total'      => $total,
+            'todayCount' => $todayCount,
+        ]);
     }
-
-    // ═══ 2) Phone ═══
-    if ($request->filled('phone')) {
-        $query->where('phone', 'like', '%' . $request->phone . '%');
-    }
-
-    // ═══ 3) Position ═══
-    if ($request->filled('position')) {
-        $query->where('position', 'like', '%' . $request->position . '%');
-    }
-
-    $users = $query->latest()->paginate(15)->withQueryString();
-
-    $total      = User::where('role', 'employee')->count();
-    $todayCount = User::where('role', 'employee')->whereDate('created_at', today())->count();
-
-    return view('admin.users.index', [
-        'users'      => $users,
-        'total'      => $total,
-        'todayCount' => $todayCount,
-    ]);
-}
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('admin.users.create');
+        $positions = User::where('role', 'employee')
+            ->whereNotNull('position')
+            ->where('position', '!=', '')
+            ->distinct()
+            ->orderBy('position')
+            ->pluck('position');
+
+        return view('admin.users.create', compact('positions'));
     }
 
     /**
@@ -60,14 +67,23 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'position' => ['required', 'string', 'max:255'],
-            'phone'    => ['required', 'string', 'max:20'],
+            'name'         => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password'     => ['required', 'string', 'min:8', 'confirmed'],
+            'position'     => ['required', 'string', 'max:255'],
+            'phone'        => ['required', 'string', 'max:20'],
+            'country_code' => ['nullable', 'string', 'max:6'],
         ]);
 
         $data['role'] = 'employee';
+
+        if (empty($data['country_code'])) {
+            $data['phone'] = $data['phone'];
+        } else {
+            $data['phone'] = $data['country_code'] . ' ' . trim($data['phone']);
+        }
+
+        unset($data['country_code']);
 
         User::create($data);
 
@@ -97,7 +113,18 @@ class UserController extends Controller
             abort(404);
         }
 
-        return view('admin.users.edit', ['user' => $user]);
+        $positions = User::where('role', 'employee')
+            ->whereNotNull('position')
+            ->where('position', '!=', '')
+            ->where('id', '!=', $user->id)
+            ->distinct()
+            ->orderBy('position')
+            ->pluck('position');
+
+        return view('admin.users.edit', [
+            'user'      => $user,
+            'positions' => $positions,
+        ]);
     }
 
     /**
@@ -110,17 +137,23 @@ class UserController extends Controller
         }
 
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'position' => ['required', 'string', 'max:255'],
-            'phone'    => ['required', 'string', 'max:20'],
+            'name'         => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password'     => ['nullable', 'string', 'min:8', 'confirmed'],
+            'position'     => ['required', 'string', 'max:255'],
+            'phone'        => ['required', 'string', 'max:20'],
+            'country_code' => ['nullable', 'string', 'max:6'],
         ]);
 
-        // لو الباسورد فاضي، ما نغيّره
         if (empty($data['password'])) {
             unset($data['password']);
         }
+
+        if (!empty($data['country_code'])) {
+            $data['phone'] = $data['country_code'] . ' ' . trim($data['phone']);
+        }
+
+        unset($data['country_code']);
 
         $user->update($data);
 
@@ -138,7 +171,6 @@ class UserController extends Controller
             abort(404);
         }
 
-        // ما نخلي المدير يحذف نفسه
         if ($user->id === auth('admin')->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }
