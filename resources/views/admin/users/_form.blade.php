@@ -4,6 +4,8 @@
     $method = $method ?? 'POST';
     $submitLabel = $submitLabel ?? ($isEdit ? 'Update Employee' : 'Create Employee');
     $positions = $positions ?? collect();
+    $roles = $roles ?? collect();
+    $userRoles = $userRoles ?? [];
 @endphp
 
 <form action="{{ $action }}" method="POST"
@@ -90,7 +92,6 @@
                                   transition-colors
                                   @error('phone') is-invalid @enderror" />
 
-                    {{-- Hidden input for country code --}}
                     <input type="hidden" name="country_code" id="country_code" value="{{ old('country_code', '') }}" />
                 </div>
             </div>
@@ -114,7 +115,6 @@
                                   transition-colors
                                   @error('position') is-invalid @enderror" />
 
-                    {{-- زر فتح القائمة --}}
                     <button type="button" id="position-toggle"
                         class="absolute inset-y-0 right-0 flex items-center px-3
                                text-amber-400 hover:text-amber-300
@@ -122,7 +122,6 @@
                         <x-lucide-chevron-down class="w-5 h-5" id="position-toggle-icon" />
                     </button>
 
-                    {{-- القائمة المنسدلة المخصصة --}}
                     <div id="position-dropdown"
                         class="hidden absolute z-50 mt-1 w-full
                                max-h-56 overflow-y-auto
@@ -174,7 +173,6 @@
                                   transition-colors
                                   @error('password') is-invalid @enderror" />
 
-                    {{-- Toggle Password --}}
                     <button type="button" onclick="togglePassword('password', this)"
                         class="absolute inset-y-0 right-0 flex items-center px-3
                                text-amber-400 hover:text-amber-300
@@ -204,7 +202,6 @@
                                   focus:outline-none focus:border-amber-600/60
                                   transition-colors" />
 
-                    {{-- Toggle Password Confirmation --}}
                     <button type="button" onclick="togglePassword('password_confirmation', this)"
                         class="absolute inset-y-0 right-0 flex items-center px-3
                                text-amber-400 hover:text-amber-300
@@ -213,6 +210,91 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        {{-- ═══════════════════════════════════════════════════════ --}}
+        {{-- ROLES SECTION                                            --}}
+        {{-- ═══════════════════════════════════════════════════════ --}}
+        <div class="pt-6 border-t-2 border-red-800/30">
+            <div class="flex items-center gap-2 mb-2">
+                <x-lucide-shield class="w-4 h-4 text-amber-400" />
+                <h3 class="text-sm font-bold text-amber-100 uppercase tracking-wider">
+                    Roles & Permissions
+                </h3>
+            </div>
+
+            <p class="text-xs text-amber-200/50 mb-4">
+                Select the roles this employee should have. Permissions are inherited from the assigned roles.
+            </p>
+
+            @if ($roles->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @foreach ($roles as $role)
+                        @php
+                            $isChecked = in_array(
+                                $role->name,
+                                old('roles', $userRoles)
+                            );
+                        @endphp
+
+                        <label
+                            class="group flex items-start gap-3 p-4 rounded-xl
+                                   bg-black/50 border-2 border-red-800/30
+                                   hover:border-amber-500/60 hover:bg-amber-950/20
+                                   transition-all cursor-pointer
+                                   {{ $isChecked ? 'border-amber-500/60 bg-amber-950/20' : '' }}">
+
+                            <input type="checkbox" name="roles[]" value="{{ $role->name }}"
+                                {{ $isChecked ? 'checked' : '' }}
+                                class="mt-1 w-5 h-5 rounded border-2 border-amber-600/50
+                                       bg-black text-amber-500
+                                       focus:ring-2 focus:ring-amber-400
+                                       cursor-pointer">
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-black text-amber-200 text-sm">
+                                        {{ $role->name }}
+                                    </span>
+                                    <span
+                                        class="text-[10px] px-1.5 py-0.5 rounded
+                                               bg-amber-500/10 text-amber-300/70
+                                               border border-amber-500/20
+                                               font-mono">
+                                        {{ $role->permissions->count() }} perms
+                                    </span>
+                                </div>
+
+                                @if ($role->permissions->count() > 0)
+                                    <p class="text-[11px] text-amber-200/50 leading-relaxed">
+                                        {{ $role->permissions->take(3)->pluck('name')->join(', ') }}
+                                        @if ($role->permissions->count() > 3)
+                                            <span class="text-amber-300/40 font-bold">
+                                                +{{ $role->permissions->count() - 3 }} more
+                                            </span>
+                                        @endif
+                                    </p>
+                                @else
+                                    <p class="text-[11px] text-amber-200/30 italic">
+                                        No permissions assigned
+                                    </p>
+                                @endif
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+
+                @error('roles')
+                    <p class="mt-3 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+                @error('roles.*')
+                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+            @else
+                <div class="text-center py-6 rounded-xl bg-black/40 border-2 border-red-800/20">
+                    <p class="text-amber-200/50 text-sm">No roles available</p>
+                </div>
+            @endif
         </div>
 
         {{-- Hint / Error Box --}}
@@ -280,8 +362,6 @@
     /* ═══════════════════════════════════════════════════════
        🎨 intl-tel-input — Dark Theme (No White Gaps)
        ═══════════════════════════════════════════════════════ */
-
-    /* ═══ 1) الحاوية الرئيسية (Dropdown) ═══ */
     .iti__country-selector {
         background-color: #0a0a0a !important;
         border: 2px solid rgba(127, 29, 29, 0.5) !important;
@@ -290,7 +370,6 @@
         padding: 0 !important;
     }
 
-    /* ═══ 2) حاوية حقل البحث ═══ */
     .iti__search-input-wrapper {
         background-color: #0a0a0a !important;
         padding: 8px !important;
@@ -313,7 +392,6 @@
         background-color: transparent !important;
     }
 
-    /* ═══ 3) حقل البحث ═══ */
     .iti__search-input {
         background-color: #1a0a0a !important;
         border: 2px solid rgba(127, 29, 29, 0.4) !important;
@@ -337,7 +415,6 @@
         background-color: #1a0a0a !important;
     }
 
-    /* ═══ 4) عدد النتائج ═══ */
     .iti__all-tytt {
         background-color: #0a0a0a !important;
         color: rgba(253, 230, 138, 0.6) !important;
@@ -347,7 +424,6 @@
         border-bottom: 1px solid rgba(127, 29, 29, 0.3) !important;
     }
 
-    /* ═══ 5) قائمة الدول ═══ */
     .iti__country-list {
         background-color: #0a0a0a !important;
         border: none !important;
@@ -359,7 +435,6 @@
         margin: 0 !important;
     }
 
-    /* ═══ 6) كل دولة ═══ */
     .iti__country {
         padding: 10px 14px !important;
         color: #fde68a !important;
@@ -383,26 +458,22 @@
         color: inherit !important;
     }
 
-    /* ═══ 7) رمز الاتصال (+963) ═══ */
     .iti__dial-code {
         color: #fbbf24 !important;
         font-weight: 700 !important;
     }
 
-    /* ═══ 8) "No results found" ═══ */
     .iti__no-results {
         background-color: #0a0a0a !important;
         color: rgba(253, 230, 138, 0.6) !important;
         padding: 12px !important;
     }
 
-    /* ═══ 9) الفاصل ═══ */
     .iti__divider {
         border-bottom-color: rgba(127, 29, 29, 0.3) !important;
         background-color: #0a0a0a !important;
     }
 
-    /* ═══ 10) علم الدولة المختار ═══ */
     .iti__selected-flag {
         background-color: rgba(0, 0, 0, 0.6) !important;
         border-right: 2px solid rgba(127, 29, 29, 0.4) !important;
@@ -415,14 +486,12 @@
         background-color: rgba(127, 29, 29, 0.35) !important;
     }
 
-    /* ═══ 11) رمز الاتصال المختار ═══ */
     .iti__selected-dial-code {
         color: #fbbf24 !important;
         font-weight: 700 !important;
         margin-left: 6px !important;
     }
 
-    /* ═══ 12) السهم ═══ */
     .iti__arrow {
         border-top-color: #fbbf24 !important;
         margin-left: 8px !important;
@@ -433,7 +502,6 @@
         border-top-color: transparent !important;
     }
 
-    /* ═══ 13) Scrollbar ═══ */
     .iti__country-list::-webkit-scrollbar {
         width: 8px;
     }
@@ -451,7 +519,6 @@
         background: rgba(217, 119, 6, 0.7);
     }
 
-    /* ═══ 14) إصلاح عرض حقل الهاتف ═══ */
     .iti {
         width: 100% !important;
         display: block !important;
@@ -462,13 +529,11 @@
         padding-left: 110px !important;
     }
 
-    /* ═══ 15) إصلاح عرض قائمة الدول ═══ */
     .iti__country-list {
         width: 100% !important;
         min-width: 320px !important;
     }
 
-    /* ═══ 16) منع التلوين الأبيض autofill ═══ */
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
@@ -486,11 +551,6 @@
         -webkit-text-fill-color: #fef3c7 !important;
     }
 
-    /* ═══════════════════════════════════════════════════════
-       🔽 Position ComboBox
-       ═══════════════════════════════════════════════════════ */
-
-    /* Scrollbar القائمة */
     #position-dropdown::-webkit-scrollbar {
         width: 8px;
     }
@@ -509,7 +569,6 @@
         background: rgba(217, 119, 6, 0.7);
     }
 
-    /* دوران السهم */
     #position-toggle-icon {
         transition: transform 0.2s ease;
     }
@@ -518,7 +577,6 @@
         transform: rotate(180deg);
     }
 
-    /* منع التلوين الأبيض في حقل position */
     #position:-webkit-autofill,
     #position:-webkit-autofill:hover,
     #position:-webkit-autofill:focus {
@@ -526,15 +584,11 @@
         -webkit-text-fill-color: #fef3c7 !important;
     }
 
-    /* ═══════════════════════════════════════════════════════
-       ⚠️ تمييز الحقول التي بها أخطاء
-       ═══════════════════════════════════════════════════════ */
     input.is-invalid {
         border-color: rgba(239, 68, 68, 0.8) !important;
         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
     }
 
-    /* تمييز خاص لحقل الهاتف عند الخطأ */
     .iti input.is-invalid {
         border-color: rgba(239, 68, 68, 0.8) !important;
         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
@@ -601,7 +655,6 @@
 
                     const options = dropdown.querySelectorAll('.position-option');
 
-                    // فتح / إغلاق
                     function openDropdown() {
                         dropdown.classList.remove('hidden');
                         icon?.classList.add('rotate-180');
@@ -612,28 +665,23 @@
                         icon?.classList.remove('rotate-180');
                     }
 
-                    // زر السهم
                     toggle?.addEventListener('click', function(e) {
                         e.preventDefault();
                         dropdown.classList.contains('hidden') ? openDropdown() : closeDropdown();
                     });
 
-                    // عند التركيز — افتح القائمة إذا الحقل فارغ
                     posInput.addEventListener('focus', function() {
                         if (posInput.value.trim() === '') {
                             openDropdown();
                         }
                     });
 
-                    // عند الكتابة — أغلق القائمة (ممنوع الجمع)
                     posInput.addEventListener('input', function() {
                         closeDropdown();
                     });
 
-                    // عند اختيار قيمة من القائمة
                     options.forEach(function(opt) {
                         opt.addEventListener('click', function() {
-                            // إذا كان المستخدم قد كتب شيئاً مسبقاً — تأكيد الاستبدال
                             if (posInput.value.trim() !== '' &&
                                 posInput.value.trim() !== opt.dataset.value) {
                                 const confirmReplace = confirm(
@@ -651,7 +699,6 @@
                         });
                     });
 
-                    // إغلاق عند النقر خارج القائمة
                     document.addEventListener('click', function(e) {
                         if (!posInput.contains(e.target) &&
                             !dropdown.contains(e.target) &&
@@ -660,7 +707,6 @@
                         }
                     });
 
-                    // إغلاق عند Escape
                     posInput.addEventListener('keydown', function(e) {
                         if (e.key === 'Escape') {
                             closeDropdown();

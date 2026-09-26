@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -14,7 +15,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query()->where('role', 'employee');
+        $query = User::query()->where('role', 'employee')->with('roles');
 
         // ═══ 1) Search — name + email ═══
         if ($request->filled('search')) {
@@ -24,12 +25,10 @@ class UserController extends Controller
             });
         }
 
-        // ═══ 2) Phone ═══
         if ($request->filled('phone')) {
             $query->where('phone', 'like', '%' . $request->phone . '%');
         }
 
-        // ═══ 3) Position ═══
         if ($request->filled('position')) {
             $query->where('position', 'like', '%' . $request->position . '%');
         }
@@ -58,7 +57,10 @@ class UserController extends Controller
             ->orderBy('position')
             ->pluck('position');
 
-        return view('admin.users.create', compact('positions'));
+        
+        $roles = Role::all();
+
+        return view('admin.users.create', compact('positions', 'roles'));
     }
 
     /**
@@ -73,6 +75,8 @@ class UserController extends Controller
             'position'     => ['required', 'string', 'max:255'],
             'phone'        => ['required', 'string', 'max:20'],
             'country_code' => ['nullable', 'string', 'max:6'],
+            'roles'        => ['nullable', 'array'],
+            'roles.*'      => ['exists:roles,name'],
         ]);
 
         $data['role'] = 'employee';
@@ -85,7 +89,19 @@ class UserController extends Controller
 
         unset($data['country_code']);
 
-        User::create($data);
+        
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
+
+        $user = User::create($data);
+
+        if (!empty($roles)) {
+        $roleModels = Role::whereIn('name', $roles)
+            ->where('guard_name', 'web')
+            ->get();
+
+        $user->syncRoles($roleModels);
+    }
 
         return redirect()
             ->route('admin.users.index')
@@ -100,6 +116,8 @@ class UserController extends Controller
         if ($user->role !== 'employee') {
             abort(404);
         }
+
+        $user->load('roles');
 
         return view('admin.users.show', ['user' => $user]);
     }
@@ -121,9 +139,15 @@ class UserController extends Controller
             ->orderBy('position')
             ->pluck('position');
 
+        
+        $roles     = Role::all();
+        $userRoles = $user->roles->pluck('name')->toArray();
+
         return view('admin.users.edit', [
             'user'      => $user,
             'positions' => $positions,
+            'roles'     => $roles,
+            'userRoles' => $userRoles,
         ]);
     }
 
@@ -143,6 +167,8 @@ class UserController extends Controller
             'position'     => ['required', 'string', 'max:255'],
             'phone'        => ['required', 'string', 'max:20'],
             'country_code' => ['nullable', 'string', 'max:6'],
+            'roles'        => ['nullable', 'array'],
+            'roles.*'      => ['exists:roles,name'],
         ]);
 
         if (empty($data['password'])) {
@@ -155,7 +181,17 @@ class UserController extends Controller
 
         unset($data['country_code']);
 
+        
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
+
         $user->update($data);
+
+        $roleModels = Role::whereIn('name', $roles)
+        ->where('guard_name', 'web')
+        ->get();
+
+    $user->syncRoles($roleModels);
 
         return redirect()
             ->route('admin.users.index')

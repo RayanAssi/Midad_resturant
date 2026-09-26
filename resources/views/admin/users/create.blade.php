@@ -31,6 +31,9 @@
             'action' => route('admin.users.store'),
             'method' => 'POST',
             'submitLabel' => 'Create Employee',
+            'positions' => $positions,
+            'roles' => $roles,
+            'userRoles' => [],
         ])
     </div>
 
