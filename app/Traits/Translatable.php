@@ -9,25 +9,29 @@ use Illuminate\Support\Facades\File;
  * Trait للتعامل مع الترجمات المخزنة في ملفات JSON.
  *
  * القاعدة:
- * - العربية تُخزَّن في قاعدة البيانات
- * - الترجمات تُخزَّن في lang/en.json و lang/tr.json
- * - المفتاح في JSON = النص العربي نفسه
+ * - الإنجليزية تُخزَّن في قاعدة البيانات (اللغة الأساسية)
+ * - الترجمات تُخزَّن في lang/ar.json و lang/tr.json
+ * - المفتاح في JSON = النص الإنجليزي نفسه
  *
  * @example
- * // lang/en.json:
+ * // lang/ar.json:
  * // {
- * //   "ملابس": "Clothes",
- * //   "إلكترونيات": "Electronics"
+ * //   "Clothes": "ملابس",
+ * //   "Electronics": "إلكترونيات"
  * // }
  */
 trait Translatable
 {
     /**
+     * اللغة الأساسية (المصدر) — الإنجليزية.
+     */
+    protected static function baseLocale(): string
+    {
+        return config('translation.base_locale', 'en');
+    }
+
+    /**
      * عند حذف السجل من قاعدة البيانات، احذف ترجماته من JSON تلقائياً.
-     *
-     * @example
-     * // Category::destroy(1);
-     * // => يحذف "ملابس" من lang/en.json و lang/tr.json
      */
     protected static function bootTranslatable(): void
     {
@@ -38,30 +42,21 @@ trait Translatable
 
     /**
      * الحقول القابلة للترجمة — يجب تعريفها في كل Model.
-     *
-     * @example
-     * // في Category:
-     * // return ['name', 'description'];
      */
     abstract public function getTranslatableAttributes(): array;
 
     /**
      * جلب ترجمة حقل معيّن حسب اللغة.
      *
-     * إذا اللغة عربية => يرجع القيمة من قاعدة البيانات مباشرة.
-     * إذا لغة أخرى => يبحث في JSON، وإن لم يجد يرجع العربي.
-     *
-     * @example
-     * // $category->name = 'ملابس';
-     * // $category->getTranslation('name', 'en') => "Clothes"
-     * // $category->getTranslation('name', 'ar') => "ملابس"
+     * إذا اللغة إنجليزية => يرجع القيمة من قاعدة البيانات مباشرة.
+     * إذا لغة أخرى => يبحث في JSON، وإن لم يجد يرجع الإنجليزي.
      */
     public function getTranslation(string $field, ?string $locale = null): ?string
     {
         $locale = $locale ?? app()->getLocale();
         $value = $this->{$field};
 
-        if ($locale === 'ar' || $value === null || trim((string) $value) === '') {
+        if ($locale === self::baseLocale() || $value === null || trim((string) $value) === '') {
             return $value;
         }
 
@@ -69,7 +64,7 @@ trait Translatable
     }
 
     /**
-     * هل يوجد ترجمة فعلية لحقل معيّن بلغة معيّنة (بدون fallback للعربي).
+     * هل يوجد ترجمة فعلية لحقل معيّن بلغة معيّنة (بدون fallback للإنجليزي).
      */
     public function hasTranslationFor(string $field, ?string $locale = null): bool
     {
@@ -80,7 +75,7 @@ trait Translatable
             return false;
         }
 
-        if ($locale === 'ar') {
+        if ($locale === self::baseLocale()) {
             return true;
         }
 
@@ -97,15 +92,13 @@ trait Translatable
 
     /**
      * حالة الترجمة لكل حقل وكل لغة مستهدفة.
-     *
-     * @return array<string, array<string, bool>>
      */
     public function getTranslationStatus(): array
     {
         $status = [];
 
         foreach ($this->getTranslatableAttributes() as $field) {
-            foreach (config('translation.target_locales', ['en', 'tr']) as $locale) {
+            foreach (config('translation.target_locales', ['ar', 'tr']) as $locale) {
                 $status[$field][$locale] = $this->hasTranslationFor($field, $locale);
             }
         }
@@ -114,7 +107,7 @@ trait Translatable
     }
 
     /**
-     * جلب ترجمة حقل بدون fallback للعربي (للعرض في الواجهة الأمامية).
+     * جلب ترجمة حقل بدون fallback للإنجليزي (للعرض في الواجهة الأمامية).
      */
     public function getLocalizedValue(string $field, ?string $locale = null): ?string
     {
@@ -125,7 +118,7 @@ trait Translatable
             return null;
         }
 
-        if ($locale === 'ar') {
+        if ($locale === self::baseLocale()) {
             return $value;
         }
 
@@ -143,16 +136,11 @@ trait Translatable
     }
 
     /**
-     * قراءة ترجمة نص عربي من ملف JSON للغة معيّنة.
-     *
-     * @example
-     * // getTranslationFromJson('ملابس', 'en') => "Clothes"
-     * // getTranslationFromJson('ملابس', 'tr') => "Giyim"
-     * // getTranslationFromJson('غير موجود', 'en') => null
+     * قراءة ترجمة نص إنجليزي من ملف JSON للغة معيّنة.
      */
-    public function getTranslationFromJson(string $arabicText, string $locale): ?string
+    public function getTranslationFromJson(string $sourceText, string $locale): ?string
     {
-        $key = $this->cleanTextForJsonKey($arabicText);
+        $key = $this->cleanTextForJsonKey($sourceText);
         $translations = $this->loadJsonTranslationsForLocale($locale);
 
         return $translations[$key] ?? null;
@@ -160,14 +148,10 @@ trait Translatable
 
     /**
      * إضافة أو تحديث ترجمة في ملف JSON.
-     *
-     * @example
-     * // addTranslationToJson('ملابس', 'en', 'Clothes');
-     * // lang/en.json يصبح: { "ملابس": "Clothes" }
      */
-    public function addTranslationToJson(string $arabicText, string $locale, string $translation): void
+    public function addTranslationToJson(string $sourceText, string $locale, string $translation): void
     {
-        $key = $this->cleanTextForJsonKey($arabicText);
+        $key = $this->cleanTextForJsonKey($sourceText);
 
         if ($key === '') {
             return;
@@ -190,15 +174,11 @@ trait Translatable
     }
 
     /**
-     * حذف ترجمة نص عربي من ملف JSON للغة معيّنة.
-     *
-     * @example
-     * // removeTranslationFromJson('ملابس', 'en');
-     * // يحذف المفتاح "ملابس" من lang/en.json
+     * حذف ترجمة نص إنجليزي من ملف JSON للغة معيّنة.
      */
-    public function removeTranslationFromJson(string $arabicText, string $locale): void
+    public function removeTranslationFromJson(string $sourceText, string $locale): void
     {
-        $key = $this->cleanTextForJsonKey($arabicText);
+        $key = $this->cleanTextForJsonKey($sourceText);
         $path = lang_path("{$locale}.json");
 
         if (! File::exists($path)) {
@@ -217,13 +197,7 @@ trait Translatable
     }
 
     /**
-     * عند تعديل النص العربي، انقل الترجمة من المفتاح القديم إلى الجديد.
-     *
-     * @example
-     * // كان الاسم: "ملابس" => ترجمة en: "Clothes"
-     * // أصبح الاسم: "ملابس رجالية"
-     * // renameTranslationKey('ملابس', 'ملابس رجالية');
-     * // lang/en.json: { "ملابس رجالية": "Clothes" }
+     * عند تعديل النص الإنجليزي، انقل الترجمة من المفتاح القديم إلى الجديد.
      */
     public function renameTranslationKey(string $oldText, string $newText): void
     {
@@ -231,7 +205,7 @@ trait Translatable
             return;
         }
 
-        foreach (config('translation.target_locales', ['en', 'tr']) as $locale) {
+        foreach (config('translation.target_locales', ['ar', 'tr']) as $locale) {
             $oldKey = $this->cleanTextForJsonKey($oldText);
             $newKey = $this->cleanTextForJsonKey($newText);
             $path = lang_path("{$locale}.json");
@@ -256,12 +230,6 @@ trait Translatable
 
     /**
      * حذف كل ترجمات الحقول القابلة للترجمة من جميع ملفات JSON.
-     *
-     * @example
-     * // $category->name = 'ملابس';
-     * // $category->description = 'وصف عربي';
-     * // $category->deleteTranslationsFromJson();
-     * // يحذف ترجمات name و description من en.json و tr.json
      */
     public function deleteTranslationsFromJson(): void
     {
@@ -272,27 +240,21 @@ trait Translatable
                 continue;
             }
 
-            foreach (config('translation.target_locales', ['en', 'tr']) as $locale) {
+            foreach (config('translation.target_locales', ['ar', 'tr']) as $locale) {
                 $this->removeTranslationFromJson((string) $value, $locale);
             }
         }
     }
 
     /**
-     * جلب كل الترجمات المتوفرة لنص عربي واحد (لعرضها في النموذج).
-     *
-     * @return array<string, string|null>  مثل ['en' => 'Clothes', 'tr' => 'Giyim']
-     *
-     * @example
-     * // translationsForText('ملابس')
-     * // => ['en' => 'Clothes', 'tr' => 'Giyim']
+     * جلب كل الترجمات المتوفرة لنص إنجليزي واحد (لعرضها في النموذج).
      */
-    public function translationsForText(string $arabicText): array
+    public function translationsForText(string $sourceText): array
     {
         $translations = [];
 
-        foreach (config('translation.target_locales', ['en', 'tr']) as $locale) {
-            $translations[$locale] = $this->getTranslationFromJson($arabicText, $locale);
+        foreach (config('translation.target_locales', ['ar', 'tr']) as $locale) {
+            $translations[$locale] = $this->getTranslationFromJson($sourceText, $locale);
         }
 
         return $translations;
@@ -300,40 +262,28 @@ trait Translatable
 
     /**
      * جلب ترجمات حقل واحد (من الجلسة بعد الترجمة أو من JSON).
-     *
-     * @return array<string, string|null>
-     *
-     * @example
-     * // $category->resolveTranslationsForField('name')
-     * // => ['en' => 'Clothes', 'tr' => 'Giyim']
      */
-    public function resolveTranslationsForField(string $field, ?string $arabicText = null): array
+    public function resolveTranslationsForField(string $field, ?string $sourceText = null): array
     {
-        $arabicText = trim((string) ($arabicText ?? $this->{$field} ?? ''));
+        $sourceText = trim((string) ($sourceText ?? $this->{$field} ?? ''));
 
         if (session()->has("{$field}_translations")) {
             return session("{$field}_translations");
         }
 
-        return $arabicText !== '' ? $this->translationsForText($arabicText) : [];
+        return $sourceText !== '' ? $this->translationsForText($sourceText) : [];
     }
 
     /**
      * جلب ترجمات كل الحقول القابلة للترجمة دفعة واحدة.
-     *
-     * @return array<string, array<string, string|null>>
-     *
-     * @example
-     * // $category->resolveAllTranslations()
-     * // => ['name' => ['en' => '...', 'tr' => '...'], 'description' => [...]]
      */
-    public function resolveAllTranslations(?array $arabicTexts = null): array
+    public function resolveAllTranslations(?array $sourceTexts = null): array
     {
         $translations = [];
 
         foreach ($this->getTranslatableAttributes() as $field) {
-            $arabicText = isset($arabicTexts[$field]) ? trim((string) $arabicTexts[$field]) : null;
-            $translations[$field] = $this->resolveTranslationsForField($field, $arabicText);
+            $sourceText = isset($sourceTexts[$field]) ? trim((string) $sourceTexts[$field]) : null;
+            $translations[$field] = $this->resolveTranslationsForField($field, $sourceText);
         }
 
         return $translations;
@@ -341,10 +291,6 @@ trait Translatable
 
     /**
      * تحميل ملف JSON للغة معيّنة مع Cache لمدة 10 دقائق.
-     *
-     * @example
-     * // loadJsonTranslationsForLocale('en')
-     * // => ['ملابس' => 'Clothes', 'إلكترونيات' => 'Electronics']
      */
     protected function loadJsonTranslationsForLocale(string $locale): array
     {
@@ -360,13 +306,7 @@ trait Translatable
     }
 
     /**
-     * تنظيف النص العربي ليصبح مفتاحاً صالحاً في JSON.
-     *
-     * يزيل HTML والفراغات الزائدة قبل استخدامه كمفتاح.
-     *
-     * @example
-     * // cleanTextForJsonKey('  ملابس  ') => "ملابس"
-     * // cleanTextForJsonKey('<b>ملابس</b>') => "ملابس"
+     * تنظيف النص الإنجليزي ليصبح مفتاحاً صالحاً في JSON.
      */
     protected function cleanTextForJsonKey(string $text): string
     {

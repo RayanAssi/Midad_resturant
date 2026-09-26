@@ -29,10 +29,9 @@ class MenuItemController extends Controller
 
     public function create()
     {
-        $menuItem = new MenuItem();
-        return view('admin.menu-items.create', [
-            'menuItem' => $menuItem,
-        ]);
+        $item = new MenuItem;
+
+        return view('admin.menu-items.create', compact('item'));
     }
 
     public function store(Request $request)
@@ -73,20 +72,11 @@ class MenuItemController extends Controller
 
     public function edit(MenuItem $menuItem)
     {
-        return view('admin.menu-items.edit', [
-            'item' => $menuItem,
-            /* 'translations' => [
-                'name' => session(
-                    'name.translations',
-                    $menuItem->translationsForText($menuItem)
-                ),
-                'category' => session(
-                    'category.translations',
-                    $menuItem->translationsForText($menuItem)
-                ),
-            ] */
-        ]);
+        $item = $menuItem;
+
+        return view('admin.menu-items.edit', compact('item'));
     }
+
     public function update(Request $request, MenuItem $menuItem)
     {
         // Validate the incoming request data

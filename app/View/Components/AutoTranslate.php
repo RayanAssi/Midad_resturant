@@ -46,11 +46,11 @@ class AutoTranslate extends Component
         }
 
         if ($model && in_array(Translatable::class, class_uses_recursive($model), true)) {
-            $arabicText = trim((string) old($field, ''));
+            $sourceText = trim((string) old($field, ''));
 
             return $model->resolveTranslationsForField(
                 $field,
-                $arabicText !== '' ? $arabicText : null
+                $sourceText !== '' ? $sourceText : null
             );
         }
 
@@ -61,7 +61,7 @@ class AutoTranslate extends Component
     {
         return match ($field) {
             'name' => 'ترجمات الاسم',
-            'description' => 'ترجمات الوصف',
+            'category' => 'ترجمات الفئة',
             default => 'ترجمات ' . str_replace('_', ' ', $field),
         };
     }

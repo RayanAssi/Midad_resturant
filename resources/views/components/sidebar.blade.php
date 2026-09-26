@@ -39,9 +39,14 @@
         @foreach ($items as $item)
             @php
                 $isActive = request()->routeIs($item['active'] ?? '');
+                // ✅ الحل: استخدم LaravelLocalization
+                $url = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getLocalizedURL(
+                    app()->getLocale(),
+                    route($item['route'], [], false)
+                );
             @endphp
 
-            <a href="{{ route($item['route']) }}"
+            <a href="{{ $url }}"
                 class="group flex items-center gap-3 px-3 py-4 rounded-lg
                       text-sm font-medium
                       transition-colors duration-150
@@ -93,8 +98,6 @@
     </nav>
 
     {{-- Logout --}}
-    {{-- Logout Button --}}
-
     <div class="border-t border-[#34090a] p-3">
         @auth
             <button type="button" onclick="openLogoutModal()"
@@ -113,6 +116,4 @@
         @endauth
     </div>
 
-
 </aside>
-{{-- <x-logout-modal /> --}}
