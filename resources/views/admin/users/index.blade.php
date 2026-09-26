@@ -23,136 +23,137 @@
         </a>
     </div>
 
-   {{-- STATS — 4 بطاقات --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    {{-- STATS — 4 بطاقات --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-    {{-- Total Employees --}}
-    <div class="relative overflow-hidden rounded-2xl
-                bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                border-2 border-red-800/30
-                shadow-2xl shadow-red-900/20
-                p-5">
-        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
-                    bg-amber-500/10 blur-2xl pointer-events-none"></div>
-
-        <div class="relative">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
-                    Total Employees
-                </span>
-                <div class="p-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                    <x-lucide-users class="w-3.5 h-3.5 text-amber-300" />
-                </div>
-            </div>
-
-            <div class="text-2xl font-black text-amber-50 leading-tight">
-                {{ number_format($total, 0) }}
-            </div>
-
-            <div class="flex items-center gap-1.5 mt-2">
-                <span class="text-[10px] px-2 py-0.5 rounded-full
-                             bg-amber-500/15 text-amber-200 border border-amber-400/30">
-                    all time
-                </span>
-            </div>
-        </div>
-    </div>
-
-    {{-- Deleted --}}
-    <div class="relative overflow-hidden rounded-2xl
-                bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                border-2 border-red-800/40
-                shadow-2xl shadow-red-900/30
-                p-5">
-        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
-                    bg-red-500/10 blur-2xl pointer-events-none"></div>
-
-        <div class="relative">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-bold text-red-300/80 uppercase tracking-widest">
-                    Deleted
-                </span>
-                <div class="p-1.5 rounded-lg bg-red-500/10 border border-red-400/30">
-                    <x-lucide-user-x class="w-3.5 h-3.5 text-red-300" />
-                </div>
-            </div>
-
-            <div class="text-2xl font-black text-red-50 leading-tight">
-                {{ number_format($trashedCount, 0) }}
-            </div>
-
-            <div class="flex items-center gap-1.5 mt-2">
-                <span class="text-[10px] px-2 py-0.5 rounded-full
-                             bg-red-500/15 text-red-200 border border-red-400/30">
-                    trashed
-                </span>
-            </div>
-        </div>
-    </div>
-
-   {{-- Added Today --}}
-    <div class="relative overflow-hidden rounded-2xl
-            bg-gradient-to-br from-gray-900 via-gray-800 to-black
-            border-2 border-emerald-800/30
-            shadow-2xl shadow-emerald-900/20
-            p-5">
+        {{-- Total Employees --}}
+        <div class="relative overflow-hidden rounded-2xl
+                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                    border-2 border-red-800/30
+                    shadow-2xl shadow-red-900/20
+                    p-5">
             <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
-                bg-emerald-500/10 blur-2xl pointer-events-none"></div>
+                        bg-amber-500/10 blur-2xl pointer-events-none"></div>
 
-    <div class="relative">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-[10px] font-bold text-emerald-300/80 uppercase tracking-widest">
-                Added Today
-            </span>
-            <div class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-400/30">
-                <x-lucide-calendar class="w-3.5 h-3.5 text-emerald-300" />
-            </div>
-        </div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
+                        Total Employees
+                    </span>
+                    <div class="p-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                        <x-lucide-users class="w-3.5 h-3.5 text-amber-300" />
+                    </div>
+                </div>
 
-        <div class="text-2xl font-black text-emerald-50 leading-tight">
-            {{ number_format($todayCount, 0) }}
-        </div>
+                <div class="text-2xl font-black text-amber-50 leading-tight">
+                    {{ number_format($total, 0) }}
+                </div>
 
-        <div class="flex items-center gap-1.5 mt-2">
-            <span class="text-[10px] px-2 py-0.5 rounded-full
-                        bg-emerald-500/15 text-emerald-200 border border-emerald-400/30">
-                today
-            </span>
-        </div>
-    </div>
-</div>
-    {{-- Current Page --}}
-    <div class="relative overflow-hidden rounded-2xl
-                bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                border-2 border-red-800/30
-                shadow-2xl shadow-red-900/20
-                p-5">
-        <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
-                    bg-red-500/10 blur-2xl pointer-events-none"></div>
-
-        <div class="relative">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
-                    Showing
-                </span>
-                <div class="p-1.5 rounded-lg bg-red-500/10 border border-red-400/30">
-                    <x-lucide-list class="w-3.5 h-3.5 text-red-300" />
+                <div class="flex items-center gap-1.5 mt-2">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full
+                                 bg-amber-500/15 text-amber-200 border border-amber-400/30">
+                        all time
+                    </span>
                 </div>
             </div>
+        </div>
 
-            <div class="text-2xl font-black text-amber-50 leading-tight">
-                {{ $users->count() }}
+        {{-- Deleted --}}
+        <div class="relative overflow-hidden rounded-2xl
+                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                    border-2 border-red-800/40
+                    shadow-2xl shadow-red-900/30
+                    p-5">
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
+                        bg-red-500/10 blur-2xl pointer-events-none"></div>
+
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-red-300/80 uppercase tracking-widest">
+                        Deleted
+                    </span>
+                    <div class="p-1.5 rounded-lg bg-red-500/10 border border-red-400/30">
+                        <x-lucide-user-x class="w-3.5 h-3.5 text-red-300" />
+                    </div>
+                </div>
+
+                <div class="text-2xl font-black text-red-50 leading-tight">
+                    {{ number_format($trashedCount, 0) }}
+                </div>
+
+                <div class="flex items-center gap-1.5 mt-2">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full
+                                 bg-red-500/15 text-red-200 border border-red-400/30">
+                        trashed
+                    </span>
+                </div>
             </div>
+        </div>
 
-            <div class="flex items-center gap-1.5 mt-2">
-                <span class="text-[10px] px-2 py-0.5 rounded-full
-                             bg-red-500/15 text-red-200 border border-red-400/30">
-                    this page
-                </span>
+        {{-- Added Today --}}
+        <div class="relative overflow-hidden rounded-2xl
+                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                    border-2 border-emerald-800/30
+                    shadow-2xl shadow-emerald-900/20
+                    p-5">
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
+                        bg-emerald-500/10 blur-2xl pointer-events-none"></div>
+
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-emerald-300/80 uppercase tracking-widest">
+                        Added Today
+                    </span>
+                    <div class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-400/30">
+                        <x-lucide-calendar class="w-3.5 h-3.5 text-emerald-300" />
+                    </div>
+                </div>
+
+                <div class="text-2xl font-black text-emerald-50 leading-tight">
+                    {{ number_format($todayCount, 0) }}
+                </div>
+
+                <div class="flex items-center gap-1.5 mt-2">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full
+                                 bg-emerald-500/15 text-emerald-200 border border-emerald-400/30">
+                        today
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Current Page --}}
+        <div class="relative overflow-hidden rounded-2xl
+                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                    border-2 border-red-800/30
+                    shadow-2xl shadow-red-900/20
+                    p-5">
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full
+                        bg-red-500/10 blur-2xl pointer-events-none"></div>
+
+            <div class="relative">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
+                        Showing
+                    </span>
+                    <div class="p-1.5 rounded-lg bg-red-500/10 border border-red-400/30">
+                        <x-lucide-list class="w-3.5 h-3.5 text-red-300" />
+                    </div>
+                </div>
+
+                <div class="text-2xl font-black text-amber-50 leading-tight">
+                    {{ $users->count() }}
+                </div>
+
+                <div class="flex items-center gap-1.5 mt-2">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full
+                                 bg-red-500/15 text-red-200 border border-red-400/30">
+                        this page
+                    </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     {{-- FILTER --}}
     <form method="GET"
@@ -172,10 +173,11 @@
                 </h3>
             </div>
 
-            @if (request('search') || request('phone') || request('position'))
+            @if (request('search') || request('phone') || request('position') || request('role'))
                 <a href="{{ route('admin.users.index') }}"
                    class="inline-flex items-center gap-1.5 text-xs text-amber-300
                           hover:text-amber-100 font-bold
+                          underline underline-offset-4
                           transition-colors">
                     <x-lucide-x class="w-3.5 h-3.5" />
                     Clear all
@@ -238,6 +240,35 @@
                               text-amber-100 placeholder-amber-200/30 text-sm
                               focus:outline-none focus:border-amber-600/60
                               transition-colors" />
+            </div>
+
+            {{-- Role --}}
+            <div class="flex items-center gap-2">
+                <label for="role"
+                       class="flex items-center gap-1.5 text-[10px] font-bold
+                              text-amber-300/80 uppercase tracking-widest
+                              whitespace-nowrap">
+                    Role
+                </label>
+
+                <select name="role" id="role"
+                        class="w-40 px-3 py-2 rounded-lg bg-black/50
+                               border-2 border-red-800/30
+                               text-amber-100 text-sm
+                               focus:outline-none focus:border-amber-600/60
+                               transition-colors">
+                    <option value="" class="bg-gray-900 text-amber-200">
+                        All Roles
+                    </option>
+
+                    @foreach ($roles as $role)
+                        <option value="{{ $role }}"
+                                class="bg-gray-900 text-amber-200"
+                                @selected(request('role') === $role)>
+                            {{ ucfirst($role) }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             {{-- Apply --}}

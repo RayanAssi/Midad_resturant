@@ -165,55 +165,79 @@
         </div>
     </div>
 
-    {{-- STATS ROW --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    {{-- ✅ ROLES — عرض كامل --}}
+    <div class="relative overflow-hidden rounded-2xl
+                bg-gradient-to-br from-gray-900 via-gray-800 to-black
+                border-2 border-amber-800/30
+                shadow-2xl shadow-amber-900/20
+                p-6">
+        <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full
+                    bg-amber-500/10 blur-3xl pointer-events-none"></div>
 
-        {{-- Orders Count --}}
-        <div class="relative overflow-hidden rounded-2xl
-                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                    border-2 border-red-800/30
-                    shadow-2xl shadow-red-900/20
-                    p-5">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
-                    Orders
-                </span>
-                <div class="p-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                    <x-lucide-receipt class="w-3.5 h-3.5 text-amber-300" />
+        <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                        <x-lucide-shield-check class="w-4 h-4 text-amber-300" />
+                    </div>
+                    <span class="text-xs font-bold text-amber-300/80 uppercase tracking-widest">
+                        Roles & Permissions
+                    </span>
                 </div>
+
+                @if ($user->roles->count())
+                    <span class="text-[10px] px-2.5 py-1 rounded-full
+                                 bg-amber-500/15 text-amber-200 border border-amber-400/30 font-bold">
+                        {{ $user->roles->count() }} {{ Str::plural('role', $user->roles->count()) }}
+                    </span>
+                @endif
             </div>
 
-            <div class="text-2xl font-black text-transparent bg-clip-text
-                        bg-gradient-to-r from-amber-300 to-red-400 leading-tight">
-                {{ $user->orders()->count() }}
-            </div>
-            <div class="text-amber-200/50 text-xs mt-1">
-                total orders
-            </div>
-        </div>
-
-        {{-- Expenses Count --}}
-        <div class="relative overflow-hidden rounded-2xl
-                    bg-gradient-to-br from-gray-900 via-gray-800 to-black
-                    border-2 border-red-800/30
-                    shadow-2xl shadow-red-900/20
-                    p-5">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest">
-                    Expenses
-                </span>
-                <div class="p-1.5 rounded-lg bg-orange-500/10 border border-orange-400/30">
-                    <x-lucide-wallet class="w-3.5 h-3.5 text-orange-300" />
+            {{-- Roles --}}
+            @if ($user->roles->count())
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($user->roles as $role)
+                        <span class="inline-flex items-center gap-2
+                                     text-sm px-4 py-2 rounded-xl
+                                     bg-gradient-to-r from-amber-600/20 to-orange-600/20
+                                     text-amber-200 border border-amber-500/40
+                                     font-bold tracking-wider">
+                            <x-lucide-shield class="w-4 h-4" />
+                            {{ $role->name }}
+                        </span>
+                    @endforeach
                 </div>
-            </div>
+            @else
+                <div class="flex items-center gap-2 text-red-300/70 py-2">
+                    <x-lucide-shield-off class="w-5 h-5" />
+                    <span class="text-sm italic">No roles assigned to this employee</span>
+                </div>
+            @endif
 
-            <div class="text-2xl font-black text-transparent bg-clip-text
-                        bg-gradient-to-r from-amber-300 to-red-400 leading-tight">
-                {{ $user->expenses()->count() }}
-            </div>
-            <div class="text-amber-200/50 text-xs mt-1">
-                total expenses recorded
-            </div>
+            {{-- Direct Permissions --}}
+            @if ($user->getDirectPermissions()->count())
+                <div class="mt-5 pt-5 border-t border-amber-700/30">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-bold text-orange-300/80 uppercase tracking-widest">
+                            Direct Permissions
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full
+                                     bg-orange-500/15 text-orange-200 border border-orange-400/30 font-bold">
+                            {{ $user->getDirectPermissions()->count() }}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($user->getDirectPermissions() as $perm)
+                            <span class="text-xs px-3 py-1 rounded-full
+                                         bg-orange-600/20 text-orange-200 border border-orange-500/40
+                                         font-semibold">
+                                {{ $perm->name }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

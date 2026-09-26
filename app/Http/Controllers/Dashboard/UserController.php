@@ -14,44 +14,58 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $query = User::withTrashed()
-            ->where('role', 'employee')
-            ->with('roles');
+   public function index(Request $request)
+{
+    $query = User::withTrashed()
+        ->where('role', 'employee')
+        ->with('roles');
 
-            if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        if ($request->filled('phone')) {
-            $query->where('phone', 'like', '%' . $request->phone . '%');
-        }
-
-        if ($request->filled('position')) {
-            $query->where('position', 'like', '%' . $request->position . '%');
-        }
-
-        $users = $query
-            ->orderByRaw('deleted_at IS NOT NULL ASC')
-            ->latest('id')
-            ->paginate(15)
-            ->withQueryString();
-
-        // الإحصائيات
-        $total        = User::where('role', 'employee')->count();                     
-        $todayCount   = User::where('role', 'employee')->whereDate('created_at', today())->count();
-        $trashedCount = User::onlyTrashed()->where('role', 'employee')->count();      
-        return view('admin.users.index', [
-            'users'        => $users,
-            'total'        => $total,
-            'todayCount'   => $todayCount,
-            'trashedCount' => $trashedCount,
-        ]);
+    // ═══ Search — name + email ═══
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+        });
     }
+
+    if ($request->filled('phone')) {
+        $query->where('phone', 'like', '%' . $request->phone . '%');
+    }
+
+    if ($request->filled('position')) {
+        $query->where('position', 'like', '%' . $request->position . '%');
+    }
+
+    if ($request->filled('role')) {
+        $query->whereHas('roles', function ($q) use ($request) {
+            $q->where('name', $request->role)
+              ->where('guard_name', 'web');
+        });
+    }
+
+    $users = $query
+        ->orderByRaw('deleted_at IS NOT NULL ASC')
+        ->latest('id')
+        ->paginate(15)
+        ->withQueryString();
+
+    // الإحصائيات
+    $total        = User::where('role', 'employee')->count();
+    $todayCount   = User::where('role', 'employee')->whereDate('created_at', today())->count();
+    $trashedCount = User::onlyTrashed()->where('role', 'employee')->count();
+
+    $roles = Role::where('guard_name', 'web')
+        ->orderBy('name')
+        ->pluck('name');
+
+    return view('admin.users.index', [
+        'users'        => $users,
+        'total'        => $total,
+        'todayCount'   => $todayCount,
+        'trashedCount' => $trashedCount,
+        'roles'        => $roles, 
+    ]);
+}
 
     /**
      * Show the form for creating a new resource.
