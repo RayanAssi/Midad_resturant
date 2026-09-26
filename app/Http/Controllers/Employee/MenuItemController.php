@@ -121,7 +121,7 @@ class MenuItemController extends Controller
             $data = $request->only(['name', 'price', 'category']);
 
             if ($request->hasFile('image')) {
-                // احذف الصورة القديمة
+                
                 if ($item->image && Storage::disk('public')->exists($item->image)) {
                     Storage::disk('public')->delete($item->image);
                 }
@@ -139,9 +139,7 @@ class MenuItemController extends Controller
         }
     }
 
-    /**
-     * حذف صنف
-     */
+    
     public function destroy($id)
     {
         $item = MenuItem::find($id);
