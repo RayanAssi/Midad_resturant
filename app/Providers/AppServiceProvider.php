@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
 
         Auth::provider('employee', function ($app, array $config) {
             return new EmployeeUserProvider($app['hash'], $config['model']);
+        });
+        Password::defaults(function () {
+            return Password::min(8)
+                ->letters()      
+                ->mixedCase()     
+                ->numbers()      
+                ->symbols()      
+                ->uncompromised();
         });
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -15,10 +16,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query()->where('role', 'employee')->with('roles');
+        $query = User::withTrashed()
+            ->where('role', 'employee')
+            ->with('roles');
 
-        // ═══ 1) Search — name + email ═══
-        if ($request->filled('search')) {
+            if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('email', 'like', '%' . $request->search . '%');
@@ -33,15 +35,21 @@ class UserController extends Controller
             $query->where('position', 'like', '%' . $request->position . '%');
         }
 
-        $users = $query->latest()->paginate(15)->withQueryString();
+        $users = $query
+            ->orderByRaw('deleted_at IS NOT NULL ASC')
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
 
-        $total      = User::where('role', 'employee')->count();
-        $todayCount = User::where('role', 'employee')->whereDate('created_at', today())->count();
-
+        // الإحصائيات
+        $total        = User::where('role', 'employee')->count();                     
+        $todayCount   = User::where('role', 'employee')->whereDate('created_at', today())->count();
+        $trashedCount = User::onlyTrashed()->where('role', 'employee')->count();      
         return view('admin.users.index', [
-            'users'      => $users,
-            'total'      => $total,
-            'todayCount' => $todayCount,
+            'users'        => $users,
+            'total'        => $total,
+            'todayCount'   => $todayCount,
+            'trashedCount' => $trashedCount,
         ]);
     }
 
@@ -57,7 +65,7 @@ class UserController extends Controller
             ->orderBy('position')
             ->pluck('position');
 
-        
+
         $roles = Role::all();
 
         return view('admin.users.create', compact('positions', 'roles'));
@@ -71,7 +79,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password'     => ['required', 'string', 'min:8', 'confirmed'],
+            'password'     => ['required', 'string', 'min:8', 'confirmed', Password::defaults()],
             'position'     => ['required', 'string', 'max:255'],
             'phone'        => ['required', 'string', 'max:20'],
             'country_code' => ['nullable', 'string', 'max:6'],
@@ -89,19 +97,19 @@ class UserController extends Controller
 
         unset($data['country_code']);
 
-        
+
         $roles = $data['roles'] ?? [];
         unset($data['roles']);
 
         $user = User::create($data);
 
         if (!empty($roles)) {
-        $roleModels = Role::whereIn('name', $roles)
-            ->where('guard_name', 'web')
-            ->get();
+            $roleModels = Role::whereIn('name', $roles)
+                ->where('guard_name', 'web')
+                ->get();
 
-        $user->syncRoles($roleModels);
-    }
+            $user->syncRoles($roleModels);
+        }
 
         return redirect()
             ->route('admin.users.index')
@@ -139,7 +147,7 @@ class UserController extends Controller
             ->orderBy('position')
             ->pluck('position');
 
-        
+
         $roles     = Role::all();
         $userRoles = $user->roles->pluck('name')->toArray();
 
@@ -163,7 +171,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password'     => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password'     => ['nullable', 'string', 'min:8', 'confirmed', Password::defaults()],
             'position'     => ['required', 'string', 'max:255'],
             'phone'        => ['required', 'string', 'max:20'],
             'country_code' => ['nullable', 'string', 'max:6'],
@@ -181,17 +189,17 @@ class UserController extends Controller
 
         unset($data['country_code']);
 
-        
+
         $roles = $data['roles'] ?? [];
         unset($data['roles']);
 
         $user->update($data);
 
         $roleModels = Role::whereIn('name', $roles)
-        ->where('guard_name', 'web')
-        ->get();
+            ->where('guard_name', 'web')
+            ->get();
 
-    $user->syncRoles($roleModels);
+        $user->syncRoles($roleModels);
 
         return redirect()
             ->route('admin.users.index')
@@ -216,5 +224,28 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'Employee deleted successfully.');
+    }
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        if ($user->role !== 'employee') {
+            abort(404);
+        }
+        $user->restore();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Employee restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        if ($user->role !== 'employee') {
+            abort(404);
+        }
+        $user->forceDelete();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Employee permanently deleted.');
     }
 }

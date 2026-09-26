@@ -63,52 +63,85 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- Current Password --}}
                     <div>
                         <label class="block text-[11px] font-bold text-amber-200/60 uppercase tracking-wider mb-2">
                             Current Password
                         </label>
-                        <input type="password" name="current_password"
-                            autocomplete="current-password"
-                            class="w-full px-4 py-2.5 rounded-xl text-sm
-                                   bg-black/40 border @error('current_password') border-red-500/50 @else border-white/[0.08] @enderror
-                                   text-amber-50 placeholder-amber-200/20
-                                   focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
-                                   transition-all duration-200"
-                            placeholder="Enter your current password">
+                        <div class="relative">
+                            <input type="password" name="current_password" data-password-input
+                                autocomplete="current-password"
+                                class="password-input w-full pl-4 pr-12 py-2.5 rounded-xl text-sm
+                                       bg-black/40 border @error('current_password') border-red-500/50 @else border-white/[0.08] @enderror
+                                       text-amber-50 placeholder-amber-200/20
+                                       focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
+                                       transition-all duration-200"
+                                placeholder="Enter your current password">
+                            
+                            <button type="button" data-toggle-password
+                                class="absolute inset-y-0 right-0 flex items-center justify-center w-11
+                                       text-amber-200/40 hover:text-amber-400
+                                       focus:outline-none transition-colors duration-200">
+                                <x-lucide-eye class="w-5 h-5" data-eye-open />
+                                <x-lucide-eye-off class="w-5 h-5 hidden" data-eye-closed />
+                            </button>
+                        </div>
                         @error('current_password')
                             <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    {{-- New Password --}}
                     <div>
                         <label class="block text-[11px] font-bold text-amber-200/60 uppercase tracking-wider mb-2">
                             New Password
                         </label>
-                        <input type="password" name="password"
-                            autocomplete="new-password"
-                            class="w-full px-4 py-2.5 rounded-xl text-sm
-                                   bg-black/40 border @error('password') border-red-500/50 @else border-white/[0.08] @enderror
-                                   text-amber-50 placeholder-amber-200/20
-                                   focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
-                                   transition-all duration-200"
-                            placeholder="Enter a new password">
+                        <div class="relative">
+                            <input type="password" name="password" data-password-input
+                                autocomplete="new-password"
+                                class="password-input w-full pl-4 pr-12 py-2.5 rounded-xl text-sm
+                                       bg-black/40 border @error('password') border-red-500/50 @else border-white/[0.08] @enderror
+                                       text-amber-50 placeholder-amber-200/20
+                                       focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
+                                       transition-all duration-200"
+                                placeholder="Enter a new password">
+                            
+                            <button type="button" data-toggle-password
+                                class="absolute inset-y-0 right-0 flex items-center justify-center w-11
+                                       text-amber-200/40 hover:text-amber-400
+                                       focus:outline-none transition-colors duration-200">
+                                <x-lucide-eye class="w-5 h-5" data-eye-open />
+                                <x-lucide-eye-off class="w-5 h-5 hidden" data-eye-closed />
+                            </button>
+                        </div>
                         @error('password')
                             <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    {{-- Confirm New Password --}}
                     <div>
                         <label class="block text-[11px] font-bold text-amber-200/60 uppercase tracking-wider mb-2">
                             Confirm New Password
                         </label>
-                        <input type="password" name="password_confirmation"
-                            autocomplete="new-password"
-                            class="w-full px-4 py-2.5 rounded-xl text-sm
-                                   bg-black/40 border border-white/[0.08]
-                                   text-amber-50 placeholder-amber-200/20
-                                   focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
-                                   transition-all duration-200"
-                            placeholder="Repeat the new password">
+                        <div class="relative">
+                            <input type="password" name="password_confirmation" data-password-input
+                                autocomplete="new-password"
+                                class="password-input w-full pl-4 pr-12 py-2.5 rounded-xl text-sm
+                                       bg-black/40 border border-white/[0.08]
+                                       text-amber-50 placeholder-amber-200/20
+                                       focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10
+                                       transition-all duration-200"
+                                placeholder="Repeat the new password">
+                            
+                            <button type="button" data-toggle-password
+                                class="absolute inset-y-0 right-0 flex items-center justify-center w-11
+                                       text-amber-200/40 hover:text-amber-400
+                                       focus:outline-none transition-colors duration-200">
+                                <x-lucide-eye class="w-5 h-5" data-eye-open />
+                                <x-lucide-eye-off class="w-5 h-5 hidden" data-eye-closed />
+                            </button>
+                        </div>
                     </div>
 
                     <div class="pt-2">
@@ -132,3 +165,51 @@
 
     </div>
 </div>
+
+<style>
+    /* ✅ إصلاح خلفية Chrome عند Autofill */
+    .password-input:-webkit-autofill,
+    .password-input:-webkit-autofill:hover,
+    .password-input:-webkit-autofill:focus,
+    .password-input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #0a0a0a inset !important;
+        box-shadow: 0 0 0 1000px #0a0a0a inset !important;
+        -webkit-text-fill-color: #fef3c7 !important;
+        caret-color: #fef3c7 !important;
+        transition: background-color 5000s ease-in-out 0s !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Firefox */
+    .password-input:-moz-autofill,
+    .password-input:-moz-autofill-preview {
+        filter: none !important;
+        background-color: #0a0a0a !important;
+        color: #fef3c7 !important;
+    }
+
+    /* Safari */
+    .password-input:-webkit-autofill::first-line {
+        color: #fef3c7 !important;
+        font-family: inherit !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const wrapper  = btn.closest('.relative');
+                const input    = wrapper.querySelector('[data-password-input]');
+                const eyeOpen  = btn.querySelector('[data-eye-open]');
+                const eyeOff   = btn.querySelector('[data-eye-closed]');
+                const isHidden = input.type === 'password';
+
+                input.type = isHidden ? 'text' : 'password';
+
+                eyeOpen.classList.toggle('hidden', isHidden);
+                eyeOff.classList.toggle('hidden', !isHidden);
+            });
+        });
+    });
+</script>

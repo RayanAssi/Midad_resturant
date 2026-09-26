@@ -11,8 +11,6 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        // $user = Auth::user();
-        // return view('profile.show', compact('user'));
         // المدير
         if (auth('admin')->check()) {
             return view('admin.profile.show', [
@@ -33,7 +31,6 @@ class ProfileController extends Controller
     {
         $guard = auth('admin')->check() ? 'admin' : 'web';
         $user = auth($guard)->user();
-
         try {
             $validated = $request->validate([
                 'current_password' => ['required', 'current_password:' . $guard],

@@ -79,7 +79,7 @@ Route::middleware('auth:admin')
             Route::get('/', [RoleController::class, 'index'])->name('index');
             Route::get('/create', [RoleController::class, 'create'])->name('create');
             Route::post('/', [RoleController::class, 'store'])->name('store');
-            Route::post('/quick-store', [RoleController::class, 'quickStore'])->name('quick-store'); // ✅
+            Route::post('/quick-store', [RoleController::class, 'quickStore'])->name('quick-store');
             Route::get('/{id}', [RoleController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [RoleController::class, 'edit'])->name('edit');
             Route::put('/{id}', [RoleController::class, 'update'])->name('update');
@@ -96,6 +96,10 @@ Route::middleware('auth:admin')
                 Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
                 Route::put('{user}', [UserController::class, 'update'])->name('update');
                 Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
+                Route::patch('{id}/restore', [UserController::class, 'restore'])
+                    ->name('restore');
+                Route::delete('{id}/force-delete', [UserController::class, 'forceDelete'])
+                    ->name('force-delete');
             });
 
         // Translations
