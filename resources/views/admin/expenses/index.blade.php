@@ -1,8 +1,6 @@
 <x-layouts.admin title="Expenses">
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- HEADER                                                       --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
             <h1 class="text-3xl font-black text-transparent bg-clip-text
@@ -25,9 +23,7 @@
         </a>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- ROW 1 — TODAY (4 بطاقات)                                      --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 
         {{-- Today Expenses --}}
@@ -160,9 +156,7 @@
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- ROW 2 — MONTH NET PROFIT + TOP EXPENSE                        --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 items-stretch">
 
         {{-- Month Net Profit --}}
@@ -256,9 +250,7 @@
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- FILTER                                                       --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     <form method="GET"
           class="mb-6 overflow-hidden rounded-2xl
                  bg-gradient-to-br from-gray-900 via-gray-800 to-black
@@ -343,9 +335,7 @@
         </div>
     </form>
 
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- TABLE                                                        --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
     @php
         $headers = ['#', 'Title', 'Amount', 'Date', 'Added by', 'Actions'];
 
