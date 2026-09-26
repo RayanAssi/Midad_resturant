@@ -160,20 +160,18 @@ class InvoiceController extends Controller
         return view('admin.invoices.edit', compact('invoice'));
     }
 
-    public function update(Request $request, Invoice $invoice)
+   public function update(Request $request, Invoice $invoice)
 {
-    
     $validated = $request->validate([
         'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
         'notes'           => 'nullable|string|max:500',
     ]);
 
-    
     $subtotal = (float) $invoice->subtotal;
     $discount = (float) ($validated['discount_amount'] ?? 0);
     $taxRate  = (float) config('restaurant.tax_rate');
 
-    // ═══ 3) Validation: discount <= subtotal ═══
+    // ═══ Validation: discount <= subtotal ═══
     if ($discount > $subtotal) {
         return back()
             ->withErrors([
@@ -194,17 +192,33 @@ class InvoiceController extends Controller
             ->withInput();
     }
 
-    $invoice->update([
-        'discount_amount' => $discount,
-        'tax_rate'        => $taxRate,      
-        'tax_amount'      => $taxAmt,
-        'total_amount'    => $total,
-        'notes'           => $validated['notes'] ?? null,
-    ]);
+    try {
+        DB::beginTransaction();
 
-    return redirect()
-        ->route('admin.invoices.index')
-        ->with('success', 'Invoice updated successfully');
+        $invoice->update([
+            'discount_amount' => $discount,
+            'tax_rate'        => $taxRate,
+            'tax_amount'      => $taxAmt,
+            'total_amount'    => $total,
+            'notes'           => $validated['notes'] ?? null,
+        ]);
+
+        
+        if ($invoice->order) {
+            $invoice->order->update(['total_amount' => $total]);
+        }
+
+        DB::commit();
+
+       
+        return redirect()
+            ->route('admin.invoices.show', $invoice->id)
+            ->with('flashMessage', 'Invoice updated successfully');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+    }
 }
 
     public function destroy(Invoice $invoice)

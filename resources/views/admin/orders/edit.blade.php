@@ -175,7 +175,7 @@
                                                text-white shadow-lg shadow-green-900/50
                                                transition-all disabled:opacity-40
                                                disabled:cursor-not-allowed">
-                                    ✓ SAVE CHANGES
+                                    ✓ NEXT
                                 </button>
                             </div>
                         </form>

@@ -32,6 +32,7 @@ class RolePermissionSeeder extends Seeder
             'invoices.view',
             'invoices.create',
             'invoices.delete',
+            'invoices.edit',
 
             // Expenses
             'expenses.view',

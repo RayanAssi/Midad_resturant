@@ -108,6 +108,11 @@ Route::middleware('auth')
                     Route::post('/', [InvoiceController::class, 'store'])->name('store');
                 });
 
+                Route::middleware('permission:invoices.edit')->group(function () {
+            Route::get('{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+            Route::put('{invoice}', [InvoiceController::class, 'update'])->name('update');
+        });
+
                 Route::middleware('permission:invoices.view')->group(function () {
                     Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
                 });
