@@ -1,111 +1,105 @@
 @php
     $item = $item ?? new \App\Models\MenuItem();
+    if (!$item) {
+        $item = new \App\Models\MenuItem();
+    }
     $isEdit = $item->exists;
     $translations = $translations ?? [];
-    $translationMessage = session('translation_message');
-    $translationError = session('translation_error');
 @endphp
 
-<form method="POST"
-      id="menuItemForm"
-      action="{{ $isEdit ? route('admin.menu-items.update', $item) : route('admin.menu-items.store') }}"
-      enctype="multipart/form-data"
-      class="space-y-5">
-    @csrf
-    @if ($isEdit)
-        @method('PUT')
-    @endif
+@if (session('translation_message') && !session('translated_field'))
+    <div class="p-3 rounded-lg bg-emerald-950/30 border-2 border-emerald-800/40 mb-3">
+        <p class="text-sm text-emerald-100">{{ session('translation_message') }}</p>
+    </div>
+@endif
 
-    {{-- رسائل الترجمة العامة --}}
-    @if ($translationMessage && !session('translated_field'))
-        <div class="p-3 rounded-lg bg-emerald-950/30 border-2 border-emerald-800/40 flex items-center gap-2 mb-3">
-            <p class="text-sm text-emerald-100">{{ $translationMessage }}</p>
+@if (session('translation_error') && !session('translated_field'))
+    <div class="p-3 rounded-lg bg-red-950/30 border-2 border-red-800/40 mb-3">
+        <p class="text-sm text-red-200">{{ session('translation_error') }}</p>
+    </div>
+@endif
+
+<div>
+    <label for="name" class="block text-sm font-bold text-amber-200/80 mb-2">
+        Name (English) <span class="text-red-500">*</span>
+    </label>
+    <input
+        type="text"
+        name="name"
+        id="name"
+        required
+        value="{{ old('name', $item->name ?? session('name_source', '')) }}"
+        placeholder="Enter item name in English..."
+        class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100 placeholder-amber-200/30 focus:outline-none focus:border-red-600/60 transition-colors"
+    />
+    @error('name')
+        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+    @enderror
+
+    <x-auto-translate
+        group="menu_items"
+        field="name"
+        :model="$item"
+        :translations="$translations['name'] ?? []"
+    />
+</div>
+
+<div>
+    <label class="block text-sm font-bold text-amber-200/80 mb-2">
+        Price (SYP) <span class="text-red-500">*</span>
+    </label>
+    <input type="number" name="price" step="0.01" min="0" value="{{ old('price', $item->price ?? '') }}"
+        required
+        class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100
+               placeholder-amber-200/30 focus:outline-none focus:border-red-600/60 transition-colors" />
+    @error('price')
+        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+    @enderror
+</div>
+
+<div>
+    <label class="block text-sm font-bold text-amber-200/80 mb-2">
+        Category <span class="text-red-500">*</span>
+    </label>
+    <select name="category" required
+        class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100
+               focus:outline-none focus:border-red-600/60">
+        @foreach (\App\Models\MenuItem::categories() as $cat)
+            <option value="{{ $cat }}" @selected(old('category', $item->category ?? '') === $cat)>
+                {{ ucfirst(str_replace('_', ' ', $cat)) }}
+            </option>
+        @endforeach
+    </select>
+    @error('category')
+        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+    @enderror
+</div>
+
+<div>
+    <label class="block text-sm font-bold text-amber-200/80 mb-2">Image</label>
+
+    @if ($isEdit && $item->image)
+        <div class="mb-3 flex items-center gap-3" id="imageBox">
+            <img src="{{ $item->image_url }}" alt="" id="imagePreview"
+                class="w-20 h-20 rounded-lg object-cover border-2 border-red-800/40" />
+            <p class="text-xs text-amber-200/50" id="imageLabel">Current image</p>
+        </div>
+    @else
+        <div class="mb-3 flex items-center gap-3 hidden" id="imageBox">
+            <img id="imagePreview" class="w-20 h-20 rounded-lg object-cover border-2 border-amber-500/60" />
+            <p class="text-xs text-amber-200/50" id="imageLabel">New image preview</p>
         </div>
     @endif
 
-    @if ($translationError && !session('translated_field'))
-        <div class="p-3 rounded-lg bg-red-950/30 border-2 border-red-800/40 flex items-center gap-2 mb-3">
-            <p class="text-sm text-red-200">{{ $translationError }}</p>
-        </div>
-    @endif
-
-    {{-- Name --}}
-    <div>
-        <label class="block text-sm font-bold text-amber-200/80 mb-2">
-            Item Name (English) <span class="text-red-500">*</span>
-        </label>
-        <input type="text" name="name" value="{{ old('name', $item->name ?? '') }}" required
-            class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100
-                   placeholder-amber-200/30 focus:outline-none focus:border-red-600/60 transition-colors" />
-        @error('name')
-            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-        @enderror
-
-        <x-auto-translate group="menu_items" field="name" :model="$item" />
-    </div>
-
-    {{-- Price --}}
-    <div>
-        <label class="block text-sm font-bold text-amber-200/80 mb-2">
-            Price (SYP) <span class="text-red-500">*</span>
-        </label>
-        <input type="number" name="price" step="0.01" min="0" value="{{ old('price', $item->price ?? '') }}"
-            required
-            class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100
-                   placeholder-amber-200/30 focus:outline-none focus:border-red-600/60 transition-colors" />
-        @error('price')
-            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-        @enderror
-    </div>
-
-    {{-- Category --}}
-    <div>
-        <label class="block text-sm font-bold text-amber-200/80 mb-2">
-            Category <span class="text-red-500">*</span>
-        </label>
-        <select name="category" required
-            class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100
-                   focus:outline-none focus:border-red-600/60">
-            @foreach (\App\Models\MenuItem::categories() as $cat)
-                <option value="{{ $cat }}" @selected(old('category', $item->category ?? '') === $cat)>
-                    {{ ucfirst(str_replace('_', ' ', $cat)) }}
-                </option>
-            @endforeach
-        </select>
-        @error('category')
-            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-        @enderror
-    </div>
-
-    {{-- Image --}}
-    <div>
-        <label class="block text-sm font-bold text-amber-200/80 mb-2">Image</label>
-
-        @if ($isEdit && $item->image)
-            <div class="mb-3 flex items-center gap-3" id="imageBox">
-                <img src="{{ $item->image_url }}" alt="" id="imagePreview"
-                    class="w-20 h-20 rounded-lg object-cover border-2 border-red-800/40" />
-                <p class="text-xs text-amber-200/50" id="imageLabel">Current image</p>
-            </div>
-        @else
-            <div class="mb-3 flex items-center gap-3 hidden" id="imageBox">
-                <img id="imagePreview" class="w-20 h-20 rounded-lg object-cover border-2 border-amber-500/60" />
-                <p class="text-xs text-amber-200/50" id="imageLabel">New image preview</p>
-            </div>
-        @endif
-
-        <input type="file" name="image" accept="image/*" id="imageInput"
-            class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100 text-sm
-                   file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-red-700
-                   file:text-amber-50 file:font-bold hover:file:bg-red-600
-                   focus:outline-none focus:border-red-600/60" />
-        @error('image')
-            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-        @enderror
-    </div>
-
-    {{-- ❌ ما في زر حفظ هنا — الزر برّا الفورم في create.blade.php --}}
-</form>
+    <input type="file" name="image" accept="image/*" id="imageInput"
+        class="w-full px-4 py-2.5 rounded-lg bg-black/40 border-2 border-red-800/40 text-amber-100 text-sm
+               file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-red-700
+               file:text-amber-50 file:font-bold hover:file:bg-red-600
+               focus:outline-none focus:border-red-600/60" />
+    @error('image')
+        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+    @enderror
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -121,7 +115,7 @@
 
             if (!file || !file.type.startsWith('image/')) {
                 @if ($isEdit && $item->image)
-                    preview.src = "{{ $item->image_url }}";
+                    preview.src = @json($item->image_url);
                     label.textContent = "Current image";
                 @else
                     box.classList.add('hidden');

@@ -17,7 +17,10 @@ return [
     |
     */
 
+     'base_locale' => 'en',
+    
     'target_locales' => ['ar'],
+
     'groups'=>[
         'menu_items' => \App\Models\MenuItem::class,
     ]
