@@ -17,24 +17,31 @@
             </div>
 
             <div class="p-6">
-                @include('admin.menu-items._form', ['item' => null])
+                <form method="POST"
+                      id="menuItemForm"
+                      action="{{ route('admin.menu-items.store') }}"
+                      enctype="multipart/form-data"
+                      class="space-y-5">
+                    @csrf
 
-                <div class="flex items-center justify-end gap-3 pt-4">
-                    <a href="{{ route('admin.menu-items.index') }}"
-                       class="px-5 py-2 rounded-lg bg-black/40 border-2 border-red-800/40
-                              text-amber-100 hover:border-red-600/60 transition-all">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                            form="menuItemForm"
-                            class="px-6 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-800
-                                   hover:from-red-500 hover:to-red-700 text-amber-50 font-bold
-                                   shadow-lg shadow-red-900/50 transition-all">
-                        Create Item
-                    </button>
-                </div>
+                    @include('admin.menu-items._form')
+
+                    <div class="flex items-center justify-end gap-3 pt-4">
+                        <a href="{{ route('admin.menu-items.index') }}"
+                           class="px-5 py-2 rounded-lg bg-black/40 border-2 border-red-800/40
+                                  text-amber-100 hover:border-red-600/60 transition-all">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="px-6 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-800
+                                       hover:from-red-500 hover:to-red-700 text-amber-50 font-bold
+                                       shadow-lg shadow-red-900/50 transition-all">
+                            Create Item
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-</x-layouts>
+</x-layouts.admin>

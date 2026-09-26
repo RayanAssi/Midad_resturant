@@ -15,134 +15,429 @@ class MenuItemController extends Controller
         $query = MenuItem::query();
 
         if ($request->filled('category')) {
-            $query->where('category', $request->category);
+            $query->where(
+                'category',
+                $request->category
+            );
         }
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where(
+                'name',
+                'like',
+                '%' . $request->search . '%'
+            );
         }
 
-        $items = $query->latest()->paginate(12)->withQueryString();
+        $items = $query
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('admin.menu-items.index', compact('items'));
+        return view(
+            'admin.menu-items.index',
+            compact('items')
+        );
     }
 
+    /**
+     * صفحة Create.
+     */
     public function create()
     {
-        $item = new MenuItem;
+        $item = new MenuItem();
 
-        return view('admin.menu-items.create', compact('item'));
-    }
+        $translations = [
+            'name' => []
+        ];
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'price'    => ['required', 'numeric', 'min:0'],
-            'category' => ['required', 'in:' . implode(',', MenuItem::categories())],
-            'image'    => ['nullable', 'image', 'max:5120'],
-        ]);
+        /*
+         * إذا سبق وضغط المستخدم Translate
+         * تبقى الترجمة موجودة بعد reload.
+         */
+        $nameSource = trim(
+            (string) session('name_source', '')
+        );
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('menu-items', 'public');
+        if ($nameSource !== '') {
+            $translations['name'] =
+                session('name_translations', []);
+
+            /*
+             * إذا ما كانت موجودة بالـ session
+             * نجيبها من JSON.
+             */
+            if (empty($translations['name'])) {
+                $translations['name'] =
+                    $item->translationsForText(
+                        $nameSource
+                    );
+            }
         }
 
-        MenuItem::create($data);
+        /*
+         * old input يأخذ الأولوية.
+         */
+        $oldTranslations =
+            old('name_translations');
+
+        if (is_array($oldTranslations)) {
+            $translations['name'] = array_merge(
+                $translations['name'],
+                $oldTranslations
+            );
+        }
+
+        return view(
+            'admin.menu-items.create',
+            compact(
+                'item',
+                'translations'
+            )
+        );
+    }
+
+    /**
+     * إنشاء Menu Item.
+     */
+    public function store(Request $request)
+    {
+
+
+        $data = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'price' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'category' => [
+                'required',
+                'in:' . implode(
+                    ',',
+                    MenuItem::categories()
+                )
+            ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'max:5120'
+            ],
+        ]);
+
+        /*
+         * الصورة.
+         */
+        if ($request->hasFile('image')) {
+            $data['image'] = $request
+                ->file('image')
+                ->store(
+                    'menu-items',
+                    'public'
+                );
+        }
+
+        /*
+         * إنشاء السجل.
+         */
+        $menuItem = MenuItem::create($data);
+        /*
+         * الآن فقط نحفظ الترجمات.
+         *
+         * يعني الضغط على Translate لوحده
+         * لا يحفظها للعامة.
+         */
+        $translations = $request->input(
+            'name_translations',
+            []
+        );
+
+        if (is_array($translations)) {
+            foreach (
+                $translations as $locale => $translation
+            ) {
+                $translation =
+                    trim((string) $translation);
+
+                if ($translation === '') {
+                    continue;
+                }
+
+                $menuItem->addTranslationToJson(
+                    $menuItem->name,
+                    $locale,
+                    $translation
+                );
+            }
+        }
+
+        /*
+         * تنظيف session بعد الحفظ النهائي.
+         */
+        session()->forget([
+            'name_source',
+            'name_translations'
+        ]);
 
         return redirect()
             ->route('admin.menu-items.index')
-            ->with('success', 'Menu item created successfully.');
+            ->with(
+                'success',
+                'Menu item created successfully.'
+            );
     }
 
     public function show(MenuItem $menuItem)
     {
         $menuItem->loadCount('orders');
 
-        $recentOrders = $menuItem->orders()
+        $recentOrders = $menuItem
+            ->orders()
             ->with('user')
             ->latest()
             ->take(10)
             ->get();
 
-        return view('admin.menu-items.show', [
-            'item' => $menuItem,
-            'recentOrders' => $recentOrders,
-        ]);
+        return view(
+            'admin.menu-items.show',
+            [
+                'item' => $menuItem,
+                'recentOrders' => $recentOrders,
+            ]
+        );
     }
 
+    /**
+     * صفحة Edit.
+     */
     public function edit(MenuItem $menuItem)
     {
         $item = $menuItem;
 
-        return view('admin.menu-items.edit', compact('item'));
+        $translations = [];
+
+        foreach ($item->getTranslatableAttributes() as $attr) {
+
+            $text = trim((string) ($item->{$attr} ?? ''));
+
+            if ($text === '') {
+                continue;
+            }
+
+            $translations[$attr] = $item->translationsForText($text);
+
+            /*
+        |--------------------------------------------------------------------------
+        | إذا كان في old input من validation error
+        |--------------------------------------------------------------------------
+        */
+
+            $oldTranslations = old("{$attr}_translations");
+
+            if (is_array($oldTranslations)) {
+                $translations[$attr] = array_merge(
+                    $translations[$attr] ?? [],
+                    $oldTranslations
+                );
+            }
+        }
+
+        return view('admin.menu-items.edit', compact(
+            'item',
+            'translations'
+        ));
     }
 
-    public function update(Request $request, MenuItem $menuItem)
-    {
-        // Validate the incoming request data
+
+    /**
+     * تحديث Menu Item.
+     */
+    public function update(
+        Request $request,
+        MenuItem $menuItem
+    ) {
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'price'    => ['required', 'numeric', 'min:0'],
-            'category' => ['required', 'in:' . implode(',', MenuItem::categories())],
-            'image'    => ['nullable', 'image', 'max:5120'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'price' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'category' => [
+                'required',
+                'in:' . implode(
+                    ',',
+                    MenuItem::categories()
+                )
+            ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'max:5120'
+            ],
         ]);
 
-        // Store the old values before updating
         $oldName = $menuItem->name;
-        $oldDescription = $menuItem->description; // Ensure this field exists in the MenuItem model
 
-        // Handle the image upload if a new image is provided
+        /*
+         * الصورة.
+         */
         if ($request->hasFile('image')) {
-            // Delete the old image if it exists and is not used by other items
-            if ($menuItem->image && Storage::disk('public')->exists($menuItem->image)) {
-                $usedByOthers = MenuItem::where('image', $menuItem->image)
-                    ->where('id', '!=', $menuItem->id)
+
+            if (
+                $menuItem->image &&
+                Storage::disk('public')
+                ->exists($menuItem->image)
+            ) {
+                $usedByOthers =
+                    MenuItem::where(
+                        'image',
+                        $menuItem->image
+                    )
+                    ->where(
+                        'id',
+                        '!=',
+                        $menuItem->id
+                    )
                     ->exists();
 
-                if (! $usedByOthers) {
-                    Storage::disk('public')->delete($menuItem->image);
+                if (!$usedByOthers) {
+                    Storage::disk('public')
+                        ->delete(
+                            $menuItem->image
+                        );
                 }
             }
 
-            // Generate a unique filename for the new image
-            $filename = Str::slug($data['name']) . '.' . $request->file('image')->getClientOriginalExtension();
+            $filename =
+                Str::slug($data['name'])
+                . '.'
+                . $request
+                ->file('image')
+                ->getClientOriginalExtension();
 
-            if (Storage::disk('public')->exists('menu-items/' . $filename)) {
-                $filename = Str::slug($data['name']) . '-' . time() . '.' . $request->file('image')->getClientOriginalExtension();
+            if (
+                Storage::disk('public')
+                ->exists(
+                    'menu-items/' . $filename
+                )
+            ) {
+                $filename =
+                    Str::slug($data['name'])
+                    . '-'
+                    . time()
+                    . '.'
+                    . $request
+                    ->file('image')
+                    ->getClientOriginalExtension();
             }
 
-            // Store the new image
-            $data['image'] = $request->file('image')->storeAs('menu-items', $filename, 'public');
+            $data['image'] =
+                $request
+                ->file('image')
+                ->storeAs(
+                    'menu-items',
+                    $filename,
+                    'public'
+                );
         }
 
-        // Update the menu item with the validated data
+        /*
+         * تحديث Menu Item.
+         */
         $menuItem->update($data);
 
-        // Update translation keys if the name or description has changed
+        /*
+         * إذا تغير الاسم الإنجليزي:
+         * نقل المفتاح القديم في ملفات JSON
+         * إلى المفتاح الجديد.
+         */
         if ($oldName !== $menuItem->name) {
-            $menuItem->renameTranslationKey($oldName, $menuItem->name);
+            $menuItem->renameTranslationKey(
+                $oldName,
+                $menuItem->name
+            );
         }
 
-        if ($oldDescription !== $menuItem->description) {
-            $menuItem->renameTranslationKey($oldDescription, $menuItem->description);
+        /*
+         * حفظ الترجمات الموجودة في الفورم.
+         *
+         * هذا يحصل فقط عند الضغط على Update.
+         */
+        $translations = $request->input(
+            'name_translations',
+            []
+        );
+
+        if (is_array($translations)) {
+            foreach (
+                $translations as $locale => $translation
+            ) {
+                $translation =
+                    trim((string) $translation);
+
+                if ($translation === '') {
+                    continue;
+                }
+
+                $menuItem->addTranslationToJson(
+                    $menuItem->name,
+                    $locale,
+                    $translation
+                );
+            }
         }
 
-        // Redirect back with a success message
+        /*
+         * تنظيف session بعد Update.
+         */
+        session()->forget([
+            'name_source',
+            'name_translations'
+        ]);
+
         return redirect()
             ->route('admin.menu-items.index')
-            ->with('success', 'Menu item updated successfully.');
+            ->with(
+                'success',
+                'Menu item updated successfully.'
+            );
     }
 
+    /**
+     * حذف Menu Item.
+     */
     public function destroy(MenuItem $menuItem)
     {
         if ($menuItem->image) {
-            Storage::disk('public')->delete($menuItem->image);
+            Storage::disk('public')->delete(
+                $menuItem->image
+            );
         }
+
         $menuItem->deleteTranslationsFromJson();
+
         $menuItem->delete();
 
         return redirect()
             ->route('admin.menu-items.index')
-            ->with('success', 'Menu item deleted successfully.');
+            ->with(
+                'success',
+                'Menu item deleted successfully.'
+            );
     }
 }

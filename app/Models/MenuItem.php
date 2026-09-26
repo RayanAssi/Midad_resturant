@@ -16,7 +16,7 @@ class MenuItem extends Model
 
     public function getTranslatableAttributes(): array
     {
-        return ['name','category'];
+        return ['name'];
     }
 
     protected $casts = [
