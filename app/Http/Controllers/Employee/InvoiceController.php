@@ -74,7 +74,7 @@ class InvoiceController extends Controller
     
     $validated = $request->validate([
         'order_id'        => 'required|exists:orders,id',
-        'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
+        'discount_amount' => 'nullable|numeric|min:0|max:500000.00',
         'notes'           => 'nullable|string|max:500',
     ]);
 
@@ -171,7 +171,7 @@ public function edit(Invoice $invoice)
 public function update(Request $request, Invoice $invoice)
 {
     $validated = $request->validate([
-        'discount_amount' => 'nullable|numeric|min:0|max:9999999.99',
+        'discount_amount' => 'nullable|numeric|min:0|max:500000.00',
         'notes'           => 'nullable|string|max:500',
     ]);
 
