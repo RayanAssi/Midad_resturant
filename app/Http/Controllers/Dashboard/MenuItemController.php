@@ -40,9 +40,7 @@ class MenuItemController extends Controller
         );
     }
 
-    /**
-     * صفحة Create.
-     */
+    
     public function create()
     {
         $item = new MenuItem();
@@ -51,10 +49,7 @@ class MenuItemController extends Controller
             'name' => []
         ];
 
-        /*
-         * إذا سبق وضغط المستخدم Translate
-         * تبقى الترجمة موجودة بعد reload.
-         */
+        
         $nameSource = trim(
             (string) session('name_source', '')
         );
@@ -63,10 +58,7 @@ class MenuItemController extends Controller
             $translations['name'] =
                 session('name_translations', []);
 
-            /*
-             * إذا ما كانت موجودة بالـ session
-             * نجيبها من JSON.
-             */
+            
             if (empty($translations['name'])) {
                 $translations['name'] =
                     $item->translationsForText(
@@ -75,9 +67,7 @@ class MenuItemController extends Controller
             }
         }
 
-        /*
-         * old input يأخذ الأولوية.
-         */
+        
         $oldTranslations =
             old('name_translations');
 
@@ -97,9 +87,7 @@ class MenuItemController extends Controller
         );
     }
 
-    /**
-     * إنشاء Menu Item.
-     */
+
     public function store(Request $request)
     {
 
@@ -132,9 +120,7 @@ class MenuItemController extends Controller
             ],
         ]);
 
-        /*
-         * الصورة.
-         */
+        
         if ($request->hasFile('image')) {
             $data['image'] = $request
                 ->file('image')
@@ -144,16 +130,8 @@ class MenuItemController extends Controller
                 );
         }
 
-        /*
-         * إنشاء السجل.
-         */
         $menuItem = MenuItem::create($data);
-        /*
-         * الآن فقط نحفظ الترجمات.
-         *
-         * يعني الضغط على Translate لوحده
-         * لا يحفظها للعامة.
-         */
+        
         $translations = $request->input(
             'name_translations',
             []
@@ -178,9 +156,7 @@ class MenuItemController extends Controller
             }
         }
 
-        /*
-         * تنظيف session بعد الحفظ النهائي.
-         */
+        
         session()->forget([
             'name_source',
             'name_translations'
@@ -214,9 +190,7 @@ class MenuItemController extends Controller
         );
     }
 
-    /**
-     * صفحة Edit.
-     */
+    
     public function edit(MenuItem $menuItem)
     {
         $item = $menuItem;
@@ -233,11 +207,7 @@ class MenuItemController extends Controller
 
             $translations[$attr] = $item->translationsForText($text);
 
-            /*
-        |--------------------------------------------------------------------------
-        | إذا كان في old input من validation error
-        |--------------------------------------------------------------------------
-        */
+           
 
             $oldTranslations = old("{$attr}_translations");
 
@@ -256,9 +226,7 @@ class MenuItemController extends Controller
     }
 
 
-    /**
-     * تحديث Menu Item.
-     */
+    
     public function update(
         Request $request,
         MenuItem $menuItem
@@ -293,9 +261,7 @@ class MenuItemController extends Controller
 
         $oldName = $menuItem->name;
 
-        /*
-         * الصورة.
-         */
+        
         if ($request->hasFile('image')) {
 
             if (
@@ -356,16 +322,10 @@ class MenuItemController extends Controller
                 );
         }
 
-        /*
-         * تحديث Menu Item.
-         */
+        
         $menuItem->update($data);
 
-        /*
-         * إذا تغير الاسم الإنجليزي:
-         * نقل المفتاح القديم في ملفات JSON
-         * إلى المفتاح الجديد.
-         */
+        
         if ($oldName !== $menuItem->name) {
             $menuItem->renameTranslationKey(
                 $oldName,
@@ -373,11 +333,7 @@ class MenuItemController extends Controller
             );
         }
 
-        /*
-         * حفظ الترجمات الموجودة في الفورم.
-         *
-         * هذا يحصل فقط عند الضغط على Update.
-         */
+        
         $translations = $request->input(
             'name_translations',
             []
@@ -402,9 +358,7 @@ class MenuItemController extends Controller
             }
         }
 
-        /*
-         * تنظيف session بعد Update.
-         */
+        
         session()->forget([
             'name_source',
             'name_translations'
@@ -418,9 +372,7 @@ class MenuItemController extends Controller
             );
     }
 
-    /**
-     * حذف Menu Item.
-     */
+    
     public function destroy(MenuItem $menuItem)
     {
         if ($menuItem->image) {
