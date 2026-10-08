@@ -51,10 +51,12 @@ Route::middleware('auth:admin')
             ->name('two-factor.enable');
         Route::delete('user/two-factor-authentication', [ProfileController::class, 'disableTwoFactor'])
             ->name('two-factor.disable');
-        Route::get('profile/2fa/confirm', function () {
-            return view('admin.auth.confirm-password');
+            
+        // Profile 2FA Confirm
+        Route::get('profile/2fa/confirm/{action}', function ($action) {
+            abort_unless(in_array($action, ['enable', 'disable']), 404);
+            return view('admin.auth.confirm-password', compact('action'));
         })->name('profile.2fa.confirm');
-
         // Menu Items
         Route::resource('menu-items', MenuItemController::class);
 
